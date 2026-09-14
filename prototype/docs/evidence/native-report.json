@@ -153,7 +153,7 @@
 			"ok": true
 		},
 		{
-			"name": "capsule lands on real heightmap collision",
+			"name": "capsule lands on real terrain mesh collision",
 			"ok": true
 		},
 		{
@@ -183,11 +183,171 @@
 		{
 			"name": "physics ray resolves persistent object identity",
 			"ok": true
+		},
+		{
+			"name": "terrain raise uses bounded metric displacement",
+			"ok": true
+		},
+		{
+			"name": "terrain brush has a radial falloff",
+			"ok": true
+		},
+		{
+			"name": "samples outside brush radius remain unchanged",
+			"ok": true
+		},
+		{
+			"name": "terrain edits preserve object transforms and region identity",
+			"ok": true
+		},
+		{
+			"name": "terrain request replay does not stamp twice",
+			"ok": true
+		},
+		{
+			"name": "terrain rejects invalid mode",
+			"ok": true
+		},
+		{
+			"name": "terrain rejects invalid radius",
+			"ok": true
+		},
+		{
+			"name": "terrain rejects invalid strength",
+			"ok": true
+		},
+		{
+			"name": "terrain rejects invalid center",
+			"ok": true
+		},
+		{
+			"name": "terrain rejects invalid target_height",
+			"ok": true
+		},
+		{
+			"name": "terrain rejects invalid extra",
+			"ok": true
+		},
+		{
+			"name": "rejected terrain edits preserve state and history",
+			"ok": true
+		},
+		{
+			"name": "terrain editing requires region ownership",
+			"ok": true
+		},
+		{
+			"name": "undo restores entire terrain stamp",
+			"ok": true
+		},
+		{
+			"name": "redo restores terrain with a new revision",
+			"ok": true
+		},
+		{
+			"name": "new terrain edit invalidates redo history",
+			"ok": true
+		},
+		{
+			"name": "flatten reaches target elevation at full-strength center",
+			"ok": true
+		},
+		{
+			"name": "smooth reads the pre-stamp 3 by 3 neighborhood",
+			"ok": true
+		},
+		{
+			"name": "smoothing is independent of iteration direction",
+			"ok": true
+		},
+		{
+			"name": "brush safely clips at northeast region boundary",
+			"ok": true
+		},
+		{
+			"name": "clamped no-op preserves saved state and revision",
+			"ok": true
+		},
+		{
+			"name": "no-op terrain edit retains redo history",
+			"ok": true
+		},
+		{
+			"name": "edited terrain snapshot saves successfully",
+			"ok": true
+		},
+		{
+			"name": "terrain samples round trip through snapshot within 1e-6",
+			"ok": true
+		},
+		{
+			"name": "loading a snapshot clears both history stacks",
+			"ok": true
+		},
+		{
+			"name": "terrain and object history remains bounded",
+			"ok": true
+		},
+		{
+			"name": "revision limit rejects terrain edit atomically",
+			"ok": true
+		},
+		{
+			"name": "revision limit preserves history after rejected undo",
+			"ok": true
+		},
+		{
+			"name": "V1 snapshot fixture preserves stable object identity and attributes",
+			"ok": true
+		},
+		{
+			"name": "V1 snapshot supports V2 terrain edit and resave without migration",
+			"ok": true
+		},
+		{
+			"name": "terrain synchronization preserves existing object bodies",
+			"ok": true
+		},
+		{
+			"name": "terrain edit updates native Jolt collision elevation",
+			"ok": true
+		},
+		{
+			"name": "terrain edit updates rendered mesh elevation",
+			"ok": true
+		},
+		{
+			"name": "undo updates Jolt terrain collision",
+			"ok": true
+		},
+		{
+			"name": "mesh triangle and Jolt agree within nonplanar cell (81.0, 81.0)",
+			"ok": true
+		},
+		{
+			"name": "mesh triangle and Jolt agree within nonplanar cell (83.0, 83.0)",
+			"ok": true
+		},
+		{
+			"name": "mesh triangle and Jolt agree within nonplanar cell (81.0, 83.0)",
+			"ok": true
+		},
+		{
+			"name": "mesh triangle and Jolt agree within nonplanar cell (83.0, 81.0)",
+			"ok": true
+		},
+		{
+			"name": "height query includes exact northeast boundary sample",
+			"ok": true
+		},
+		{
+			"name": "avatar lands on edited terrain through native physics",
+			"ok": true
 		}
 	],
 	"engine": "4.5.1-stable (official)",
 	"failed": 0,
-	"passed": 46,
+	"passed": 86,
 	"physics": "Jolt Physics",
 	"suite": "native-domain-persistence-physics"
 }

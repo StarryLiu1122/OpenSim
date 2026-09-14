@@ -1,5 +1,6 @@
 extends RefCounted
 const Schema = preload("res://domain/world_schema.gd")
+const TerrainBrush = preload("res://domain/terrain_brush.gd")
 
 var _world: Dictionary
 
@@ -27,7 +28,18 @@ func object(id: String) -> Dictionary:
 func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary:
 	var next := snapshot()
 	var object_id := ""
+	var changed_samples := 0
 	match operation:
+		"SculptTerrain":
+			if next.region.owner_id != actor:
+				return {"error": "Only the region owner may edit terrain."}
+			var sculpted := TerrainBrush.apply(next.terrain, payload)
+			if sculpted.has("error"):
+				return sculpted
+			changed_samples = sculpted.changed_samples
+			if changed_samples == 0:
+				return {"changed": false, "changed_samples": 0, "revision": revision()}
+			next.terrain = sculpted.terrain
 		"CreateObject":
 			if not Schema.exact_keys(payload, ["object"]) or not payload.object is Dictionary:
 				return {"error": "CreateObject requires an object."}
@@ -61,9 +73,9 @@ func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary
 					next.objects[index][key] = payload.patch[key]
 		_:
 			return {"error": "Unknown mutation."}
+	next.revision = revision() + 1
 	var error := Schema.validate(next)
 	if not error.is_empty():
 		return {"error": error}
-	next.revision = revision() + 1
 	_world = next.duplicate(true)
-	return {"id": object_id, "revision": revision()}
+	return {"id": object_id, "revision": revision(), "changed": true, "changed_samples": changed_samples}

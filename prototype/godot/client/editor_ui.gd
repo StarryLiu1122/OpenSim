@@ -6,6 +6,9 @@ signal patch_requested(patch: Dictionary)
 const INK := Color("eef4f0")
 const MUTED := Color("9cb3bb")
 const ACCENT := Color("bee8ce")
+const TerrainPanel = preload("res://client/terrain_panel.gd")
+var inspector_tabs: TabContainer
+var terrain_panel
 var root: Control
 var list: ItemList
 var status: Label
@@ -145,6 +148,7 @@ func _build_list() -> void:
 	count_label = _label("", 12, MUTED)
 	column.add_child(count_label)
 	column.add_child(_button("＋  添加立方体", "create", true))
+	column.add_child(_button("地形编辑", "terrain_mode"))
 	list = ItemList.new()
 	list.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	list.custom_minimum_size.y = 160
@@ -161,9 +165,13 @@ func _build_list() -> void:
 
 func _build_inspector() -> void:
 	var panel := _panel(Rect2(-366, 94, 350, -174), Vector4(1, 0, 1, 1))
+	inspector_tabs = TabContainer.new()
+	inspector_tabs.add_theme_stylebox_override("panel", _style(Color("172e37")))
+	panel.add_child(inspector_tabs)
 	var scroll := ScrollContainer.new()
+	scroll.name = "对象"
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	panel.add_child(scroll)
+	inspector_tabs.add_child(scroll)
 	_inspector = VBoxContainer.new()
 	_inspector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_inspector)
@@ -204,6 +212,12 @@ func _build_inspector() -> void:
 	selection_id = _label("", 10, MUTED)
 	selection_id.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
 	_inspector.add_child(selection_id)
+	var terrain_scroll := ScrollContainer.new()
+	terrain_scroll.name = "地形"
+	terrain_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	inspector_tabs.add_child(terrain_scroll)
+	terrain_panel = TerrainPanel.new()
+	terrain_scroll.add_child(terrain_panel)
 
 func _vector_fields(key: String, limits: Array, names: Array) -> void:
 	var row := HBoxContainer.new()
@@ -231,13 +245,14 @@ func _spin(minimum: float, maximum: float, step: float) -> SpinBox:
 	return spin
 
 func _build_footer() -> void:
-	var tools := _panel(Rect2(-225, -88, 450, 74), Vector4(0.5, 1, 0.5, 1))
+	var tools := _panel(Rect2(-265, -88, 530, 74), Vector4(0.5, 1, 0.5, 1))
 	var row := HBoxContainer.new()
 	tools.add_child(row)
 	mode_button = _button("进入漫游  Tab", "walk")
 	row.add_child(mode_button)
 	row.add_child(_button("聚焦  F", "focus"))
 	row.add_child(_button("撤销  Ctrl+Z", "undo"))
+	row.add_child(_button("重做", "redo"))
 	footer = _label("256 × 256 m  ·  编辑模式", 12, Color("183f35"))
 	root.add_child(footer)
 	footer.anchor_top = 1
@@ -319,6 +334,11 @@ func set_status(text: String, warning: bool = false) -> void:
 func set_walk(active: bool) -> void:
 	mode_button.text = "返回编辑  Esc" if active else "进入漫游  Tab"
 	footer.text = "WASD 移动 · 空格跳跃 · Shift 加速" if active else "256 × 256 m  ·  编辑模式"
+	terrain_panel.apply_button.disabled = active
+
+func set_history(state: Dictionary) -> void:
+	buttons.undo.disabled = state.undo == 0
+	buttons.redo.disabled = state.redo == 0
 
 func typing() -> bool:
 	var focus := root.get_viewport().gui_get_focus_owner()

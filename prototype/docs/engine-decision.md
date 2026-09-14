@@ -1,47 +1,57 @@
-# ADR-001：单区域原型选择 Godot
+# 技术选型与实现决策
 
-日期：2026-09-14。结论：使用 Godot 4.5.1 标准版、Compatibility 渲染器、内置 Jolt、GDScript，先建立本机验证原型。
+适用版本：Region Lab 0.2.0。决策日期：2026-09-14。
 
-## 选择依据
+## 1. 引擎与语言
 
-本次需要的是一个小规模、可编辑、可保存、可自动测试的区域，不以大型城市画面或现有商业游戏资产为首项验收。引擎承担图形、碰撞、角色运动和界面，项目代码承担世界语义、数据校验、命令与持久化。
+选用 Godot 4.5.1 标准版、Compatibility 渲染器、内置 Jolt 物理和 GDScript。图形、界面、输入、场景及碰撞求解由引擎承担；世界数据、编辑规则、命令与存储由项目代码实现。
 
-| 候选 | 本任务判断 | 决定 |
-| --- | --- | --- |
-| Godot | 单一标准版发行包即可运行项目；图形、UI、物理和无界面脚本测试可在同一引擎完成；GameFactory 有明确适配参考 | 采用并实测 |
-| Unity | 也能承接原型，适合已有 Unity 项目、团队经验或资产依赖时；本次未发现必须依赖的 Unity 能力 | 保留为候选，未安装或做等量性能比较 |
-| Unreal Engine | 可作为复杂视觉场景的候选；本次验收不要求其高级画面能力，引入另一套工程不会直接解决世界数据问题 | 暂不采用，未做性能优劣结论 |
-
-这是针对本项目范围和实施成本的选择，不是三个引擎的通用排名。[Godot 功能文档](https://docs.godotengine.org/en/4.5/about/list_of_features.html)、[Unity 安装文档](https://docs.unity3d.com/Manual/GettingStartedInstallingUnity.html)、[Unreal 安装入口](https://dev.epicgames.com/documentation/en-us/unreal-engine/installing-unreal-engine)。
-
-## 版本与语言
-
-固定版本与校验值见 [engine.lock.json](../engine.lock.json)。采用 4.5.1 是为了与 GameFactory 已描述的 Godot 参考组合对齐，不表示它是最新发行版；以后升级需重新运行本项目验证关口。
-
-GDScript 用于引擎侧功能和简单数据服务，使首版只需要一种运行时。C# 源码继续作为语义参考；没有把现有代码机械翻译为 GDScript。Python/FastAPI 和 PostgreSQL 的引入推迟到持久化服务阶段，C++ 待实际热点出现后再评估。
-
-JSON 快照已经满足本次“关闭程序后恢复”的验收。它不替代原计划 M4 的数据库事务、迁移和部署工作，因此 M4 只完成快照部分。
-
-## GameFactory 参考记录
-
-固定参考提交：[378a7a733c0975cdb3b3cd924824652e6bbb66de](https://github.com/OpenDCAI/GameFactory-3A/tree/378a7a733c0975cdb3b3cd924824652e6bbb66de)。参考对象包括 [Godot 适配器](https://github.com/OpenDCAI/GameFactory-3A/tree/378a7a733c0975cdb3b3cd924824652e6bbb66de/engine_adapters/godot)、[工作流程](https://github.com/OpenDCAI/GameFactory-3A/blob/378a7a733c0975cdb3b3cd924824652e6bbb66de/agent_skills/setting_overview.md)和[测试分层](https://github.com/OpenDCAI/GameFactory-3A/blob/378a7a733c0975cdb3b3cd924824652e6bbb66de/agent_skills/develop_harness/README.md)。
-
-| 借鉴的做法 | 当前实现 |
+| 选择依据 | 对应需求 |
 | --- | --- |
-| 为智能体提供稳定的引擎入口 | `WorldService` 的版本化命令，加离线 JSON 批处理入口；UI 也走同一路径 |
-| 结构化返回结果 | 成功、操作名、请求 ID、修订、结果、警告和错误分开返回 |
-| 数据与具体引擎操作分层 | Schema / Model / Service 与 WorldView、Repository 分开 |
-| 不以“代码生成完成”作为验收 | 跑原生物理、实际控件事件、两个独立进程恢复、真实渲染截图 |
-| 先验证低成本契约，再做实际引擎集成 | 数据校验先测；最终仍要求 Jolt、界面及文件系统参与的集成结果 |
+| 标准版可直接运行工程 | 降低本机安装和独立目录复现的依赖数量 |
+| 图形与无界面模式共用工程 | 界面程序、数据测试、物理测试及离线命令共用实现 |
+| 引擎包含场景、UI 和物理能力 | 集中验证区域编辑及角色行为 |
+| GameFactory 提供 Godot 适配参考 | 参考版本化操作入口和测试分层 |
 
-本次借鉴工作方法和接口组织，没有将 GameFactory 整仓库、模型权重、生成资产或其代码作为运行依赖，也没有运行它的完整游戏生成链。原型不具备大模型推理能力；自动化入口先由确定性 JSON 命令验证。
+Unity 和 Unreal Engine 均可作为候选；本项目目前没有必须依赖其特定生态或资产的需求。本次未对三种引擎进行同规模性能比较。选择以当前功能范围、部署成本和验证结果为依据。[Godot 功能文档](https://docs.godotengine.org/en/4.5/about/list_of_features.html)
 
-## 实施中验证出的具体问题
+Godot 精确版本及发行包校验值固定于 [engine.lock.json](../engine.lock.json)。版本升级须通过当前测试集，并重新记录图形、物理和存档行为。
 
-1. 对浮点数重新序列化再计算摘要，可能与第一次写入的文本不一致。改为对存储封装中的原始 `world_json` 字符串计算 SHA256，再校验并解析数据。
-2. 属性框显示精度低于实际存储精度。现在未修改的数值保留原始值，仅改名称不会顺带改变位置。
-3. 将数据北向映射到 Godot 的负 Z，需要反转高度场碰撞数据行序。用实际射线和角色落地测试验证。
-4. Windows PowerShell 5.1 的进程退出码获取及默认文本编码不同于开发终端；脚本固定句柄与 UTF-8 读取，并以该版本进行复验。
-5. 从 PowerShell 7 经 CMD 调用 Windows PowerShell 5.1 时，继承的模块搜索路径会使部分系统命令无法加载。CMD 入口在局部环境中重建系统 PowerShell 模块路径，并保留失败退出码；不修改系统配置。
+## 2. 语言职责
 
-后续更换数据库或增加网络时，保留这些功能验收，不以更换框架代替行为验证。
+| 技术 | 当前职责 | 后续条件 |
+| --- | --- | --- |
+| GDScript | 原型数据服务、引擎适配、界面与测试 | 保留至出现明确的维护或性能需求 |
+| C# | 原 OpenSim 数据与行为参考 | 既有服务复用或协议兼容确有收益时单独评估 |
+| Python | 当前无运行依赖 | 数据库接口或模型服务立项后再引入 |
+| C++ | 使用引擎已实现的原生能力 | 性能剖析确认具体计算热点后评估扩展 |
+
+世界记录采用 JSON 可表达的数据类型，与 Godot 场景节点分离。当前领域代码仍依赖 Godot 的基础类型和运行时；跨语言复用以数据契约为边界。
+
+## 3. 地形碰撞决策
+
+V2 保留高度场作为持久化模型，使用相同顶点与索引生成 `ArrayMesh` 和 `ConcavePolygonShape3D`，碰撞求解仍由 Jolt 承担。高度查询采用与显示网格一致的分片线性插值。
+
+该调整源于非共面格网测试。V1 的 HeightMapShape3D 路径在固定引擎版本下存在与显示网格不同的三角形划分，并在测试样本中产生约厘米级高度量化误差。Godot 的 Jolt 高度场适配包含行反转、镜像及高度编码处理，见 [固定版本实现](https://github.com/godotengine/godot/blob/4.5.1-stable/modules/jolt_physics/shapes/jolt_height_map_shape_3d.cpp)。V2 直接共享三角形数据，相关射线与顶点测试使用 0.002 米容差。
+
+代价是静态三角网格的构建和碰撞成本。当前种子地形为 65×65 个顶点、8,192 个三角形，笔刷修改后整体重建地形网格和碰撞体；物体节点保留。大规模地形应进一步验证分块更新、空间索引和构建耗时。
+
+## 4. 存储决策
+
+V2 沿用单写入者 JSON 快照，世界与存储封装版本均为 1。新增地形命令只修改既有高度数组，故无需迁移字段。V1 样本读取、编辑及再次保存纳入兼容性测试。
+
+数据库服务将在后续版本实施，重点包括修订事务、模式迁移、备份恢复和并发写入。当前文件指纹检查不提供跨进程锁或数据库事务语义。
+
+## 5. GameFactory 参考范围
+
+参考项目为 GameFactory-3A，固定提交 [378a7a733c0975cdb3b3cd924824652e6bbb66de](https://github.com/OpenDCAI/GameFactory-3A/tree/378a7a733c0975cdb3b3cd924824652e6bbb66de)。参考内容包括 [Godot 适配器](https://github.com/OpenDCAI/GameFactory-3A/tree/378a7a733c0975cdb3b3cd924824652e6bbb66de/engine_adapters/godot)、[开发流程](https://github.com/OpenDCAI/GameFactory-3A/blob/378a7a733c0975cdb3b3cd924824652e6bbb66de/agent_skills/setting_overview.md) 和 [测试组织](https://github.com/OpenDCAI/GameFactory-3A/blob/378a7a733c0975cdb3b3cd924824652e6bbb66de/agent_skills/develop_harness/README.md)。
+
+| 参考方法 | 本项目实现 |
+| --- | --- |
+| 稳定的引擎操作入口 | WorldService 统一接收 UI 和离线命令 |
+| 结构化执行结果 | 请求 ID、修订、结果、警告和错误分别返回 |
+| 按职责封装引擎能力 | 数据模型、命令规则、场景、碰撞与存储分层 |
+| 分层验收 | 数据与算法检查、原生物理、界面事件、跨进程恢复及渲染检查 |
+| 面向具体功能组织开发 | 每项变更明确数据语义、修改范围、验收用例和验证记录 |
+
+本项目未引入 GameFactory 源码、权重或生成资产，未执行其完整生成流程。当前自动化入口由确定性 JSON 样例验证，尚未集成在线大模型。

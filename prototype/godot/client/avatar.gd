@@ -7,7 +7,7 @@ var pitch := 0.0
 
 func _ready() -> void:
 	collision_layer = 4
-	collision_mask = 3
+	collision_mask = 11
 	floor_snap_length = 0.35
 	var shape := CapsuleShape3D.new()
 	shape.radius = 0.35

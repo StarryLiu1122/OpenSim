@@ -1,139 +1,161 @@
-# 架构与命令契约
+# 架构与接口规范
 
-当前契约版本为 1。所有示例用于本机受控调用，尚不是可公开访问的网络 API。格式的执行依据为 [world_schema.gd](../godot/domain/world_schema.gd)、[world_service.gd](../godot/domain/world_service.gd) 和 [world_model.gd](../godot/domain/world_model.gd)。
+适用版本：Region Lab 0.2.0。世界格式版本：1；命令协议版本：1。
 
-## 1. 模块边界
+## 1. 模块职责
 
 ```mermaid
-flowchart TD
-    UI[中文编辑界面] --> S[WorldService]
-    CLI[离线 JSON 批处理] --> S
-    S --> V[WorldSchema 校验]
-    S --> M[WorldModel 数据和修订]
+flowchart LR
+    UI[编辑界面] --> S[WorldService]
+    CLI[离线 JSON 命令] --> S
+    S --> M[WorldModel]
+    M --> V[WorldSchema / TerrainBrush]
     S --> R[SnapshotRepository]
-    R --> F[JSON 主文件与备份]
-    M --> W[WorldView 场景适配]
-    W --> G[Godot 网格 / UI / Jolt 碰撞]
-    A[Avatar 输入与运动] --> G
+    R --> F[快照与备份]
+    M --> W[WorldView]
+    W --> G[显示网格与 Jolt 碰撞]
 ```
 
-- **Schema：** 世界和对象的纯数据结构、生成种子场景、完整性检查及 UUID。数据使用 JSON 可表达的值，不包含 Node、NodePath 或原生资源。
-- **Model：** 持有世界快照。对候选副本完成验证后才替换状态，拒绝的编辑不改变当前数据。读写边界都复制容器，防止调用者通过引用绕过修改流程。
-- **Service：** 命令版本、修订检查、单进程重复请求处理、归属校验、撤销、保存恢复、结果与脏状态。
-- **Repository：** 快照封装、大小限制、SHA256、临时写入、回读校验、有效备份与文件替换。
-- **WorldView：** 将持久化 ID 映射为可见网格和碰撞体；集中进行坐标转换。角色由独立的 CharacterBody3D 处理输入、重力、跳跃和碰撞。
-- **main.gd：** 装配模块、相机及 UI 事件；命令成功后更新场景。当前更新会重建相关世界视图，适合小原型；尚未实现大型场景的增量更新。
+| 模块 | 职责 | 主要文件 |
+| --- | --- | --- |
+| WorldSchema | 世界格式、字段边界、标识和完整性校验 | `godot/domain/world_schema.gd` |
+| TerrainBrush | 单次笔刷计算，生成候选高度场 | `godot/domain/terrain_brush.gd` |
+| WorldModel | 数据副本、归属校验、原子状态替换和修订 | `godot/domain/world_model.gd` |
+| WorldService | 命令封装、重复请求、历史、保存恢复 | `godot/domain/world_service.gd` |
+| SnapshotRepository | 文件封装、校验、备份与发布 | `godot/adapters/snapshot_repository.gd` |
+| WorldView | 坐标转换、显示网格、碰撞体与拾取 | `godot/adapters/world_view.gd` |
+| Client | 物体与地形面板、角色输入和相机 | `godot/client/`、`godot/main.gd` |
 
-Domain 使用 Godot 的基础数值和容器类型，独立于场景节点，但仍依赖 Godot 运行时，不是可以直接在 Python 或 C# 中运行的库。将来可以保留 JSON 语义并替换实现。
+世界记录不包含引擎节点。Model 在候选副本上完成校验，通过后替换状态；输入、查询和历史使用独立副本。UI 和离线工具的世界修改统一经过 Service。相机操作不修改持久化世界。
 
 ## 2. 世界格式
 
-根对象字段固定为：
+根字段固定为 `schema_version`、`revision`、`region`、`terrain`、`assets`、`objects`。
 
-| 字段 | 内容 |
+| 字段 | 约束 |
 | --- | --- |
-| `schema_version` | 当前为 1；未知版本被拒绝 |
-| `revision` | 0–1,000,000,000 的整数；成功编辑递增 |
-| `region` | `id`、`name`、`size`、`spawn`、`owner_id` |
-| `terrain` | `columns`、`rows`、`spacing`、`heights` |
-| `assets` | 当前恰好一个内置 box 资产描述 |
-| `objects` | 最多 500 个单部件方块实例 |
+| `schema_version` | 当前为 1，未知版本拒绝读取 |
+| `revision` | 0–1,000,000,000 的整数 |
+| `region` | `id/name/size/spawn/owner_id`；尺寸当前固定 256×256 米 |
+| `terrain` | `columns/rows/spacing/heights`；覆盖范围必须与区域一致，高程 -40–80 米 |
+| `assets` | 当前仅一个固定的 `builtin://unit-box` 描述 |
+| `objects` | 最多 500 个单部件方块；ID 唯一，变换和归属须合法 |
 
-坐标为 `[东, 北, 高]`，单位米；旋转为数据坐标系下的单位四元数 `[x,y,z,w]`。地形大小、采样间距和高程数量必须相符，数值必须有限。未知字段、重复物体 ID、未知资产、越界形状和不合法尺寸会被拒绝。500 是原型输入上限，不是已经测得的性能容量。详细语义见 [OpenSim 对应说明](opensim-data-mapping.md)。
+未知字段、非有限数值、非法资产引用、未归一化旋转和越界形状均被拒绝。500 是输入上限，尚未作为已验证的性能容量。
 
-种子世界在首次运行时生成。区域、内置资产和本机角色身份采用固定的测试 UUID；每个对象具有独立 UUID，首次保存后跨重启保留。固定身份仅用于本机归属验证，不是身份认证机制。
+坐标、字段及 OpenSim 对应关系见 [数据模型说明](opensim-data-mapping.md)。V2 新增地形命令和重做，不增加存档字段；应用版本与数据版本分别管理。
 
-## 3. 命令和结果
+## 3. 命令封装
 
-完整入口是 `WorldService.dispatch(command)`。创建示例：
+进程内入口为 `WorldService.dispatch(command)`：
 
 ```json
 {
   "api_version": 1,
   "request_id": "66666666-6666-4666-8666-666666666666",
-  "operation": "CreateObject",
+  "operation": "SculptTerrain",
   "expected_revision": 0,
   "payload": {
-    "object": {
-      "id": "55555555-5555-4555-8555-555555555555",
-      "name": "自动化方块",
-      "asset_id": "22222222-2222-4222-8222-222222222222",
-      "owner_id": "11111111-1111-4111-8111-111111111111",
-      "position": [120, 120, 2],
-      "rotation": [0, 0, 0, 1],
-      "size": [2, 2, 4],
-      "color": "#50A696"
-    }
+    "mode": "raise",
+    "center": [116, 140],
+    "radius": 12,
+    "strength": 0.5,
+    "target_height": 5
   }
 }
 ```
 
-成功结果的形状：
+`expected_revision` 必须与当前修订一致，包括查询操作。进程内便捷方法 `request(operation, payload)` 自动提供新请求 ID 和当前修订。当前没有网络传输、认证或远程查询握手。
+
+| 操作 | payload | 结果或状态变化 |
+| --- | --- | --- |
+| `GetRegionSnapshot` | `{}` | 返回 `payload.world` 独立副本 |
+| `CreateObject` | `{"object": 完整物体}` | 创建物体，校验归属、资产及变换 |
+| `UpdateObject` | `{"id": "UUID", "patch": 修改字段}` | 可改 name、position、rotation、size、color |
+| `DeleteObject` | `{"id": "UUID"}` | 删除当前身份拥有的物体 |
+| `SculptTerrain` | 笔刷参数，见下节 | 修改区域归属允许的高度场 |
+| `Undo` | `{}` | 撤销最近一次有效编辑 |
+| `Redo` | `{}` | 重做最近撤销的编辑 |
+| `SaveRegion` | `{}` | 保存当前世界，成功后清除未保存标记 |
+| `LoadRegion` | `{}` | 验证并恢复世界，清空历史及请求缓存 |
+
+完整物体样例见 [create-and-save.commands.json](../fixtures/create-and-save.commands.json)。复制和地面放置由客户端组织为创建或修改命令，不单设持久化操作。
+
+结果字段固定为：
 
 ```json
 {
   "api_version": 1,
-  "ok": true,
-  "operation": "CreateObject",
+  "ok": false,
+  "operation": "SculptTerrain",
   "request_id": "66666666-6666-4666-8666-666666666666",
   "revision": 1,
-  "payload": {"id": "55555555-5555-4555-8555-555555555555", "revision": 1},
+  "payload": {},
   "warnings": [],
-  "errors": []
+  "errors": [{"code": "REVISION_CONFLICT", "message": "World changed; query the current revision and retry."}]
 }
 ```
 
-| 操作 | payload | 效果 |
-| --- | --- | --- |
-| `GetRegionSnapshot` | `{}` | 返回独立的 `payload.world` 副本 |
-| `CreateObject` | `{"object": 完整对象}` | 创建并验证资产、所有者和变换 |
-| `UpdateObject` | `{"id": "UUID", "patch": {"name": "新名称"}}` | 只允许修改 name、position、rotation、size、color |
-| `DeleteObject` | `{"id": "UUID"}` | 删除本机身份拥有的对象 |
-| `Undo` | `{}` | 恢复最近一次成功编辑前的数据；最多 30 步 |
-| `SaveRegion` | `{}` | 写入当前完整快照，成功后清除脏状态 |
-| `LoadRegion` | `{}` | 校验并恢复存档，清空撤销历史；必要时回退到备份 |
+常见错误代码为 `INVALID_COMMAND`、`INVALID_PAYLOAD`、`REQUEST_REUSED`、`REVISION_CONFLICT`、`MUTATION_REJECTED`、`SAVE_FAILED`、`LOAD_FAILED`、`NOTHING_TO_UNDO`、`NOTHING_TO_REDO`、`HISTORY_REJECTED` 和 `UNKNOWN_OPERATION`。详细校验原因通过 `message` 返回。
 
-复制、放到地面是客户端组织出的创建/更新命令；它们没有绕过统一入口。API 不支持执行任意 GDScript、加载调用方指定的原生资源或修改所有者。
+## 4. 地形笔刷契约
 
-失败结果保持同一结构，`ok=false`，`errors` 含 `code` 和 `message`。常见代码为 `INVALID_COMMAND`、`INVALID_PAYLOAD`、`REQUEST_REUSED`、`REVISION_CONFLICT`、`MUTATION_REJECTED`、`SAVE_FAILED`、`LOAD_FAILED`、`NOTHING_TO_UNDO`、`UNKNOWN_OPERATION`。数据校验的详细原因在 message 中，界面会展示。
+`SculptTerrain` 必须包含以下五个字段：
 
-### 修订和重试的准确范围
+| 字段 | 范围与含义 |
+| --- | --- |
+| `mode` | `raise`、`lower`、`flatten`、`smooth` |
+| `center` | `[X,Y]`，各分量 0–256 米 |
+| `radius` | 4–32 米 |
+| `strength` | 0.05–1.0，UI 显示为百分比 |
+| `target_height` | -40–80 米；仅 flatten 使用，其它模式保留字段但不使用 |
 
-- `expected_revision` 必须等于当前修订，包括查询操作。进程内调用者可以读取 Model 的 revision；便捷方法 `request(operation, payload)` 自动填入当前修订和新请求 ID。
-- 单个 Service 缓存最近 256 个请求结果。同一 ID、同一内容返回原结果，同一 ID 改内容返回 `REQUEST_REUSED`。
-- 缓存不持久化；恢复存档会清空缓存，载入存档原有 revision，可能比当前内存修订更小。撤销则在当前 revision 上加一。
-- 因此这不是跨重启的 exactly-once 机制，也不能直接用作多人同步版本协议。后续服务器需要增加会话/世界世代、认证、命令排序和持久化的去重规则。
+对半径内采样点，设距中心距离为 `d`，半径为 `r`，强度为 `s`：
 
-## 4. 离线自动化适配器
+```text
+t = 1 - d / r
+w = s × t² × (3 - 2t)
+raise:   h' = h + 8w
+lower:   h' = h - 8w
+flatten: h' = (1-w)h + w × target_height
+smooth:  h' = (1-w)h + w × mean(neighborhood_3x3)
+```
 
-[world_cli.gd](../godot/tools/world_cli.gd) 接受一个 JSON 数组，每项只有 `operation` 和 `payload`。由适配器调用 `request`，自动提供当次进程的请求 ID 与当前修订。示例见 [create-and-save.commands.json](../fixtures/create-and-save.commands.json)，完整启动命令见 [README](../README.md#5-自动化测试与-ai-调用入口)。
+`d >= r` 的采样不参与修改。平滑读取操作开始前的高度数组，区域边缘仅取有效邻点。结果限制在高程范围内并取毫米精度；变化小于或等于 0.0005 米时保留原值。
 
-执行规则：
+一次调用对应一次笔刷印迹。成功结果中 `changed_samples` 为修改点数；无有效变化时 `changed=false`，修订、历史和未保存状态保持不变。超出区域的笔刷覆盖范围被裁切，笔刷中心本身必须在区域内。
 
-1. 必须显式传入世界文件、命令文件和报告文件；拒绝用报告路径覆盖这些输入及存档临时/备份路径。
-2. 命令文件最多 1 MiB，数组为 1–100 项；先校验描述格式，再读取已有世界或生成种子世界。
-3. 按顺序执行，首个失败立即停止，进程退出码为 1；全部成功退出 0。
-4. **只有显式 `SaveRegion` 会持久化。批处理不是事务：如果前面的命令已经保存，后面的失败不会撤回已保存内容。**
-5. 同一示例重复运行可能遇到对象 ID 已存在，需要查询已有状态或使用新的对象 ID。不要在图形程序同时打开同一世界时运行写入批处理。
+## 5. 历史、修订与重复请求
 
-这给未来 AI 工具调用提供了可以实际运行的最小接口。目前没有 HTTP 服务、在线模型推理、自然语言解析或远程调用鉴权。
+- 有效物体或地形编辑增加修订，并记录修改前的世界；历史上限为 30 次。
+- 撤销和重做均使用新的修订值。新有效编辑清空重做分支；无变化的笔刷操作保留该分支。
+- 保存不清除历史。恢复存档清空两个历史栈，并使用存档中的修订；该值可能小于恢复前的内存值。
+- 修订达到上限时，新增编辑及历史操作返回错误，保持数据和历史不变。
+- Service 缓存最近 256 个请求。同一 ID 与相同内容返回原结果，ID 相同但内容不同返回 `REQUEST_REUSED`。
+- 缓存及历史不跨进程持久化。后续多人系统需要另外定义世界世代、服务端排序、身份认证与持久化去重。
 
-## 5. 存储与恢复约定
+当前身份为固定本机测试 UUID。归属校验验证编辑规则，不提供远程访问认证。
 
-磁盘文件是存储封装，字段为 `format="region-lab.snapshot"`、`version=1`、`sha256`、`world_json`。最后一个字段是包含完整世界的 JSON **文本字符串**。SHA256 针对该字符串的 UTF-8 文本计算；校验后再解析世界，不能先重新序列化浮点数再比较摘要。
+## 6. 地形场景同步
 
-每次写入先验证世界，再写 `.tmp`、flush、关闭及回读验证；如果当前主文件有效，再用 `.bak.tmp` 更新备份，最后替换主文件。读取主文件失败时尝试 `.bak`，恢复成功会返回 warning 并将世界标记为需重新保存。两份均无效时，不替换当前内存世界。
+高度场生成共享顶点与索引，显示使用 ArrayMesh，静态碰撞使用 `create_trimesh_shape()` 生成的 ConcavePolygonShape3D。每个格网沿“东南—西北”对角线分为两个三角形；地面查询在对应三角形内作线性插值。
 
-快照上限 8 MiB；不包含临时相机、当前角色位置、选择、撤销历史、模型会话、库存和脚本。摘要用于发现内容损坏，不是防恶意篡改的签名。对外部修改的文件指纹检查是单写入者的辅助保护，检查与替换之间没有跨进程锁；没有验证断电持久性。
+地形变更重建地形显示与碰撞节点，保留物体节点。角色低于新地面时抬至地面上方；恢复时按区域起点和地面高度确定角色位置。物体不会随地形自动移动。
 
-## 6. 如何用 AI 辅助继续开发
+种子地形有 8,192 个三角形。目前采用整块重建，尚无局部块更新和容量优化。选择依据见 [技术选型](engine-decision.md)。
 
-每次给编程智能体一个具体能力及验收，例如“新增受限地形笔刷，保存重启后坡面及碰撞一致”。按以下顺序做：
+## 7. 存储协议
 
-1. 阅读当前数据对应表，明确改变哪个字段、坐标或生命周期；先定义合法和非法样例。
-2. 修改 Schema/Model/Service 契约，再补引擎适配和界面，避免由 UI 直接写场景并另起一份数据。
-3. 跑现有原生检查，并为新行为增加必要的真实碰撞、文件恢复或操作用例。
-4. 有 UI 变化时运行 `-Visual`，检查实际截图；将日志、报告和观察到的问题写进验证记录。
-5. 通过后再提交一个有边界的改动。自动化报告不能替代对界面、体验和功能覆盖范围的判断。
+磁盘封装含 `format="region-lab.snapshot"`、`version=1`、`sha256`、`world_json`。`world_json` 是完整世界的 JSON 文本字符串；SHA256 针对该字符串的 UTF-8 文本计算，验证后再解析世界。
 
-[AGENTS.md](../AGENTS.md) 已把这些规则写入原型目录。GameFactory 的参考版本和借鉴范围见 [选型记录](engine-decision.md)。
+保存顺序为：验证数据 → 写临时文件 → flush 并关闭 → 回读验证 → 更新有效备份 → 替换主文件。损坏主文件不会覆盖有效备份。主文件读取失败时尝试备份；备份恢复返回警告并标记为需要保存。两份文件都无效时不替换内存世界。
+
+快照上限 8 MiB。文件摘要用于损坏检测，不是身份签名。写入前文件指纹可发现已经发生的外部修改，但检查和发布之间没有跨进程锁。断电持久性、多人事务和数据库迁移尚未验证。
+
+## 8. 离线批处理
+
+`godot/tools/world_cli.gd` 接受显式的世界、命令和报告路径。命令文件为最多 1 MiB、1–100 项的 JSON 数组，每项仅含 `operation` 和 `payload`。适配器调用 Service 的便捷入口，自动填充本次进程的请求 ID 与修订。
+
+命令按序执行，首个失败即停止并退出 1；全部成功退出 0。只有显式 `SaveRegion` 才写入世界文件。批处理不是事务，先前已经完成的保存不会因后续失败而回滚。输入、世界及其临时/备份路径不能用作报告输出路径。
+
+样例包括 [物体创建](../fixtures/create-and-save.commands.json) 与 [地形编辑、撤销重做及保存](../fixtures/sculpt-and-save.commands.json)。自动化入口接收限定的数据命令，不执行调用方传入的脚本文本或原生资源。

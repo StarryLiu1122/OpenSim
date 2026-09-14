@@ -1,157 +1,168 @@
-# Region Lab：OpenSim 单区域验证原型
+# Region Lab V2 使用说明
 
-使用 **Godot 4.5.1 标准版 + 内置 Jolt 物理 + GDScript**，实现一个能进入、编辑、保存并在重新启动后恢复的 256×256 米区域。界面与自动化调用共用同一个经过校验的世界命令入口。
+版本：0.2.0。本文适用于 Windows x64 源码运行方式。
 
-本版本为 **本机、单用户、静态方块编辑原型**。包含角色重力/跳跃/碰撞、程序生成地形和方块编辑；尚未实现多人服务器、Firestorm 协议、地形画刷、外部模型导入、库存系统、LSL/OSSL 和 PostgreSQL。
+Region Lab 是基于 Godot 的单区域编辑原型。V2 支持物体编辑、地形编辑、角色漫游、撤销与重做，以及物体和地形的整体保存恢复。区域尺寸为 256×256 米，当前采用本机单用户模式。
 
-![原型的实际 Godot 渲染截图](docs/images/overview.png)
+## 1. 环境要求
 
-## 1. 环境依赖
-
-| 项目 | 要求与说明 |
+| 项目 | 要求 |
 | --- | --- |
-| 已验证系统 | Windows 11 x64；Windows 10 x64 为目标兼容环境，未在本次机器上实测 |
-| 引擎 | Godot **4.5.1 标准版**，版本输出 `4.5.1.stable.official.f62fdbde1`；不使用 .NET 版 |
-| 图形 | 支持 OpenGL 3.3 的显卡和正常驱动；使用 Compatibility 渲染器 |
-| 物理 | Godot 随附 Jolt，无需单独安装 |
-| 脚本工具 | Windows 自带 PowerShell 5.1；已用此版本验证安装与测试脚本 |
-| 网络 | 首次在线安装用于从 Godot 官方 GitHub 下载约 77 MB 压缩包；之后运行可离线 |
-| 可选 | Git 用于克隆；也可在 GitHub 下载此分支 ZIP 后解压 |
+| 操作系统 | Windows x64；已验证 Windows 11 10.0.26200，Windows 10 尚未实测 |
+| 图形 | 支持 OpenGL 3.3 的显卡和正常驱动；采用 Compatibility 渲染器 |
+| 引擎 | Godot 4.5.1 标准版，版本号 `4.5.1.stable.official.f62fdbde1` |
+| 物理 | 引擎内置 Jolt，无独立安装项 |
+| 命令环境 | Windows PowerShell 5.1；CMD 入口兼容从 PowerShell 7 调用 |
+| 网络 | 在线安装时下载官方引擎包，约 77 MB；安装后可离线运行 |
+| 可选工具 | Git，用于克隆和更新代码 |
 
-运行此原型不需要先运行 OpenSim/Firestorm，也不需要 .NET SDK、Python、C++ 编译器、数据库、模型权重或 API Key。直接从 Godot 项目运行不需要额外下载导出模板。引擎与归档校验值固定在 [engine.lock.json](engine.lock.json)。
+版本及 SHA512 固定在 [engine.lock.json](engine.lock.json)。运行不需要 .NET SDK、Python、C++ 编译器、数据库、模型权重或 API Key。当前直接运行工程，不需要导出模板。
 
-## 2. 安装与启动（Windows）
+## 2. 安装
 
-打开 PowerShell，执行：
+### 2.1 获取代码
 
 ```powershell
-git clone --branch codex/single-region-prototype https://github.com/StarryLiu1122/OpenSim.git
+git clone --branch codex/region-lab-v2 https://github.com/StarryLiu1122/OpenSim.git
 cd OpenSim\prototype
-.\Install.cmd
-.\Start.cmd
 ```
 
-如果已有仓库，先提交或保存自己的本地修改，再获取并切换到 `codex/single-region-prototype`，进入 `prototype` 目录。
+也可在 GitHub 下载该分支 ZIP 并解压。已有仓库可在保存本地修改后，获取并切换至 `codex/region-lab-v2`。
 
-也可以在文件管理器中先双击 `Install.cmd`，成功后双击 `Start.cmd`。安装脚本下载官方发行包，验证 SHA512、归档条目及两个可执行文件的校验值，再放入 `prototype/.tools/godot-4.5.1/`；不写系统 PATH，不需要管理员安装。
+### 2.2 安装引擎
 
-已有官方压缩包时，可以离线安装：
+```powershell
+.\Install.cmd
+```
+
+脚本从官方发行地址下载压缩包，验证归档布局、压缩包及可执行文件的 SHA512，安装至 `.tools/godot-4.5.1/`。安装仅写入项目目录，不修改系统 PATH 或系统执行策略。已安装且校验通过时直接复用。
+
+离线安装：
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Godot.ps1 -ArchivePath "D:\Downloads\Godot_v4.5.1-stable_win64.exe.zip"
 ```
 
-启动自己的另一个世界文件：
+压缩包必须来自 [Godot 4.5.1 官方发行页](https://github.com/godotengine/godot-builds/releases/tag/4.5.1-stable)，文件名为 `Godot_v4.5.1-stable_win64.exe.zip`。
+
+## 3. 启动
 
 ```powershell
-.\Start.cmd -WorldFile "D:\RegionLabData\my-region.json"
+.\Start.cmd
 ```
 
-指定已有官方引擎，或打开工程编辑器：
+文件管理器中可双击 `Start.cmd`。以下参数用于指定世界、引擎或编辑器：
 
 ```powershell
+.\Start.cmd -WorldFile "D:\RegionLabData\demo.json"
 .\Start.cmd -Godot "D:\Godot\Godot_v4.5.1-stable_win64_console.exe"
 .\Start.cmd -Editor
 ```
 
-检查启动并保存一张实际引擎截图后自动退出（不自动保存世界）：
+也可通过当前终端的 `GODOT_EXE` 指定引擎。使用新的 `-WorldFile` 路径将创建一份独立演示世界；首次保存前只存在于内存。
+
+启动检查可输出一张画面后自动退出，不自动保存世界：
 
 ```powershell
 .\Start.cmd -WorldFile "$PWD\runtime\launch-check.json" -Screenshot "$PWD\test-results\launch.png"
 ```
 
-也可设置当前终端的 `GODOT_EXE` 环境变量。`Install.cmd` 和 `Start.cmd` 使用的执行策略参数只针对启动的 PowerShell 进程，不修改系统执行策略。
+## 4. 物体与角色操作
 
-## 3. 五分钟验收
+左侧为对象列表，右侧“对象”页显示所选对象属性。属性输入完成后，点击“应用修改”提交至世界状态。仅输入但未应用的数值不会被保存。
 
-1. 启动后看到“青屿实验区”、左侧对象列表和右侧属性面板。
-2. 点击“进入漫游”或按 Tab，使用 WASD 移动，空格跳跃，Shift 加速；接近方块时有真实碰撞。按 Esc 回到编辑。
-3. 点击“添加立方体”。修改名字、位置、尺寸、水平旋转和颜色，点击“应用修改”。X 为东，Y 为北，Z 为高度，长度单位是米。
-4. 点击“保存世界”，确认顶部出现“保存成功”。可在“操作指南”中查看实际存档路径。
-5. 再修改方块但不保存，点击“恢复存档”并确认；属性恢复为之前保存的值。
-6. 保存后正常关闭程序，再启动。对象 ID、名字、位置、尺寸、旋转和颜色仍应一致。
-7. 删除一个方块，再按 Ctrl+Z，检查同一对象恢复。删除后保存并重启，已删除对象应继续不存在。
-
-| 操作 | 按键 / 入口 |
+| 操作 | 入口 |
 | --- | --- |
-| 选择 | 点击三维方块或左侧列表 |
-| 旋转编辑视角 | 按住鼠标右键拖动 |
-| 平移 / 缩放 | 鼠标中键拖动 / 滚轮 |
-| 聚焦选择 | F；或双击列表条目 |
-| 复制 / 删除 / 撤销 | Ctrl+D / Delete / Ctrl+Z；也有按钮 |
-| 保存 / 恢复 | Ctrl+S / Ctrl+O；也有按钮 |
-| 漫游 / 返回编辑 | Tab / Esc |
+| 创建、复制、删除 | 左侧按钮；复制 Ctrl+D，删除 Delete |
+| 选择对象 | 单击场景物体或列表条目 |
+| 编辑属性 | 名称、位置、尺寸、水平旋转、颜色，编辑后应用 |
+| 聚焦 | F 或双击列表 |
+| 编辑视角 | 右键旋转、中键平移、滚轮缩放 |
+| 漫游 | Tab 进入，WASD 移动，空格跳跃，Shift 加速，Esc 返回 |
+| 撤销 / 重做 | Ctrl+Z / Ctrl+Y，或底部按钮 |
+| 保存 / 恢复 | Ctrl+S / Ctrl+O，或顶部按钮 |
 
-编辑属性需要点击“应用修改”。仅在数值框中输入但尚未应用的文字，不属于世界状态，也不会被“保存世界”写入。保存的是世界数据，不包含当前编辑相机、选择状态、撤销历史或角色实时位置；重新进入时角色回到区域起点。
+坐标单位为米，X 向东、Y 向北、Z 为高度。物体每轴尺寸为 0.2–32 米，旋转后的完整水平范围必须位于区域内。
 
-## 4. 存档与恢复
+## 5. 地形编辑
 
-默认路径为 `%APPDATA%\OpenSimRegionLab\worlds\default.json`。可在操作指南查看本机解析后的路径，或用 `-WorldFile` 选择独立路径。不要让两个实例同时写同一个存档。
+点击左侧“地形编辑”，或切换右侧“地形”页。
 
-- `.json` 为当前存档；`.json.bak` 为上一次有效存档；`.tmp` 为写入中间文件。
-- 先验证数据、写临时文件、回读验证，再更新备份并替换主文件。主文件损坏时不会覆盖有效备份。
-- 启动或恢复时，主文件不可用会尝试有效备份，并在界面显示恢复提示；两者均无效时返回错误。
-- 存储封装包含 `format`、`version`、`sha256`、`world_json`。`world_json` 是 JSON 文本字符串，SHA256 针对它的原始 UTF-8 文本计算，避免浮点数重新序列化影响校验。
-- 这是单写入者快照存储。能够发现已经发生的外部文件修改，但没有跨进程锁或数据库事务，不能用作多人共享数据库。
-- 检查和恢复的是程序级写入、格式及文件一致性；没有验证断电场景的操作系统持久性保证。
+1. 选择笔刷类型，设置半径和强度。设高模式还需填写目标高程。
+2. 在地表单击应用一次笔刷；也可填写中心 X、Y 后点击“应用笔刷”。黄色轮廓表示操作范围。
+3. 检查地形结果，按需撤销或重做。
+4. 点击“保存世界”。重新启动或恢复存档后，编辑后的地形与物体一起恢复。
 
-需要新建另一份演示世界时，使用一个不存在的 `-WorldFile` 路径；首次保存前不要手工覆盖已有数据。
+| 笔刷 | 效果 |
+| --- | --- |
+| 抬升 | 增加高程；中心单次最大增量为 8 米乘以强度 |
+| 降低 | 减小高程；中心单次最大减量为 8 米乘以强度 |
+| 设高 | 按强度向目标高程混合；100% 强度时中心达到目标值 |
+| 平滑 | 按强度向原高度场的 3×3 邻域均值混合 |
 
-## 5. 自动化测试与 AI 调用入口
+笔刷半径为 4–32 米，强度为 5%–100%，高程范围为 -40–80 米。作用随距中心距离增加而衰减，边界外采样不参与操作。地形采用 4 米采样间距，因此小范围编辑呈现网格分辨率限制。
 
-运行不需要图形窗口的原生数据、存储、物理及独立进程测试：
+**每次单击是一条编辑命令，当前不支持按住鼠标连续涂抹。** 笔刷仅修改地形；物体保持原坐标。抬升地形可能遮挡已有物体，可在“对象”页调整位置或使用“放到地面”。地形抬升到角色脚下时，程序将角色抬至地面上方，并保留水平位置。
+
+![地形编辑界面](docs/images/terrain.png)
+
+## 6. 保存与版本兼容
+
+默认存档为 `%APPDATA%\OpenSimRegionLab\worlds\default.json`。界面“操作指南”显示实际路径；`-WorldFile` 可指定独立文件。
+
+| 文件 | 用途 |
+| --- | --- |
+| `*.json` | 当前世界 |
+| `*.json.bak` | 上一次有效世界 |
+| `*.json.tmp`、`*.json.bak.tmp` | 写入期间的中间文件 |
+
+保存流程包括数据校验、临时写入、回读验证、有效备份更新和主文件替换。主存档无效时尝试备份；恢复备份后界面提示检查并保存。两份文件均无效时保留当前内存世界并报告错误。
+
+V2 继续使用世界格式版本 1，可直接读取 V1 存档。升级前可复制存档作为留档；不要让两个程序实例同时写入同一世界文件。快照为单写入者存储，外部修改检测不提供跨进程事务保证。
+
+保存内容包括区域、地形、资产描述及物体。编辑相机、角色实时位置、选择状态和撤销历史不持久化；角色重新启动时位于区域起点。撤销或重做后的世界按已修改状态处理，保存后清除标记。
+
+## 7. 测试与自动化
+
+数据、物理、兼容性、跨进程及批处理测试：
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Test-RegionLab.ps1
 ```
 
-同时运行实际图形界面控件和截图检查：
+增加界面事件与渲染测试：
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Test-RegionLab.ps1 -Visual
 ```
 
-测试为每次运行创建唯一的 `test-results/run-.../` 目录，不使用默认用户存档。报告包含失败数、独立进程恢复结果、离线命令调用结果；图形检查还生成 `overview.png` 和 `edited.png`。脚本不仅检查退出码，还要求报告存在、检查数满足预期且没有引擎错误。
+每次运行输出至独立的 `test-results/run-.../`，包括汇总 JSON、各项检查、引擎日志和截图。测试不使用默认用户存档。当前结果见 [验证记录](docs/verification.md)。
 
-提供了可供编程智能体或普通脚本调用的离线 JSON 命令适配器。以下示例应使用一个新的文件路径，并在图形程序关闭时运行：
+离线地形命令样例：
 
 ```powershell
 $engine = ".\.tools\godot-4.5.1\Godot_v4.5.1-stable_win64_console.exe"
 & $engine --headless --path .\godot --script res://tools/world_cli.gd -- `
-  "--world-file=$PWD\runtime\automation-demo.json" `
-  "--commands=$PWD\fixtures\create-and-save.commands.json" `
-  "--output=$PWD\runtime\automation-report.json"
-.\Start.cmd -WorldFile "$PWD\runtime\automation-demo.json"
+  "--world-file=$PWD\runtime\terrain-demo.json" `
+  "--commands=$PWD\fixtures\sculpt-and-save.commands.json" `
+  "--output=$PWD\runtime\terrain-report.json"
+.\Start.cmd -WorldFile "$PWD\runtime\terrain-demo.json"
 ```
 
-示例使用固定对象 ID；对同一文件重复运行会明确报告重复 ID，不会悄悄再建一个对象。更多接口说明见 [架构与命令契约](docs/architecture-and-api.md)。
+批处理应在图形程序关闭后执行。创建物体样例另见 [create-and-save.commands.json](fixtures/create-and-save.commands.json)，命令语义见 [接口文档](docs/architecture-and-api.md)。
 
-## 6. 文档与实现入口
+## 8. 常见故障
 
-- [引擎选择与 GameFactory 借鉴](docs/engine-decision.md)
-- [OpenSim 数据结构对应说明](docs/opensim-data-mapping.md)
-- [架构、命令及存档契约](docs/architecture-and-api.md)
-- [验证记录和边界](docs/verification.md)
-- [第一阶段原始计划](../docs/plans/stage-one-rebuild-plan.md)
+| 现象 | 处理 |
+| --- | --- |
+| 找不到引擎或版本不符 | 运行 `Install.cmd`，或指定固定版本的 console 可执行文件 |
+| 下载失败或校验失败 | 从官方发行页下载同名压缩包后离线安装；保留校验检查 |
+| 黑屏、图形初始化失败 | 检查 OpenGL 3.3 驱动；无图形会话可先运行非视觉测试 |
+| 中文显示方框 | 界面使用系统中文字体，Windows 优先 Microsoft YaHei；未随仓库分发字体 |
+| 属性变化未保存 | 先点击“应用修改”或“应用笔刷”，再保存世界 |
+| 地形操作没有变化 | 检查高程上限、笔刷模式、强度与采样分辨率；无变化操作不增加历史 |
+| 保存时报告外部修改 | 从磁盘恢复后再编辑，或为另一实例指定不同存档 |
 
-```text
-godot/domain/        世界格式、数据校验、状态与命令服务
-godot/adapters/      场景/碰撞适配、快照存储
-godot/client/        角色、中文编辑界面
-godot/tools/         离线 JSON 命令入口
-godot/tests/         原生数据/物理、独立进程、UI 测试
-tools/              Windows 安装、启动、测试脚本
-fixtures/           最小命令样例
-docs/               选择依据、对应说明与真实验证证据
-```
+## 9. 相关文档
 
-## 7. 常见问题
-
-- **找不到 Godot：** 先运行 `Install.cmd`，或用 `-Godot` 指定固定版本的 console 可执行文件。
-- **下载失败：** 从 [Godot 官方发行页](https://github.com/godotengine/godot-builds/releases/tag/4.5.1-stable)下载同名 Windows x64 标准版压缩包，再用 `-ArchivePath` 安装。校验失败时停止，不跳过校验。
-- **窗口打不开或黑屏：** 核实 OpenGL 3.3 驱动；远程桌面或无图形会话可能无法运行视觉测试，可先执行非视觉测试。CPU 测试通过不表示图形环境已验证。
-- **中文显示方框：** 界面优先使用系统的 Microsoft YaHei 字体，未将系统字体打包入库；其它系统需提供相应中文字体。
-- **修改被拒绝：** 查看错误提示。物体尺寸必须在 0.2–32 米之间，旋转后的完整水平包围范围必须留在区域内；不允许修改所有者 ID。
-- **打开原版 C# 解决方案：** 那是研究基线，运行当前原型应打开 `prototype/godot/project.godot`。
-
-本机版本尚未进行 Linux、macOS、浏览器导出或独立发行包验证。下一步优先补原版运行对照、地形编辑与数据库持久化，再进入多人同步和更完整的权限/脚本体系。
+[架构与接口](docs/architecture-and-api.md) · [数据对应](docs/opensim-data-mapping.md) · [技术选型](docs/engine-decision.md) · [V2 版本说明](docs/releases/v2.md) · [后续计划](../docs/plans/stage-one-rebuild-plan.md)

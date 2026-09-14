@@ -16,7 +16,10 @@ func _click(control: Control) -> void:
 	var target := control.get_window()
 	if target != root:
 		center += Vector2(target.position)
-		target = root
+	await _click_point(center)
+
+func _click_point(center: Vector2) -> void:
+	var target := root
 	var motion := InputEventMouseMotion.new()
 	motion.position = center
 	target.push_input(motion, true)
@@ -40,10 +43,20 @@ func _capture(name: String) -> void:
 	check(result == OK, "real rendered screenshot: " + name)
 
 func _run() -> void:
-	output_dir = ProjectSettings.globalize_path("res://../test-results/ui")
+	output_dir = ProjectSettings.globalize_path("res://../test-results/ui-" + str(Time.get_ticks_usec()))
+	var world_file := ""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--output-dir="):
 			output_dir = arg.trim_prefix("--output-dir=")
+		if arg.begins_with("--world-file="):
+			world_file = ProjectSettings.globalize_path(arg.trim_prefix("--world-file=")).simplify_path()
+	# UI tests must never fall back to the application's default user world.
+	var parent := world_file.get_base_dir().to_lower()
+	var expected := ProjectSettings.globalize_path(output_dir).simplify_path().to_lower()
+	if world_file.is_empty() or parent != expected or FileAccess.file_exists(world_file) or FileAccess.file_exists(world_file + ".bak"):
+		push_error("UI verification requires a new --world-file inside --output-dir.")
+		quit(1)
+		return
 	DirAccess.make_dir_recursive_absolute(output_dir)
 	app = load("res://main.tscn").instantiate()
 	root.add_child(app)
@@ -101,6 +114,7 @@ func _run() -> void:
 	for frame in range(15):
 		await process_frame
 	await _capture("edited.png")
+	await _terrain_checks()
 	var passed := 0
 	for item in cases:
 		if item.ok:
@@ -112,3 +126,70 @@ func _run() -> void:
 	print("UI_RESULT " + JSON.stringify(report))
 	app.free()
 	quit(0 if passed == cases.size() else 1)
+
+func _terrain_checks() -> void:
+	await _click(app.ui.buttons.terrain_mode)
+	check(app.ui.inspector_tabs.current_tab == 1, "terrain tool opens terrain inspector")
+	var panel = app.ui.terrain_panel
+	check(panel.apply_button.get_global_rect().end.x < root.size.x, "terrain controls fit the inspector width")
+	var before: Dictionary = app.service.model.snapshot()
+	var index := 35 * 65 + 29
+	panel.fields.east.value = 116
+	panel.fields.north.value = 140
+	panel.fields.radius.value = 12
+	panel.fields.strength.value = 75
+	await _click(panel.apply_button)
+	var raised: Dictionary = app.service.model.snapshot()
+	check(abs(raised.terrain.heights[index] - before.terrain.heights[index] - 6.0) < 0.002, "terrain apply button changes the selected height samples")
+	check(raised.objects == before.objects, "terrain UI edit preserves all object transforms")
+	for frame in range(4):
+		await physics_frame
+	var hit: Dictionary = app.world_view.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(116, 90, -140), Vector3(116, -50, -140), 1))
+	check(not hit.is_empty() and abs(hit.position.y - raised.terrain.heights[index]) < 0.002, "terrain UI edit reaches the native collider")
+	await _click(app.ui.buttons.undo)
+	check(app.service.model.snapshot().terrain == before.terrain, "terrain undo button restores height field")
+	await _click(app.ui.buttons.redo)
+	check(app.service.model.snapshot().terrain == raised.terrain, "terrain redo button restores height field")
+	await _click(app.ui.buttons.save)
+	panel.mode.select(1)
+	await _click(panel.apply_button)
+	await _click(app.ui.buttons.load)
+	await _click(app._dialog.get_ok_button())
+	check(_same_terrain(app.service.model.snapshot().terrain, raised.terrain), "terrain save and reload restores the edited height field")
+	check(app.service.history_state() == {"undo": 0, "redo": 0}, "terrain reload clears UI history")
+	# Center a visible, unobstructed piece of ground for a real viewport pick.
+	app.orbit_target = Vector3(116, 3, -140)
+	app.orbit_distance = 55.0
+	app._update_camera()
+	panel.mode.select(0)
+	var position := Vector3(110, app.world_view.ground_height(110, 135), -135)
+	var screen: Vector2 = app.camera.unproject_position(position)
+	var revision: int = app.service.model.revision()
+	await _click_point(screen)
+	check(app.service.model.revision() == revision + 1 and panel.center().distance_to(Vector2(110, 135)) < 0.4, "viewport click picks terrain and applies one stamp")
+	check(is_instance_valid(app.world_view._brush) and app.world_view._brush.visible, "terrain brush footprint is displayed")
+	# Terrain rising underneath the capsule lifts it without changing horizontal position.
+	app.avatar.position = Vector3(116, -1, -140)
+	panel.set_center(Vector2(116, 140))
+	await _click(panel.apply_button)
+	check(abs(app.avatar.position.x - 116) < 0.01 and abs(app.avatar.position.z + 140) < 0.01 and app.avatar.position.y >= app.world_view.ground_height(116, 140) - 0.05, "terrain edit prevents avatar burial without resetting horizontal position")
+	await _click(app.ui.buttons.save)
+	await _capture("terrain.png")
+	panel.set_center(Vector2(128, 107))
+	panel.mode.select(2)
+	panel.fields.height.value = 16
+	panel.fields.strength.value = 100
+	for frame in range(3):
+		await process_frame
+	await _click(panel.apply_button)
+	await _click(app.ui.buttons.save)
+	await _click(app.ui.buttons.load)
+	check(app.avatar.position.y >= app.world_view.ground_height(128, 107) - 0.05 and Vector2(app.avatar.position.x, -app.avatar.position.z).distance_to(Vector2(128, 107)) < 0.01, "reload places avatar above edited spawn terrain")
+
+func _same_terrain(a: Dictionary, b: Dictionary) -> bool:
+	if a.columns != b.columns or a.rows != b.rows or a.spacing != b.spacing or a.heights.size() != b.heights.size():
+		return false
+	for i in range(a.heights.size()):
+		if abs(float(a.heights[i]) - float(b.heights[i])) > 0.000001:
+			return false
+	return true

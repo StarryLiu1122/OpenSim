@@ -10,6 +10,7 @@ var actor := Schema.OWNER
 var dirty := true
 var _requests: Dictionary = {}
 var _history: Array[Dictionary] = []
+var _redo: Array[Dictionary] = []
 
 func _init(file_path: String = "user://worlds/default.json") -> void:
 	repository = Repository.new(file_path)
@@ -40,7 +41,7 @@ func dispatch(command: Variant) -> Dictionary:
 	return outcome
 
 func _execute(operation: String, id: String, payload: Dictionary) -> Dictionary:
-	if operation in ["GetRegionSnapshot", "SaveRegion", "LoadRegion", "Undo"] and not payload.is_empty():
+	if operation in ["GetRegionSnapshot", "SaveRegion", "LoadRegion", "Undo", "Redo"] and not payload.is_empty():
 		return _result(operation, id, false, {}, "INVALID_PAYLOAD", "This operation takes no payload fields.")
 	match operation:
 		"GetRegionSnapshot":
@@ -57,31 +58,45 @@ func _execute(operation: String, id: String, payload: Dictionary) -> Dictionary:
 				return _result(operation, id, false, {}, "LOAD_FAILED", loaded.error)
 			model.replace(loaded.world)
 			_history.clear()
+			_redo.clear()
 			_requests.clear()
 			dirty = loaded.recovered
 			var result := _result(operation, id, true, {"recovered": loaded.recovered, "path": repository.path})
 			if loaded.has("warning"):
 				result.warnings.append(loaded.warning)
 			return result
-		"Undo":
-			if _history.is_empty():
-				return _result(operation, id, false, {}, "NOTHING_TO_UNDO", "Nothing to undo.")
-			var previous: Dictionary = _history.pop_back()
+		"Undo", "Redo":
+			var source := _history if operation == "Undo" else _redo
+			var destination := _redo if operation == "Undo" else _history
+			if source.is_empty():
+				return _result(operation, id, false, {}, "NOTHING_TO_UNDO" if operation == "Undo" else "NOTHING_TO_REDO", "No history entry available.")
+			var previous: Dictionary = source.back().duplicate(true)
 			previous.revision = model.revision() + 1
-			model.replace(previous)
+			var current: Dictionary = model.snapshot()
+			var error: String = model.replace(previous)
+			if not error.is_empty():
+				return _result(operation, id, false, {}, "HISTORY_REJECTED", error)
+			source.pop_back()
+			destination.append(current)
 			dirty = true
 			return _result(operation, id, true, {})
-		"CreateObject", "UpdateObject", "DeleteObject":
+		"CreateObject", "UpdateObject", "DeleteObject", "SculptTerrain":
 			var previous: Dictionary = model.snapshot()
 			var mutation: Dictionary = model.mutate(operation, payload, actor)
 			if mutation.has("error"):
 				return _result(operation, id, false, {}, "MUTATION_REJECTED", mutation.error)
+			if not mutation.get("changed", true):
+				return _result(operation, id, true, mutation)
 			_history.append(previous)
+			_redo.clear()
 			if _history.size() > 30:
 				_history.pop_front()
 			dirty = true
 			return _result(operation, id, true, mutation)
 	return _result(operation, id, false, {}, "UNKNOWN_OPERATION", "Unsupported operation.")
+
+func history_state() -> Dictionary:
+	return {"undo": _history.size(), "redo": _redo.size()}
 
 func _result(operation: String, request_id: String, ok: bool, payload: Dictionary, code: String = "", message: String = "") -> Dictionary:
 	return {"api_version": 1, "ok": ok, "operation": operation, "request_id": request_id, "revision": model.revision(), "payload": payload, "warnings": [], "errors": [] if ok else [{"code": code, "message": message}]}

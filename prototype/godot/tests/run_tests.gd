@@ -25,6 +25,7 @@ func _run() -> void:
 	_test_commands()
 	_test_persistence()
 	await _test_physics()
+	await preload("res://tests/test_terrain.gd").new().run(self)
 	var passed := 0
 	for item in cases:
 		if item.ok:
@@ -184,7 +185,7 @@ func _test_physics() -> void:
 	player.reset_spawn(Vector3(90, 10, -100))
 	for frame in range(150):
 		await physics_frame
-	check(player.is_on_floor(), "capsule lands on real heightmap collision")
+	check(player.is_on_floor(), "capsule lands on real terrain mesh collision")
 	check(abs(player.position.y - view.ground_height(90, 100)) < 0.15, "rendered height samples align with collision height")
 	var hit := view.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(55, 40, -195), Vector3(55, -20, -195), 1))
 	check(not hit.is_empty() and abs(hit.position.y - view.ground_height(55, 195)) < 0.15, "hill collision agrees with north-up data mapping")

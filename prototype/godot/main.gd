@@ -43,6 +43,7 @@ func _ready() -> void:
 	ui.action_requested.connect(_action)
 	ui.object_selected.connect(_select)
 	ui.patch_requested.connect(_patch)
+	ui.terrain_panel.apply_requested.connect(_sculpt)
 	_dialog = ConfirmationDialog.new()
 	_dialog.title = "确认操作"
 	_dialog.ok_button_text = "继续"
@@ -94,27 +95,61 @@ func _build_lighting() -> void:
 func _rebuild() -> void:
 	var world: Dictionary = service.model.snapshot()
 	world_view.rebuild(world)
-	avatar.reset_spawn(WorldView.to_engine(world.region.spawn))
+	var spawn := WorldView.to_engine(world.region.spawn)
+	spawn.y = maxf(spawn.y, world_view.ground_height(spawn.x, -spawn.z) + 0.1)
+	avatar.reset_spawn(spawn)
 	if service.model.object(selected_id).is_empty():
 		selected_id = ""
 	_refresh()
 
 func _refresh() -> void:
-	world_view.sync_objects(service.model.snapshot().objects)
+	var world: Dictionary = service.model.snapshot()
+	var terrain_changed: bool = world_view.sync_terrain(world.terrain, world.region.size)
+	world_view.sync_objects(world.objects)
+	if terrain_changed:
+		var floor_y: float = world_view.ground_height(avatar.position.x, -avatar.position.z)
+		if avatar.position.y < floor_y + 0.05:
+			avatar.position.y = floor_y + 0.1
+			avatar.velocity.y = 0
 	world_view.select(selected_id)
-	ui.show_world(service.model.snapshot(), selected_id)
+	ui.show_world(world, selected_id)
+	ui.set_history(service.history_state())
 	ui.set_status("●  有未保存修改" if service.dirty else "●  已保存", service.dirty)
 
 func _select(id: String) -> void:
 	selected_id = id
+	ui.inspector_tabs.current_tab = 0
 	world_view.select(id)
 	ui.show_world(service.model.snapshot(), id)
 
 func _patch(patch: Dictionary) -> void:
 	_feedback(service.request("UpdateObject", {"id": selected_id, "patch": patch}))
 
+func _sculpt(payload: Dictionary) -> void:
+	if walk_mode:
+		return
+	_feedback(service.request("SculptTerrain", payload))
+
+func _process(_delta: float) -> void:
+	if ui == null:
+		return
+	var enabled: bool = ui.inspector_tabs.current_tab == 1 and not walk_mode
+	if not enabled:
+		world_view.show_brush(Vector2.ZERO, 4, false)
+		return
+	var center: Vector2 = ui.terrain_panel.center()
+	ui.terrain_panel.show_height(world_view.ground_height(center.x, center.y))
+	if get_viewport().gui_get_hovered_control() == null:
+		var hit: Dictionary = world_view.pick_terrain(camera, get_viewport().get_mouse_position())
+		if not hit.is_empty():
+			center = Vector2(hit.position.x, -hit.position.z)
+	world_view.show_brush(center, ui.terrain_panel.fields.radius.value)
+
 func _action(action: String) -> void:
 	match action:
+		"terrain_mode":
+			_set_walk(false)
+			ui.inspector_tabs.current_tab = 1
 		"create":
 			var p := WorldView.to_world(orbit_target)
 			p[0] = clampf(p[0] + randf_range(-3, 3), 2, 254)
@@ -154,6 +189,8 @@ func _action(action: String) -> void:
 			_confirm("load", "恢复上次存档？当前未保存的修改将被丢弃。") if service.dirty else _load()
 		"undo":
 			_feedback(service.request("Undo"))
+		"redo":
+			_feedback(service.request("Redo"))
 		"focus":
 			var item: Dictionary = service.model.object(selected_id)
 			if not item.is_empty():
@@ -165,7 +202,7 @@ func _action(action: String) -> void:
 		"help":
 			var help := AcceptDialog.new()
 			help.title = "区域实验室 · 操作指南"
-			help.dialog_text = "编辑：左键选对象，右侧修改属性后点击「应用修改」。\n右键拖动旋转视角，中键平移，滚轮缩放，F 聚焦。\nCtrl+D 复制，Delete 删除，Ctrl+Z 撤销。\n\n漫游：Tab 进入，WASD 移动，空格跳跃，Shift 加速。\nEsc 返回编辑模式。\n\nCtrl+S 保存世界，Ctrl+O 恢复存档。\n存档保留一个上次有效备份；退出前请保存修改。\n\n存档位置：\n" + service.repository.path
+			help.dialog_text = "物体：左键选择，在属性面板编辑后应用。\n地形：切换地形页，选择笔刷，在地表单击或输入坐标后应用。\n右键旋转视角，中键平移，滚轮缩放，F 聚焦对象。\nCtrl+D 复制，Delete 删除，Ctrl+Z 撤销，Ctrl+Y 重做。\n\n漫游：Tab 进入，WASD 移动，空格跳跃，Shift 加速。\nEsc 返回编辑模式。\n\nCtrl+S 保存世界，Ctrl+O 恢复存档。\n物体和地形一起保存；操作历史仅在本次会话中保留。\n\n存档位置：\n" + service.repository.path
 			help.min_size = Vector2i(660, 380)
 			help.confirmed.connect(help.queue_free)
 			help.canceled.connect(help.queue_free)
@@ -187,6 +224,8 @@ func _feedback(result: Dictionary) -> void:
 		ui.set_status("●  已恢复备份，请检查并保存", true)
 	elif result.operation == "SaveRegion":
 		ui.set_status("●  保存成功 · " + Time.get_time_string_from_system())
+	elif result.operation == "SculptTerrain":
+		ui.set_status("地形已更新 · %d 个采样点" % result.payload.changed_samples, service.dirty)
 
 func _load() -> void:
 	var result: Dictionary = service.request("LoadRegion")
@@ -236,8 +275,8 @@ func _input(event: InputEvent) -> void:
 			if event.keycode == KEY_TAB:
 				_action("walk")
 				get_viewport().set_input_as_handled()
-			elif event.ctrl_pressed and event.keycode in [KEY_S, KEY_O, KEY_Z, KEY_D]:
-				_action({KEY_S: "save", KEY_O: "load", KEY_Z: "undo", KEY_D: "duplicate"}[event.keycode])
+			elif event.ctrl_pressed and event.keycode in [KEY_S, KEY_O, KEY_Z, KEY_Y, KEY_D]:
+				_action({KEY_S: "save", KEY_O: "load", KEY_Z: "undo", KEY_Y: "redo", KEY_D: "duplicate"}[event.keycode])
 				get_viewport().set_input_as_handled()
 			elif not walk_mode and event.keycode == KEY_F:
 				_action("focus")
@@ -251,7 +290,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			_select(world_view.pick(camera, event.position))
+			if ui.inspector_tabs.current_tab == 1:
+				var hit: Dictionary = world_view.pick_terrain(camera, event.position)
+				if not hit.is_empty():
+					var payload: Dictionary = ui.terrain_panel.parameters()
+					ui.terrain_panel.set_center(Vector2(hit.position.x, -hit.position.z))
+					var center: Vector2 = ui.terrain_panel.center()
+					payload.center = [center.x, center.y]
+					_sculpt(payload)
+			else:
+				_select(world_view.pick(camera, event.position))
 		elif event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			orbit_distance = clampf(orbit_distance * (0.9 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.1), 8, 180)
 			_update_camera()

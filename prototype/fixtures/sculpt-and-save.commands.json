@@ -1,0 +1,7 @@
+[
+  {"operation": "SculptTerrain", "payload": {"mode": "flatten", "center": [80, 80], "radius": 12, "strength": 1, "target_height": 8}},
+  {"operation": "Undo", "payload": {}},
+  {"operation": "Redo", "payload": {}},
+  {"operation": "SaveRegion", "payload": {}},
+  {"operation": "GetRegionSnapshot", "payload": {}}
+]
