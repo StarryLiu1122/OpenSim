@@ -60,8 +60,8 @@ func _execute(operation: String, id: String, payload: Dictionary) -> Dictionary:
 			_history.clear()
 			_redo.clear()
 			_requests.clear()
-			dirty = loaded.recovered
-			var result := _result(operation, id, true, {"recovered": loaded.recovered, "path": repository.path})
+			dirty = loaded.recovered or loaded.get("migrated", false)
+			var result := _result(operation, id, true, {"recovered": loaded.recovered, "migrated": loaded.get("migrated", false), "path": repository.path})
 			if loaded.has("warning"):
 				result.warnings.append(loaded.warning)
 			return result
@@ -80,7 +80,7 @@ func _execute(operation: String, id: String, payload: Dictionary) -> Dictionary:
 			destination.append(current)
 			dirty = true
 			return _result(operation, id, true, {})
-		"CreateObject", "UpdateObject", "DeleteObject", "SculptTerrain":
+		"CreateObject", "UpdateObject", "DeleteObject", "SculptTerrain", "UpdateEnvironment", "SetObjectState":
 			var previous: Dictionary = model.snapshot()
 			var mutation: Dictionary = model.mutate(operation, payload, actor)
 			if mutation.has("error"):

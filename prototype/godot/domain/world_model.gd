@@ -30,6 +30,15 @@ func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary
 	var object_id := ""
 	var changed_samples := 0
 	match operation:
+		"UpdateEnvironment":
+			if actor != next.region.owner_id:
+				return {"error": "Only the region owner may edit the environment."}
+			if not Schema.exact_keys(payload, ["patch"]) or not payload.patch is Dictionary or payload.patch.is_empty():
+				return {"error": "UpdateEnvironment requires a nonempty patch."}
+			for key in payload.patch:
+				if not next.environment.has(key):
+					return {"error": "Unknown environment field."}
+				next.environment[key] = payload.patch[key]
 		"SculptTerrain":
 			if next.region.owner_id != actor:
 				return {"error": "Only the region owner may edit terrain."}
@@ -48,8 +57,8 @@ func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary
 				return {"error": "Cannot create an object for another owner."}
 			object_id = str(item.get("id", ""))
 			next.objects.append(item)
-		"UpdateObject", "DeleteObject":
-			var fields := ["id", "patch"] if operation == "UpdateObject" else ["id"]
+		"UpdateObject", "DeleteObject", "SetObjectState":
+			var fields := ["id", "patch"] if operation == "UpdateObject" else (["id", "active"] if operation == "SetObjectState" else ["id"])
 			if not Schema.exact_keys(payload, fields) or not payload.id is String:
 				return {"error": "Invalid object command fields."}
 			object_id = payload.id
@@ -64,15 +73,24 @@ func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary
 				return {"error": "Only the owner may edit this object."}
 			if operation == "DeleteObject":
 				next.objects.remove_at(index)
+			elif operation == "SetObjectState":
+				if Schema.kind(next.objects[index].asset_id) not in ["door", "lamp"] or not payload.active is bool:
+					return {"error": "Only doors and lamps accept a boolean active state."}
+				next.objects[index].state.active = payload.active
 			else:
 				if not payload.patch is Dictionary or payload.patch.is_empty():
 					return {"error": "UpdateObject requires a nonempty patch."}
 				for key in payload.patch:
-					if key not in ["name", "position", "rotation", "size", "color"]:
+					if key not in ["name", "position", "rotation", "size", "color", "material"]:
 						return {"error": "Field is not editable: " + str(key)}
 					next.objects[index][key] = payload.patch[key]
 		_:
 			return {"error": "Unknown mutation."}
+	var candidate_error := Schema.validate(next)
+	if not candidate_error.is_empty():
+		return {"error": candidate_error}
+	if next == _world:
+		return {"changed": false, "changed_samples": 0, "revision": revision()}
 	next.revision = revision() + 1
 	var error := Schema.validate(next)
 	if not error.is_empty():

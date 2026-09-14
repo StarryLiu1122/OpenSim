@@ -1,7 +1,7 @@
 {
 	"cases": [
 		{
-			"name": "UI scene loads eight native physics objects",
+			"name": "UI scene loads the V3 demonstration objects",
 			"ok": true
 		},
 		{
@@ -73,6 +73,78 @@
 			"ok": true
 		},
 		{
+			"name": "environment tab opens through native UI event",
+			"ok": true
+		},
+		{
+			"name": "environment panel changes persistent time and rendered sunlight",
+			"ok": true
+		},
+		{
+			"name": "environment panel changes actual water elevation",
+			"ok": true
+		},
+		{
+			"name": "environment edit can be undone through the toolbar",
+			"ok": true
+		},
+		{
+			"name": "environment edit can be redone through the toolbar",
+			"ok": true
+		},
+		{
+			"name": "real rendered screenshot: night.png",
+			"ok": true
+		},
+		{
+			"name": "environment settings restore from the saved scene",
+			"ok": true
+		},
+		{
+			"name": "selected door opens through the object action button",
+			"ok": true
+		},
+		{
+			"name": "undo restores the closed door state",
+			"ok": true
+		},
+		{
+			"name": "opened door state survives native UI save and reload",
+			"ok": true
+		},
+		{
+			"name": "walking E key closes the targeted door within interaction range",
+			"ok": true
+		},
+		{
+			"name": "walking E key opens the same door",
+			"ok": true
+		},
+		{
+			"name": "avatar walks from courtyard into the demonstration building",
+			"ok": true
+		},
+		{
+			"name": "real rendered screenshot: interior.png",
+			"ok": true
+		},
+		{
+			"name": "asset selector creates a cylinder through the command gateway",
+			"ok": true
+		},
+		{
+			"name": "material selector writes the portable surface identifier",
+			"ok": true
+		},
+		{
+			"name": "primitive surface material survives save and reload",
+			"ok": true
+		},
+		{
+			"name": "walking interaction beyond four metres makes no mutation",
+			"ok": true
+		},
+		{
 			"name": "terrain tool opens terrain inspector",
 			"ok": true
 		},
@@ -131,6 +203,6 @@
 	],
 	"engine": "4.5.1-stable (official)",
 	"failed": 0,
-	"passed": 32,
+	"passed": 50,
 	"suite": "native-ui-events-and-render"
 }

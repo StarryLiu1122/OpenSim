@@ -84,7 +84,7 @@ func run(suite: SceneTree) -> void:
 	var legacy = Service.new(legacy_path)
 	var restored: Dictionary = legacy.request("LoadRegion")
 	suite.check(restored.ok and legacy.model.object("44444444-4444-4444-8444-444444444444").get("position") == [45.25, 72.5, 3.75], "V1 snapshot fixture preserves stable object identity and attributes")
-	suite.check(legacy.request("SculptTerrain", stamp()).ok and legacy.request("SaveRegion").ok and legacy.request("LoadRegion").ok, "V1 snapshot supports V2 terrain edit and resave without migration")
+	suite.check(legacy.request("SculptTerrain", stamp()).ok and legacy.request("SaveRegion").ok and legacy.request("LoadRegion").ok, "V1 snapshot supports terrain edit and resave after schema upgrade")
 	await _physics(suite, flat)
 
 func _physics(suite: SceneTree, world: Dictionary) -> void:

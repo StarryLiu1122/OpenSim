@@ -301,7 +301,7 @@
 			"ok": true
 		},
 		{
-			"name": "V1 snapshot supports V2 terrain edit and resave without migration",
+			"name": "V1 snapshot supports terrain edit and resave after schema upgrade",
 			"ok": true
 		},
 		{
@@ -343,11 +343,211 @@
 		{
 			"name": "avatar lands on edited terrain through native physics",
 			"ok": true
+		},
+		{
+			"name": "V3 demonstration satisfies the complete portable schema",
+			"ok": true
+		},
+		{
+			"name": "environment command changes validated persistent settings",
+			"ok": true
+		},
+		{
+			"name": "environment changes preserve terrain and objects",
+			"ok": true
+		},
+		{
+			"name": "identical environment state creates no history entry",
+			"ok": true
+		},
+		{
+			"name": "invalid environment patch rejected atomically: sun_hour:25",
+			"ok": true
+		},
+		{
+			"name": "invalid environment patch rejected atomically: sun_hour:nan",
+			"ok": true
+		},
+		{
+			"name": "invalid environment patch rejected atomically: water_height:-41",
+			"ok": true
+		},
+		{
+			"name": "invalid environment patch rejected atomically: water_enabled:1",
+			"ok": true
+		},
+		{
+			"name": "invalid environment patch rejected atomically: terrain_grid:0",
+			"ok": true
+		},
+		{
+			"name": "invalid environment patch rejected atomically: fog_density:-1",
+			"ok": true
+		},
+		{
+			"name": "invalid environment patch rejected atomically: terrain_grid:yes",
+			"ok": true
+		},
+		{
+			"name": "invalid environment patch rejected atomically: script:anything",
+			"ok": true
+		},
+		{
+			"name": "environment command requires region ownership",
+			"ok": true
+		},
+		{
+			"name": "environment undo restores all settings",
+			"ok": true
+		},
+		{
+			"name": "environment redo restores all settings",
+			"ok": true
+		},
+		{
+			"name": "built-in asset accepts valid geometry: box",
+			"ok": true
+		},
+		{
+			"name": "built-in asset accepts valid geometry: cylinder",
+			"ok": true
+		},
+		{
+			"name": "built-in asset accepts valid geometry: sphere",
+			"ok": true
+		},
+		{
+			"name": "built-in asset accepts valid geometry: door",
+			"ok": true
+		},
+		{
+			"name": "built-in asset accepts valid geometry: tree",
+			"ok": true
+		},
+		{
+			"name": "built-in asset accepts valid geometry: lamp",
+			"ok": true
+		},
+		{
+			"name": "door state and request replay are deterministic",
+			"ok": true
+		},
+		{
+			"name": "repeated target door state is a no-op",
+			"ok": true
+		},
+		{
+			"name": "invalid object behavior request preserves state: { \"id\": \"c6fad9cc-0afb-409a-bd67-f4c0e7329f34\", \"active\": 1 }",
+			"ok": true
+		},
+		{
+			"name": "invalid object behavior request preserves state: { \"id\": \"c6fad9cc-0afb-409a-bd67-f4c0e7329f34\", \"active\": true, \"script\": \"x\" }",
+			"ok": true
+		},
+		{
+			"name": "invalid object behavior request preserves state: { \"id\": \"e692b7ce-6171-49d5-8ae8-d03118ec5c2f\", \"active\": true }",
+			"ok": true
+		},
+		{
+			"name": "object behavior requires local ownership",
+			"ok": true
+		},
+		{
+			"name": "ordinary attribute patches cannot bypass the behavior command",
+			"ok": true
+		},
+		{
+			"name": "material registry rejects external resources",
+			"ok": true
+		},
+		{
+			"name": "V3 environment and behavior state save successfully",
+			"ok": true
+		},
+		{
+			"name": "V3 state restores with stable IDs and numeric precision",
+			"ok": true
+		},
+		{
+			"name": "persistent water height reaches rendered surface",
+			"ok": true
+		},
+		{
+			"name": "night setting removes direct sunlight",
+			"ok": true
+		},
+		{
+			"name": "closed door blocks a native physics ray",
+			"ok": true
+		},
+		{
+			"name": "closed door blocks the actual avatar capsule",
+			"ok": true
+		},
+		{
+			"name": "opened door removes collision from its central passage",
+			"ok": true
+		},
+		{
+			"name": "avatar can pass through the opened door",
+			"ok": true
+		},
+		{
+			"name": "active lamp creates a native local light",
+			"ok": true
+		},
+		{
+			"name": "inactive lamp removes local illumination",
+			"ok": true
+		},
+		{
+			"name": "ellipsoid collider bakes nonuniform metric dimensions",
+			"ok": true
+		},
+		{
+			"name": "ellipsoid collider does not behave like its bounding box",
+			"ok": true
+		},
+		{
+			"name": "legacy snapshot upgrade is explicit and requires a save",
+			"ok": true
+		},
+		{
+			"name": "loading an older snapshot never rewrites its original bytes",
+			"ok": true
+		},
+		{
+			"name": "migration preserves terrain, revision and object identity",
+			"ok": true
+		},
+		{
+			"name": "saving upgraded data retains the original version as backup",
+			"ok": true
+		},
+		{
+			"name": "actual V2 snapshot preserves sculpted elevation during upgrade",
+			"ok": true
+		},
+		{
+			"name": "upgraded V2 terrain survives resave and reload",
+			"ok": true
+		},
+		{
+			"name": "legacy migration validates old records before adding defaults",
+			"ok": true
+		},
+		{
+			"name": "malformed legacy snapshots cannot be migrated",
+			"ok": true
+		},
+		{
+			"name": "future snapshot versions cannot be coerced to V3",
+			"ok": true
 		}
 	],
 	"engine": "4.5.1-stable (official)",
 	"failed": 0,
-	"passed": 86,
+	"passed": 136,
 	"physics": "Jolt Physics",
 	"suite": "native-domain-persistence-physics"
 }

@@ -1,8 +1,8 @@
-# Region Lab V2 使用说明
+# Region Lab V3 使用说明
 
-版本：0.2.0。本文适用于 Windows x64 源码运行方式。
+版本：0.3.0。本文适用于 Windows x64 源码运行方式。
 
-Region Lab 是基于 Godot 的单区域编辑原型。V2 支持物体编辑、地形编辑、角色漫游、撤销与重做，以及物体和地形的整体保存恢复。区域尺寸为 256×256 米，当前采用本机单用户模式。
+Region Lab 是基于 Godot 的单区域编辑原型。V3 支持六类对象、程序材质、地形编辑、区域环境、门灯交互、角色漫游和统一保存恢复。新世界提供庭院、湖岸及可进入的展馆。区域尺寸为 256×256 米，当前采用本机单用户模式。
 
 ## 1. 环境要求
 
@@ -23,11 +23,11 @@ Region Lab 是基于 Godot 的单区域编辑原型。V2 支持物体编辑、�
 ### 2.1 获取代码
 
 ```powershell
-git clone --branch codex/region-lab-v2 https://github.com/StarryLiu1122/OpenSim.git
+git clone --branch codex/region-lab-v3 https://github.com/StarryLiu1122/OpenSim.git
 cd OpenSim\prototype
 ```
 
-也可在 GitHub 下载该分支 ZIP 并解压。已有仓库可在保存本地修改后，获取并切换至 `codex/region-lab-v2`。
+也可在 GitHub 下载该分支 ZIP 并解压。已有仓库可在保存本地修改后，获取并切换至 `codex/region-lab-v3`。
 
 ### 2.2 安装引擎
 
@@ -74,8 +74,10 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Godot.ps
 | 操作 | 入口 |
 | --- | --- |
 | 创建、复制、删除 | 左侧按钮；复制 Ctrl+D，删除 Delete |
+| 选择类型 | 左侧下拉框：方块、圆柱、球、伸缩门、树木、路灯 |
+| 门灯交互 | 编辑模式选择对象后点击开启/关闭；漫游模式对准 4 米内的门框或路灯，按 E |
 | 选择对象 | 单击场景物体或列表条目 |
-| 编辑属性 | 名称、位置、尺寸、水平旋转、颜色，编辑后应用 |
+| 编辑属性 | 名称、位置、尺寸、水平旋转、颜色和材质，编辑后应用 |
 | 聚焦 | F 或双击列表 |
 | 编辑视角 | 右键旋转、中键平移、滚轮缩放 |
 | 漫游 | Tab 进入，WASD 移动，空格跳跃，Shift 加速，Esc 返回 |
@@ -83,6 +85,30 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Godot.ps
 | 保存 / 恢复 | Ctrl+S / Ctrl+O，或顶部按钮 |
 
 坐标单位为米，X 向东、Y 向北、Z 为高度。物体每轴尺寸为 0.2–32 米，旋转后的完整水平范围必须位于区域内。
+
+### 4.1 首次体验
+
+1. 使用一个新的存档路径启动，例如 `Start.cmd -WorldFile "$PWD\runtime\v3-demo.json"`。已有 V1/V2 存档将保留原场景，不自动替换为展馆。
+2. Tab 进入漫游，沿道路向前走到展馆入口。漫游时隐藏两侧编辑面板。
+3. 在 4 米内对准门或门框，按 E 开门，继续向前进入室内。打开后门洞中央为空，应对准门框关闭。
+4. Esc 返回编辑。在“环境”页设置 20 时，点击“应用环境设置”，观察路灯与夜景。
+5. 保存世界，关闭后用同一路径重新启动，核对环境与门灯状态。
+
+展馆各墙体、屋顶和陈设可分别选择编辑。它们尚未组成 linkset；整体移动建筑需要后续对象组功能。
+
+### 4.2 区域环境
+
+| 设置 | 范围与作用 |
+| --- | --- |
+| 太阳时刻 | 0–24；6 时日出、12 时正午、18 时日落；固定时刻，不自动推进，也不计算真实地理日照 |
+| 水位 | -40–80 米；整个区域共用水平水面 |
+| 水面开关 | 控制水面显示；地形与物体不随水位变化 |
+| 雾密度 | 0–0.02，0 关闭 |
+| 地形网格 | 编辑辅助线，可按需开启 |
+
+环境操作与物体、地形共用撤销和重做。水面为视觉效果，当前没有游泳、浮力、潮汐或水流。树木仅树干参与碰撞；叶冠不阻挡角色。门使用内置伸缩状态，不执行外部脚本。
+
+![V3 区域场景](docs/images/overview.png)
 
 ## 5. 地形编辑
 
@@ -118,9 +144,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Godot.ps
 
 保存流程包括数据校验、临时写入、回读验证、有效备份更新和主文件替换。主存档无效时尝试备份；恢复备份后界面提示检查并保存。两份文件均无效时保留当前内存世界并报告错误。
 
-V2 继续使用世界格式版本 1，可直接读取 V1 存档。升级前可复制存档作为留档；不要让两个程序实例同时写入同一世界文件。快照为单写入者存储，外部修改检测不提供跨进程事务保证。
+V3 使用世界格式版本 2，可读取 V1/V2 的格式 1 存档。读取时先验证旧结构、在内存中补齐环境、材质和行为字段，并标记为待保存；原文件此时不改写。首次保存升级结果时，原格式保留在 .bak。V1/V2 程序不能读取格式 2；如需返回旧版，应使用升级前副本或尚未被后续保存轮换的旧备份。不要让两个程序实例同时写入同一世界文件。快照为单写入者存储，外部修改检测不提供跨进程事务保证。
 
-保存内容包括区域、地形、资产描述及物体。编辑相机、角色实时位置、选择状态和撤销历史不持久化；角色重新启动时位于区域起点。撤销或重做后的世界按已修改状态处理，保存后清除标记。
+保存内容包括区域、地形、环境、内置资产目录、物体材质和门灯状态。编辑相机、角色实时位置、选择状态和撤销历史不持久化；角色重新启动时位于区域起点。撤销或重做后的世界按已修改状态处理，保存后清除标记。
 
 ## 7. 测试与自动化
 
@@ -149,7 +175,7 @@ $engine = ".\.tools\godot-4.5.1\Godot_v4.5.1-stable_win64_console.exe"
 .\Start.cmd -WorldFile "$PWD\runtime\terrain-demo.json"
 ```
 
-批处理应在图形程序关闭后执行。创建物体样例另见 [create-and-save.commands.json](fixtures/create-and-save.commands.json)，命令语义见 [接口文档](docs/architecture-and-api.md)。
+批处理应在图形程序关闭后执行。创建物体样例另见 [create-and-save.commands.json](fixtures/create-and-save.commands.json)，环境与开门样例见 [environment-and-door.commands.json](fixtures/environment-and-door.commands.json)，命令语义见 [接口文档](docs/architecture-and-api.md)。
 
 ## 8. 常见故障
 
@@ -165,4 +191,4 @@ $engine = ".\.tools\godot-4.5.1\Godot_v4.5.1-stable_win64_console.exe"
 
 ## 9. 相关文档
 
-[架构与接口](docs/architecture-and-api.md) · [数据对应](docs/opensim-data-mapping.md) · [技术选型](docs/engine-decision.md) · [V2 版本说明](docs/releases/v2.md) · [后续计划](../docs/plans/stage-one-rebuild-plan.md)
+[架构与接口](docs/architecture-and-api.md) · [数据对应](docs/opensim-data-mapping.md) · [技术选型](docs/engine-decision.md) · [V3 版本说明](docs/releases/v3.md) · [后续计划](../docs/plans/stage-one-rebuild-plan.md)

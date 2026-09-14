@@ -1,7 +1,9 @@
 extends Node3D
 ## The only place that translates portable world records into Godot nodes/physics.
 const COORDINATES := Basis(Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0))
+const Builtins = preload("res://adapters/builtin_objects.gd")
 var bodies: Dictionary = {}
+var _records: Dictionary = {}
 var selected := ""
 var _terrain: Dictionary
 var _brush: MeshInstance3D
@@ -20,6 +22,7 @@ func rebuild(world: Dictionary) -> void:
 	for child in get_children():
 		child.free()
 	bodies.clear()
+	_records.clear()
 	_brush = null
 	_brush_key = ""
 	_terrain = {}
@@ -48,15 +51,7 @@ func sync_objects(objects: Array) -> void:
 			body.set_meta("world_id", item.id)
 			body.collision_layer = 2
 			body.collision_mask = 4
-			var visual := MeshInstance3D.new()
-			visual.name = "Visual"
-			visual.mesh = BoxMesh.new()
-			visual.material_override = StandardMaterial3D.new()
-			body.add_child(visual)
-			var collider := CollisionShape3D.new()
-			collider.name = "Collider"
-			collider.shape = BoxShape3D.new()
-			body.add_child(collider)
+			Builtins.build(body, item)
 			var outline := MeshInstance3D.new()
 			outline.name = "Outline"
 			var lines := ImmediateMesh.new()
@@ -81,20 +76,23 @@ func sync_objects(objects: Array) -> void:
 			body.add_child(outline)
 			add_child(body)
 			bodies[item.id] = body
+			_records[item.id] = item.duplicate(true)
 		var body: StaticBody3D = bodies[item.id]
 		body.position = to_engine(item.position)
 		body.basis = rotation_to_engine(item.rotation)
 		var dimensions := Vector3(item.size[0], item.size[2], item.size[1])
-		var visual: MeshInstance3D = body.get_node("Visual")
-		visual.mesh.size = dimensions
-		visual.material_override.albedo_color = Color(item.color)
-		visual.material_override.roughness = 0.78
-		body.get_node("Collider").shape.size = dimensions
+		if _records.get(item.id) != item:
+			for child in body.get_children():
+				if child.name != "Outline":
+					child.free()
+			Builtins.build(body, item)
+			_records[item.id] = item.duplicate(true)
 		body.get_node("Outline").scale = dimensions + Vector3.ONE * 0.06
 	for id in bodies.keys():
 		if not current.has(id):
 			bodies[id].free()
 			bodies.erase(id)
+			_records.erase(id)
 	select(selected)
 
 func select(id: String) -> void:
@@ -213,3 +211,18 @@ func _build_boundary(size: Array) -> void:
 		collider.shape = shape
 		body.add_child(collider)
 		add_child(body)
+
+func sync_environment(data: Dictionary) -> void:
+	var material: ShaderMaterial = get_node("TerrainVisual").material_override
+	material.set_shader_parameter("water_height", data.water_height if data.water_enabled else -100.0)
+	material.set_shader_parameter("show_grid", data.terrain_grid)
+
+func interaction_target(camera: Camera3D, distance: float = 4.0) -> String:
+	var origin := camera.global_position
+	var ray := PhysicsRayQueryParameters3D.create(origin, origin - camera.global_basis.z * distance, 3)
+	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
+	if hit.is_empty():
+		return ""
+	var id: String = hit.collider.get_meta("world_id", "")
+	var record: Dictionary = _records.get(id, {})
+	return id if record.get("state", {}).has("active") else ""

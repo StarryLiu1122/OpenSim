@@ -34,10 +34,11 @@ func _read(file_path: String) -> Dictionary:
 	var payload := JSON.new()
 	if payload.parse(envelope.world_json) != OK:
 		return {"error": "World payload JSON is invalid."}
-	var error := Schema.validate(payload.data)
-	if not error.is_empty():
-		return {"error": error}
-	return {"world": payload.data, "sha256": envelope.sha256}
+	var upgraded := Schema.upgrade(payload.data)
+	if upgraded.has("error"):
+		return upgraded
+	upgraded.sha256 = envelope.sha256
+	return upgraded
 
 func load_world() -> Dictionary:
 	var primary := _read(path)

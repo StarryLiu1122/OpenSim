@@ -3,6 +3,9 @@ const Schema = preload("res://domain/world_schema.gd")
 const Service = preload("res://domain/world_service.gd")
 const WorldView = preload("res://adapters/world_view.gd")
 const Avatar = preload("res://client/avatar.gd")
+const Demo = preload("res://domain/demo_region.gd")
+const EnvironmentView = preload("res://adapters/environment_view.gd")
+var environment_view
 const EditorUI = preload("res://client/editor_ui.gd")
 
 var service
@@ -12,10 +15,10 @@ var ui
 var camera: Camera3D
 var selected_id := ""
 var walk_mode := false
-var orbit_target := Vector3(127, 1.5, -132)
-var orbit_yaw := 0.65
-var orbit_pitch := 0.66
-var orbit_distance := 43.0
+var orbit_target := Vector3(138, 1.5, -137)
+var orbit_yaw := -0.65
+var orbit_pitch := 0.43
+var orbit_distance := 87.0
 var _dialog: ConfirmationDialog
 var _dialog_action := ""
 
@@ -27,7 +30,12 @@ func _ready() -> void:
 		if argument.begins_with("--world-file="):
 			world_file = argument.trim_prefix("--world-file=")
 	service = Service.new(world_file)
-	_build_lighting()
+	if not service.repository.exists():
+		var error: String = service.model.replace(Demo.create())
+		if not error.is_empty():
+			push_error(error)
+	environment_view = EnvironmentView.new()
+	add_child(environment_view)
 	world_view = WorldView.new()
 	add_child(world_view)
 	camera = Camera3D.new()
@@ -44,6 +52,7 @@ func _ready() -> void:
 	ui.object_selected.connect(_select)
 	ui.patch_requested.connect(_patch)
 	ui.terrain_panel.apply_requested.connect(_sculpt)
+	ui.environment_panel.apply_requested.connect(func(patch: Dictionary): _feedback(service.request("UpdateEnvironment", {"patch": patch})))
 	_dialog = ConfirmationDialog.new()
 	_dialog.title = "确认操作"
 	_dialog.ok_button_text = "继续"
@@ -70,28 +79,6 @@ func _install_input() -> void:
 			event.physical_keycode = actions[action]
 			InputMap.action_add_event(action, event)
 
-func _build_lighting() -> void:
-	var environment := WorldEnvironment.new()
-	var settings := Environment.new()
-	settings.background_mode = Environment.BG_COLOR
-	settings.background_color = Color("b5ccce")
-	settings.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	settings.ambient_light_color = Color("dae8ea")
-	settings.ambient_light_energy = 0.3
-	settings.tonemap_mode = Environment.TONE_MAPPER_LINEAR
-	settings.fog_enabled = true
-	settings.fog_light_color = Color("c7dad9")
-	settings.fog_density = 0.0012
-	environment.environment = settings
-	add_child(environment)
-	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-52, -35, 0)
-	sun.light_color = Color("fff1d2")
-	sun.light_energy = 0.7
-	sun.shadow_enabled = true
-	sun.directional_shadow_max_distance = 250
-	add_child(sun)
-
 func _rebuild() -> void:
 	var world: Dictionary = service.model.snapshot()
 	world_view.rebuild(world)
@@ -106,6 +93,8 @@ func _refresh() -> void:
 	var world: Dictionary = service.model.snapshot()
 	var terrain_changed: bool = world_view.sync_terrain(world.terrain, world.region.size)
 	world_view.sync_objects(world.objects)
+	world_view.sync_environment(world.environment)
+	environment_view.sync(world.environment)
 	if terrain_changed:
 		var floor_y: float = world_view.ground_height(avatar.position.x, -avatar.position.z)
 		if avatar.position.y < floor_y + 0.05:
@@ -133,6 +122,9 @@ func _sculpt(payload: Dictionary) -> void:
 func _process(_delta: float) -> void:
 	if ui == null:
 		return
+	if walk_mode:
+		var target: String = world_view.interaction_target(avatar.camera)
+		ui.interaction_hint.text = "+\nE · 开启 / 关闭" if not target.is_empty() else "+"
 	var enabled: bool = ui.inspector_tabs.current_tab == 1 and not walk_mode
 	if not enabled:
 		world_view.show_brush(Vector2.ZERO, 4, false)
@@ -155,11 +147,21 @@ func _action(action: String) -> void:
 			p[0] = clampf(p[0] + randf_range(-3, 3), 2, 254)
 			p[1] = clampf(p[1] - 8, 2, 254)
 			p[2] = world_view.ground_height(p[0], p[1]) + 1
-			var item := Schema.box("新立方体", p, [2.0, 2.0, 2.0], "#50A696")
+			var kind: String = Schema.KINDS[ui.asset_picker.selected]
+			var dimensions: Array = {"door": [2.6, 0.3, 3.2], "tree": [4.4, 4.4, 7.0], "lamp": [0.7, 0.7, 4.2]}.get(kind, [2.0, 2.0, 2.0])
+			p[0] = clampf(p[0], dimensions[0] / 2.0, 256.0 - dimensions[0] / 2.0)
+			p[1] = clampf(p[1], dimensions[1] / 2.0, 256.0 - dimensions[1] / 2.0)
+			p[2] = world_view.ground_height(p[0], p[1]) + dimensions[2] / 2.0
+			var item := Schema.primitive(kind, "新" + ui.asset_picker.get_item_text(ui.asset_picker.selected), p, dimensions, "#50A696")
 			var result: Dictionary = service.request("CreateObject", {"object": item})
 			if result.ok:
 				selected_id = item.id
 			_feedback(result)
+		"interact":
+			var target: String = world_view.interaction_target(avatar.camera) if walk_mode else selected_id
+			var item: Dictionary = service.model.object(target)
+			if item.get("state", {}).has("active"):
+				_feedback(service.request("SetObjectState", {"id": target, "active": not item.state.active}))
 		"duplicate":
 			var item: Dictionary = service.model.object(selected_id)
 			if item.is_empty():
@@ -202,7 +204,7 @@ func _action(action: String) -> void:
 		"help":
 			var help := AcceptDialog.new()
 			help.title = "区域实验室 · 操作指南"
-			help.dialog_text = "物体：左键选择，在属性面板编辑后应用。\n地形：切换地形页，选择笔刷，在地表单击或输入坐标后应用。\n右键旋转视角，中键平移，滚轮缩放，F 聚焦对象。\nCtrl+D 复制，Delete 删除，Ctrl+Z 撤销，Ctrl+Y 重做。\n\n漫游：Tab 进入，WASD 移动，空格跳跃，Shift 加速。\nEsc 返回编辑模式。\n\nCtrl+S 保存世界，Ctrl+O 恢复存档。\n物体和地形一起保存；操作历史仅在本次会话中保留。\n\n存档位置：\n" + service.repository.path
+			help.dialog_text = "物体：左键选择，在属性面板编辑后应用。\n地形：切换地形页，选择笔刷，在地表单击或输入坐标后应用。\n右键旋转视角，中键平移，滚轮缩放，F 聚焦对象。\nCtrl+D 复制，Delete 删除，Ctrl+Z 撤销，Ctrl+Y 重做。\n\n漫游：Tab 进入，WASD 移动，空格跳跃，Shift 加速。\nE 操作 4 米内准星对准的门或路灯，Esc 返回编辑模式。\n\nCtrl+S 保存世界，Ctrl+O 恢复存档。\n物体、地形、环境与门灯状态一起保存；操作历史仅在本次会话中保留。\n\n存档位置：\n" + service.repository.path
 			help.min_size = Vector2i(660, 380)
 			help.confirmed.connect(help.queue_free)
 			help.canceled.connect(help.queue_free)
@@ -222,6 +224,8 @@ func _feedback(result: Dictionary) -> void:
 		message.popup_centered(Vector2i(610, 180))
 	elif not result.warnings.is_empty():
 		ui.set_status("●  已恢复备份，请检查并保存", true)
+	elif result.operation == "LoadRegion" and result.payload.get("migrated", false):
+		ui.set_status("●  旧存档已升级，请保存为 V3 格式", true)
 	elif result.operation == "SaveRegion":
 		ui.set_status("●  保存成功 · " + Time.get_time_string_from_system())
 	elif result.operation == "SculptTerrain":
@@ -253,6 +257,9 @@ func _notification(what: int) -> void:
 			get_tree().quit()
 
 func _set_walk(active: bool) -> void:
+	var focus := get_viewport().gui_get_focus_owner()
+	if focus != null:
+		focus.release_focus()
 	walk_mode = active
 	avatar.active = active
 	avatar.camera.current = active
@@ -278,6 +285,8 @@ func _input(event: InputEvent) -> void:
 			elif event.ctrl_pressed and event.keycode in [KEY_S, KEY_O, KEY_Z, KEY_Y, KEY_D]:
 				_action({KEY_S: "save", KEY_O: "load", KEY_Z: "undo", KEY_Y: "redo", KEY_D: "duplicate"}[event.keycode])
 				get_viewport().set_input_as_handled()
+			elif walk_mode and event.keycode == KEY_E:
+				_action("interact")
 			elif not walk_mode and event.keycode == KEY_F:
 				_action("focus")
 			elif not walk_mode and event.keycode == KEY_DELETE:

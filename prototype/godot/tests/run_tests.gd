@@ -26,6 +26,7 @@ func _run() -> void:
 	_test_persistence()
 	await _test_physics()
 	await preload("res://tests/test_terrain.gd").new().run(self)
+	await preload("res://tests/test_v3.gd").new().run(self)
 	var passed := 0
 	for item in cases:
 		if item.ok:
@@ -42,7 +43,7 @@ func _test_schema() -> void:
 	var world := Schema.seed()
 	check(Schema.validate(world).is_empty(), "seed satisfies portable schema")
 	var wrong := world.duplicate(true)
-	wrong.schema_version = 2
+	wrong.schema_version = Schema.VERSION + 1
 	check(not Schema.validate(wrong).is_empty(), "future schema rejected")
 	wrong = world.duplicate(true)
 	wrong.objects.append(wrong.objects[0].duplicate(true))

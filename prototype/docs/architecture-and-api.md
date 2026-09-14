@@ -1,6 +1,6 @@
 # 架构与接口规范
 
-适用版本：Region Lab 0.2.0。世界格式版本：1；命令协议版本：1。
+适用版本：Region Lab 0.3.0。世界格式版本：2；命令协议版本：1。
 
 ## 1. 模块职责
 
@@ -23,6 +23,9 @@ flowchart LR
 | WorldModel | 数据副本、归属校验、原子状态替换和修订 | `godot/domain/world_model.gd` |
 | WorldService | 命令封装、重复请求、历史、保存恢复 | `godot/domain/world_service.gd` |
 | SnapshotRepository | 文件封装、校验、备份与发布 | `godot/adapters/snapshot_repository.gd` |
+| BuiltinObjects | 六类内置对象的显示、碰撞与局部灯光 | `godot/adapters/builtin_objects.gd` |
+| EnvironmentView | 太阳、天空、雾与区域水面 | `godot/adapters/environment_view.gd` |
+| DemoRegion | 新建图形场景的示例数据，不改写已有存档 | `godot/domain/demo_region.gd` |
 | WorldView | 坐标转换、显示网格、碰撞体与拾取 | `godot/adapters/world_view.gd` |
 | Client | 物体与地形面板、角色输入和相机 | `godot/client/`、`godot/main.gd` |
 
@@ -30,20 +33,21 @@ flowchart LR
 
 ## 2. 世界格式
 
-根字段固定为 `schema_version`、`revision`、`region`、`terrain`、`assets`、`objects`。
+根字段固定为 `schema_version`、`revision`、`region`、`terrain`、`assets`、`objects`、`environment`。
 
 | 字段 | 约束 |
 | --- | --- |
-| `schema_version` | 当前为 1，未知版本拒绝读取 |
+| `schema_version` | 当前为 2；格式 1 由专用旧版校验器验证后迁移，其它版本拒绝读取 |
 | `revision` | 0–1,000,000,000 的整数 |
 | `region` | `id/name/size/spawn/owner_id`；尺寸当前固定 256×256 米 |
 | `terrain` | `columns/rows/spacing/heights`；覆盖范围必须与区域一致，高程 -40–80 米 |
-| `assets` | 当前仅一个固定的 `builtin://unit-box` 描述 |
-| `objects` | 最多 500 个单部件方块；ID 唯一，变换和归属须合法 |
+| `assets` | 固定顺序的六项内置目录，ID、kind、uri 均须精确匹配 |
+| `environment` | `sun_hour/water_enabled/water_height/fog_density/terrain_grid` |
+| `objects` | 最多 500 个独立对象；ID 唯一，变换和归属须合法 |
 
 未知字段、非有限数值、非法资产引用、未归一化旋转和越界形状均被拒绝。500 是输入上限，尚未作为已验证的性能容量。
 
-坐标、字段及 OpenSim 对应关系见 [数据模型说明](opensim-data-mapping.md)。V2 新增地形命令和重做，不增加存档字段；应用版本与数据版本分别管理。
+坐标、字段及 OpenSim 对应关系见 [数据模型说明](opensim-data-mapping.md)。V3 对象增加 `material` 和 `state` 必填字段。应用版本、世界格式和命令封装版本分别管理；命令封装仍为 1，但 CreateObject 必须提交格式 2 对象，不能省略新增字段。
 
 ## 3. 命令封装
 
@@ -71,9 +75,11 @@ flowchart LR
 | --- | --- | --- |
 | `GetRegionSnapshot` | `{}` | 返回 `payload.world` 独立副本 |
 | `CreateObject` | `{"object": 完整物体}` | 创建物体，校验归属、资产及变换 |
-| `UpdateObject` | `{"id": "UUID", "patch": 修改字段}` | 可改 name、position、rotation、size、color |
+| `UpdateObject` | `{"id": "UUID", "patch": 修改字段}` | 可改 name、position、rotation、size、color、material |
 | `DeleteObject` | `{"id": "UUID"}` | 删除当前身份拥有的物体 |
 | `SculptTerrain` | 笔刷参数，见下节 | 修改区域归属允许的高度场 |
+| `UpdateEnvironment` | `{"patch": 修改字段}` | 区域所有者更新环境；拒绝空 patch 和未知字段 |
+| `SetObjectState` | `{"id": "UUID", "active": true}` | 物体所有者设置门/灯状态；只接受 boolean |
 | `Undo` | `{}` | 撤销最近一次有效编辑 |
 | `Redo` | `{}` | 重做最近撤销的编辑 |
 | `SaveRegion` | `{}` | 保存当前世界，成功后清除未保存标记 |
@@ -127,14 +133,28 @@ smooth:  h' = (1-w)h + w × mean(neighborhood_3x3)
 
 ## 5. 历史、修订与重复请求
 
-- 有效物体或地形编辑增加修订，并记录修改前的世界；历史上限为 30 次。
-- 撤销和重做均使用新的修订值。新有效编辑清空重做分支；无变化的笔刷操作保留该分支。
+- 有效物体、地形、环境或行为编辑增加修订，并记录修改前的世界；历史上限为 30 次。
+- 撤销和重做均使用新的修订值。新有效编辑清空重做分支；通过校验的无变化操作保留该分支。
 - 保存不清除历史。恢复存档清空两个历史栈，并使用存档中的修订；该值可能小于恢复前的内存值。
 - 修订达到上限时，新增编辑及历史操作返回错误，保持数据和历史不变。
 - Service 缓存最近 256 个请求。同一 ID 与相同内容返回原结果，ID 相同但内容不同返回 `REQUEST_REUSED`。
 - 缓存及历史不跨进程持久化。后续多人系统需要另外定义世界世代、服务端排序、身份认证与持久化去重。
 
 当前身份为固定本机测试 UUID。归属校验验证编辑规则，不提供远程访问认证。
+
+### 5.1 V3 环境与行为契约
+
+| 环境字段 | 类型与范围 |
+| --- | --- |
+| sun_hour | 有限数值 0–24，固定示意太阳时刻 |
+| water_enabled | boolean |
+| water_height | 有限数值 -40–80 米 |
+| fog_density | 有限数值 0–0.02 |
+| terrain_grid | boolean |
+
+物体 material 为 plain、concrete、brick、wood 或 metal。state 在 door、lamp 上必须为 `{"active": boolean}`，其它类型必须为 `{}`。active=true 对应开门或开灯。UpdateObject 不能修改 asset_id、owner_id 或 state，行为状态只能通过 SetObjectState 变更。非交互资产拒绝行为命令。
+
+漫游的 4 米距离和遮挡检查位于客户端拾取层，射线同时检测地形与物体。编辑面板和离线工具允许设置当前身份拥有的任意门灯；这不是服务端距离权限机制。交互只切换有限内置状态，不执行脚本文本。
 
 ## 6. 地形场景同步
 
@@ -144,11 +164,21 @@ smooth:  h' = (1-w)h + w × mean(neighborhood_3x3)
 
 种子地形有 8,192 个三角形。目前采用整块重建，尚无局部块更新和容量优化。选择依据见 [技术选型](engine-decision.md)。
 
+### 6.1 对象与环境投影
+
+WorldView 保留稳定 ID 到 StaticBody3D 的映射。对象记录改变时更新该物体的几何和碰撞，不重建整个世界。BuiltinObjects 生成方块、圆柱、球和复合门、树、灯。圆柱和球采用烘入非均匀尺寸的凸碰撞；树木只有树干碰撞，叶冠用于显示。树干和门框使用固定内置配色，主表面使用记录颜色，树冠使用专用叶片着色。
+
+门的两侧伸缩面板在打开时收回到门框范围内，中央碰撞随状态变化；没有连续动画。所有部件均保持在对象声明的尺寸范围内，复合引擎节点不等价于可编辑的 OpenSim linkset。
+
+EnvironmentView 根据持久化参数设置天空、太阳、雾及 256×256 米水面。太阳时刻固定，水面只做渲染；两者都不是真实天气或水动力模拟。地形网格、地面查询与碰撞的共同三角形规则不变。
+
 ## 7. 存储协议
 
 磁盘封装含 `format="region-lab.snapshot"`、`version=1`、`sha256`、`world_json`。`world_json` 是完整世界的 JSON 文本字符串；SHA256 针对该字符串的 UTF-8 文本计算，验证后再解析世界。
 
 保存顺序为：验证数据 → 写临时文件 → flush 并关闭 → 回读验证 → 更新有效备份 → 替换主文件。损坏主文件不会覆盖有效备份。主文件读取失败时尝试备份；备份恢复返回警告并标记为需要保存。两份文件都无效时不替换内存世界。
+
+格式 1 的载荷通过 LegacyWorldSchema 完整验证后，在副本上补入默认环境、material=plain、state={} 并替换为内置目录。ID、地形、区域和修订保留。LoadRegion 返回 migrated=true，设置 dirty=true；读取不改写原文件。下一次显式保存发布格式 2，并将有效原文件轮换为备份。
 
 快照上限 8 MiB。文件摘要用于损坏检测，不是身份签名。写入前文件指纹可发现已经发生的外部修改，但检查和发布之间没有跨进程锁。断电持久性、多人事务和数据库迁移尚未验证。
 
@@ -158,4 +188,20 @@ smooth:  h' = (1-w)h + w × mean(neighborhood_3x3)
 
 命令按序执行，首个失败即停止并退出 1；全部成功退出 0。只有显式 `SaveRegion` 才写入世界文件。批处理不是事务，先前已经完成的保存不会因后续失败而回滚。输入、世界及其临时/备份路径不能用作报告输出路径。
 
-样例包括 [物体创建](../fixtures/create-and-save.commands.json) 与 [地形编辑、撤销重做及保存](../fixtures/sculpt-and-save.commands.json)。自动化入口接收限定的数据命令，不执行调用方传入的脚本文本或原生资源。
+新文件的离线命令服务使用八个方块的基础数据集；图形程序新建世界使用 DemoRegion 的展馆场景。两者采用同一格式和命令规则，已存在文件均优先加载存档。
+
+样例包括 [环境与开门](../fixtures/environment-and-door.commands.json)、[物体创建](../fixtures/create-and-save.commands.json) 与 [地形编辑、撤销重做及保存](../fixtures/sculpt-and-save.commands.json)。自动化入口接收限定的数据命令，不执行调用方传入的脚本文本或原生资源。
+
+
+## 9. 固定资产目录
+
+| kind | UUID | uri |
+| --- | --- | --- |
+| box | 22222222-2222-4222-8222-222222222222 | builtin://unit-box |
+| cylinder | 22222222-2222-4222-8222-000000000002 | builtin://unit-cylinder |
+| sphere | 22222222-2222-4222-8222-000000000003 | builtin://unit-sphere |
+| door | 22222222-2222-4222-8222-000000000004 | builtin://unit-door |
+| tree | 22222222-2222-4222-8222-000000000005 | builtin://unit-tree |
+| lamp | 22222222-2222-4222-8222-000000000006 | builtin://unit-lamp |
+
+目录是内置工厂白名单，不是外部资产仓储；uri 不用于任意文件加载。树木、门和灯内部使用多个引擎节点，但仍对应一个对象 ID。

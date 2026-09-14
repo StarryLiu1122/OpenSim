@@ -2,19 +2,21 @@
 
 本项目以 OpenSimulator 0.9.3.0 的区域、地形、物体和持久化模型为参考，采用现代游戏引擎实现可逐步扩展的三维区域系统。仓库保留原版 C# 源码，并在 `prototype/` 中独立开发 Region Lab。
 
-当前版本：**Region Lab V2（0.2.0）**。运行环境为 **Godot 4.5.1 标准版、Jolt 物理、GDScript**；交付范围为本机单用户、256×256 米区域。
+当前版本：**Region Lab V3（0.3.0）**。运行环境为 **Godot 4.5.1 标准版、Jolt 物理、GDScript**；交付范围为本机单用户、256×256 米区域。
 
-![Region Lab V2 地形编辑](prototype/docs/images/terrain.png)
+![Region Lab V3 区域场景](prototype/docs/images/overview.png)
 
 ## 功能范围
 
-| 模块 | V2 功能 |
+| 模块 | V3 功能 |
 | --- | --- |
 | 区域与角色 | 高度场地形、区域边界、行走、跳跃、角色碰撞 |
-| 物体编辑 | 创建、选择、复制、删除；名称、位置、尺寸、旋转和颜色编辑 |
+| 物体编辑 | 六类内置对象；创建、选择、复制、删除；变换、颜色和材质编辑 |
 | 地形编辑 | 抬升、降低、设高、平滑；地表拾取、坐标定位和笔刷范围预览 |
-| 编辑历史 | 物体与地形统一撤销、重做，最多保留 30 次编辑 |
-| 持久化 | 物体与地形整体保存、重启恢复、校验和与有效备份；兼容 V1 存档 |
+| 场景环境 | 展馆与庭院、湖岸、水面、太阳时刻、雾和程序地表材质 |
+| 交互行为 | 可进入建筑、开关门灯、4 米内漫游交互 |
+| 编辑历史 | 物体、地形、环境与行为统一撤销、重做，最多保留 30 次编辑 |
+| 持久化 | 世界整体保存、重启恢复、校验和与有效备份；迁移 V1/V2 存档 |
 | 自动化 | 版本化命令入口、离线 JSON 批处理、原生引擎与界面测试 |
 
 多人同步、数据库服务、完整身份权限、库存、LSL/OSSL、Firestorm 协议及外部模型导入列入后续版本。当前未集成在线大模型服务。
@@ -24,11 +26,13 @@
 Windows x64 环境需要 PowerShell 5.1、支持 OpenGL 3.3 的显卡及正常驱动。
 
 ```powershell
-git clone --branch codex/region-lab-v2 https://github.com/StarryLiu1122/OpenSim.git
+git clone --branch codex/region-lab-v3 https://github.com/StarryLiu1122/OpenSim.git
 cd OpenSim\prototype
 .\Install.cmd
 .\Start.cmd
 ```
+
+已有存档将保留原场景。体验 V3 展馆请使用新的路径启动：`Start.cmd -WorldFile "$PWD\runtime\v3-demo.json"`。
 
 安装脚本下载并校验官方 Godot 发行包，约 77 MB。原型运行不依赖 .NET SDK、Python、数据库或 API Key。离线安装、指定存档、操作说明和故障处理见 [使用说明](prototype/README.md)。
 
@@ -41,7 +45,7 @@ cd OpenSim\prototype
 | [OpenSim 数据对应](prototype/docs/opensim-data-mapping.md) | 源码入口、字段映射、坐标、地形与存储语义 |
 | [技术选型](prototype/docs/engine-decision.md) | 引擎选择、语言分工及 GameFactory 参考范围 |
 | [验证记录](prototype/docs/verification.md) | 测试环境、结果、兼容性和验证边界 |
-| [V2 版本说明](prototype/docs/releases/v2.md) | 版本范围、接口变化、兼容性和已知限制 |
+| [V3 版本说明](prototype/docs/releases/v3.md) | 版本范围、接口变化、兼容性和已知限制 |
 | [后续开发计划](docs/plans/stage-one-rebuild-plan.md) | 按交付条件组织的版本路线与任务清单 |
 | [源码来源](docs/UPSTREAM.md) | 固定上游提交及源码导入记录 |
 

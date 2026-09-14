@@ -1,11 +1,12 @@
 {
     "ok":  true,
     "engine":  "4.5.1.stable.official.f62fdbde1",
-    "native_passed":  86,
+    "native_passed":  136,
     "separate_process_persistence":  true,
     "offline_batch_adapter":  true,
     "terrain_batch_adapter":  true,
-    "application_version":  "0.2.0",
-    "visual_passed":  32,
+    "environment_behavior_batch_adapter":  true,
+    "application_version":  "0.3.0",
+    "visual_passed":  50,
     "visual_requested":  true
 }

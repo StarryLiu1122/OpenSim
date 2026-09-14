@@ -1,7 +1,10 @@
 extends RefCounted
 ## Portable world data. Coordinates: X east, Y north, Z up; distances in metres.
 
-const VERSION := 1
+const VERSION := 2
+const Legacy = preload("res://domain/legacy_world_schema.gd")
+const KINDS := ["box", "cylinder", "sphere", "door", "tree", "lamp"]
+const MATERIALS := ["plain", "concrete", "brick", "wood", "metal"]
 const OWNER := "11111111-1111-4111-8111-111111111111"
 const BOX_ASSET := "22222222-2222-4222-8222-222222222222"
 const REGION_ID := "33333333-3333-4333-8333-333333333333"
@@ -37,7 +40,7 @@ static func exact_keys(value: Dictionary, required: Array) -> bool:
 	return value.size() == required.size() and value.has_all(required)
 
 static func validate(world: Variant) -> String:
-	if not world is Dictionary or not exact_keys(world, ["schema_version", "revision", "region", "terrain", "assets", "objects"]):
+	if not world is Dictionary or not exact_keys(world, ["schema_version", "revision", "region", "terrain", "assets", "objects", "environment"]):
 		return "World fields are missing or unknown."
 	if world.schema_version != VERSION:
 		return "Unsupported world schema version."
@@ -65,11 +68,11 @@ static func validate(world: Variant) -> String:
 		return "Terrain coverage differs from region dimensions."
 	if not vector(terrain.heights, int(terrain.columns * terrain.rows), -40, 80):
 		return "Invalid terrain heights."
-	if not world.assets is Array or world.assets.size() != 1:
-		return "This prototype requires exactly one built-in box asset."
-	var asset: Variant = world.assets[0]
-	if not asset is Dictionary or not exact_keys(asset, ["id", "kind", "uri"]) or asset.id != BOX_ASSET or asset.kind != "box" or asset.uri != "builtin://unit-box":
-		return "Unknown asset; external resource loading is not supported."
+	var environment_error := validate_environment(world.environment)
+	if not environment_error.is_empty():
+		return environment_error
+	if not world.assets is Array or world.assets != catalog():
+		return "Only the fixed built-in asset catalog is supported."
 	if not world.objects is Array or world.objects.size() > MAX_OBJECTS:
 		return "Invalid object collection or object limit exceeded."
 	var seen: Dictionary = {}
@@ -83,14 +86,23 @@ static func validate(world: Variant) -> String:
 	return ""
 
 static func validate_object(item: Variant, region: Dictionary) -> String:
-	if not item is Dictionary or not exact_keys(item, ["id", "name", "asset_id", "owner_id", "position", "rotation", "size", "color"]):
+	if not item is Dictionary or not exact_keys(item, ["id", "name", "asset_id", "owner_id", "position", "rotation", "size", "color", "material", "state"]):
 		return "Invalid object fields."
-	if not is_uuid(item.id) or item.asset_id != BOX_ASSET or not is_uuid(item.owner_id):
+	if not is_uuid(item.id) or kind(item.asset_id).is_empty() or not is_uuid(item.owner_id):
 		return "Invalid object identity or asset reference."
 	if not item.name is String or item.name.strip_edges().is_empty() or item.name.length() > 80:
 		return "Object name must have 1–80 characters."
 	if not vector(item.position, 3, -100, 600) or not vector(item.size, 3, 0.2, 32) or not vector(item.rotation, 4, -1, 1):
 		return "Invalid transform; dimensions must be 0.2–32 m."
+	if item.material not in MATERIALS:
+		return "Unknown surface material."
+	if not item.state is Dictionary:
+		return "Object state must be a dictionary."
+	if kind(item.asset_id) in ["door", "lamp"]:
+		if not exact_keys(item.state, ["active"]) or not item.state.active is bool:
+			return "Interactive objects require a boolean active state."
+	elif not item.state.is_empty():
+		return "This asset has no persistent behavior state."
 	var q := Quaternion(item.rotation[0], item.rotation[1], item.rotation[2], item.rotation[3])
 	if abs(q.length_squared() - 1.0) > 0.001:
 		return "Rotation quaternion must be normalized."
@@ -106,7 +118,7 @@ static func validate_object(item: Variant, region: Dictionary) -> String:
 	return ""
 
 static func box(name: String, position: Array, size: Array, color: String) -> Dictionary:
-	return {"id": uuid(), "name": name, "asset_id": BOX_ASSET, "owner_id": OWNER, "position": position, "rotation": [0.0, 0.0, 0.0, 1.0], "size": size, "color": color}
+	return {"id": uuid(), "name": name, "asset_id": BOX_ASSET, "owner_id": OWNER, "position": position, "rotation": [0.0, 0.0, 0.0, 1.0], "size": size, "color": color, "material": "plain", "state": {}}
 
 static func seed() -> Dictionary:
 	var heights: Array = []
@@ -121,7 +133,7 @@ static func seed() -> Dictionary:
 		"schema_version": VERSION, "revision": 0,
 		"region": {"id": REGION_ID, "name": "青屿实验区", "size": [256.0, 256.0], "spawn": [128.0, 107.0, 2.5], "owner_id": OWNER},
 		"terrain": {"columns": 65, "rows": 65, "spacing": 4.0, "heights": heights},
-		"assets": [{"id": BOX_ASSET, "kind": "box", "uri": "builtin://unit-box"}],
+		"assets": catalog(), "environment": default_environment(),
 		"objects": []}
 	world.objects = [
 		box("中央展台", [128.0, 131.0, 0.35], [14.0, 14.0, 0.7], "#D9DED4"),
@@ -133,3 +145,60 @@ static func seed() -> Dictionary:
 		box("北侧门柱 B", [131.0, 147.0, 3.0], [1.2, 1.2, 6.0], "#F0EADC"),
 		box("北侧横梁", [125.0, 147.0, 6.1], [13.2, 1.2, 1.0], "#F0EADC")]
 	return world
+
+
+static func catalog() -> Array:
+	var result: Array = []
+	for i in range(KINDS.size()):
+		result.append({"id": asset_id(KINDS[i]), "kind": KINDS[i], "uri": "builtin://unit-" + KINDS[i]})
+	return result
+
+static func asset_id(asset_kind: String) -> String:
+	var index := KINDS.find(asset_kind)
+	return BOX_ASSET if index == 0 else "22222222-2222-4222-8222-%012d" % (index + 1)
+
+static func kind(id: Variant) -> String:
+	for asset_kind in KINDS:
+		if id == asset_id(asset_kind):
+			return asset_kind
+	return ""
+
+static func primitive(asset_kind: String, name: String, position: Array, size: Array, color: String, material: String = "plain") -> Dictionary:
+	var item := box(name, position, size, color)
+	item.asset_id = asset_id(asset_kind)
+	item.material = material
+	if asset_kind in ["door", "lamp"]:
+		item.state = {"active": asset_kind == "lamp"}
+	return item
+
+static func default_environment() -> Dictionary:
+	return {"sun_hour": 15.5, "water_enabled": false, "water_height": -1.0, "fog_density": 0.0015, "terrain_grid": false}
+
+static func validate_environment(value: Variant) -> String:
+	if not value is Dictionary or not exact_keys(value, ["sun_hour", "water_enabled", "water_height", "fog_density", "terrain_grid"]):
+		return "Invalid environment fields."
+	if not number(value.sun_hour, 0, 24) or not number(value.water_height, -40, 80) or not number(value.fog_density, 0, 0.02):
+		return "Environment value outside its supported range."
+	if not value.water_enabled is bool or not value.terrain_grid is bool:
+		return "Environment switches must be boolean."
+	return ""
+
+static func upgrade(value: Variant) -> Dictionary:
+	if not value is Dictionary:
+		return {"error": "World must be a dictionary."}
+	if value.get("schema_version") == 1:
+		var error := Legacy.validate(value)
+		if not error.is_empty():
+			return {"error": error}
+		var world: Dictionary = value.duplicate(true)
+		world.schema_version = VERSION
+		world.assets = catalog()
+		world.environment = default_environment()
+		# Preserve V1/V2's visible editing grid when opening an older scene.
+		world.environment.terrain_grid = true
+		for item in world.objects:
+			item.material = "plain"
+			item.state = {}
+		return {"world": world, "migrated": true}
+	var error := validate(value)
+	return {"world": value.duplicate(true), "migrated": false} if error.is_empty() else {"error": error}

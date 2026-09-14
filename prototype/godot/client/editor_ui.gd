@@ -6,6 +6,12 @@ signal patch_requested(patch: Dictionary)
 const INK := Color("eef4f0")
 const MUTED := Color("9cb3bb")
 const ACCENT := Color("bee8ce")
+const Schema = preload("res://domain/world_schema.gd")
+const EnvironmentPanel = preload("res://client/environment_panel.gd")
+var environment_panel
+var asset_picker := OptionButton.new()
+var material_picker := OptionButton.new()
+var interaction_hint: Label
 const TerrainPanel = preload("res://client/terrain_panel.gd")
 var inspector_tabs: TabContainer
 var terrain_panel
@@ -27,6 +33,8 @@ var _rotation: Array = [0.0, 0.0, 0.0, 1.0]
 var _original_yaw := 0.0
 var _original_item: Dictionary = {}
 var _displayed: Dictionary = {}
+var _list_panel: PanelContainer
+var _inspector_panel: PanelContainer
 var _inspector: VBoxContainer
 
 func _ready() -> void:
@@ -142,12 +150,16 @@ func _build_header() -> void:
 
 func _build_list() -> void:
 	var panel := _panel(Rect2(16, 94, 246, -174), Vector4(0, 0, 0, 1))
+	_list_panel = panel
 	var column := VBoxContainer.new()
 	panel.add_child(column)
 	column.add_child(_label("场景对象", 19))
 	count_label = _label("", 12, MUTED)
 	column.add_child(count_label)
-	column.add_child(_button("＋  添加立方体", "create", true))
+	for label in ["立方体", "圆柱体", "球体", "伸缩门", "树木", "路灯"]:
+		asset_picker.add_item(label)
+	column.add_child(asset_picker)
+	column.add_child(_button("＋  添加所选对象", "create", true))
 	column.add_child(_button("地形编辑", "terrain_mode"))
 	list = ItemList.new()
 	list.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -161,10 +173,12 @@ func _build_list() -> void:
 	row.add_child(_button("复制", "duplicate"))
 	row.add_child(_button("删除", "delete"))
 	column.add_child(row)
+	column.add_child(_button("切换门 / 灯状态", "interact"))
 	column.add_child(_label("点击对象或列表进行选择\n双击列表 · 聚焦对象", 12, MUTED))
 
 func _build_inspector() -> void:
 	var panel := _panel(Rect2(-366, 94, 350, -174), Vector4(1, 0, 1, 1))
+	_inspector_panel = panel
 	inspector_tabs = TabContainer.new()
 	inspector_tabs.add_theme_stylebox_override("panel", _style(Color("172e37")))
 	panel.add_child(inspector_tabs)
@@ -173,6 +187,7 @@ func _build_inspector() -> void:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	inspector_tabs.add_child(scroll)
 	_inspector = VBoxContainer.new()
+	_inspector.add_theme_constant_override("separation", 7)
 	_inspector.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_inspector)
 	_inspector.add_child(_label("对象属性", 19))
@@ -195,16 +210,9 @@ func _build_inspector() -> void:
 	color_input.custom_minimum_size.y = 32
 	color_input.edit_alpha = false
 	_inspector.add_child(color_input)
-	var swatches := HBoxContainer.new()
-	for hex in ["#50A696", "#E9B45D", "#758FAD", "#F0EADC", "#BE7E70"]:
-		var button := Button.new()
-		button.custom_minimum_size = Vector2(37, 26)
-		button.focus_mode = Control.FOCUS_NONE
-		button.add_theme_stylebox_override("normal", _style(Color(hex)))
-		button.add_theme_stylebox_override("hover", _style(Color(hex).lightened(0.18)))
-		button.pressed.connect(func(): color_input.color = Color(hex))
-		swatches.add_child(button)
-	_inspector.add_child(swatches)
+	for label in ["纯色表面", "混凝土", "砖墙", "木材", "金属"]:
+		material_picker.add_item(label)
+	_inspector.add_child(material_picker)
 	var apply := _button("应用修改", "apply", true)
 	apply.pressed.connect(_apply)
 	_inspector.add_child(apply)
@@ -218,6 +226,12 @@ func _build_inspector() -> void:
 	inspector_tabs.add_child(terrain_scroll)
 	terrain_panel = TerrainPanel.new()
 	terrain_scroll.add_child(terrain_panel)
+	var environment_scroll := ScrollContainer.new()
+	environment_scroll.name = "环境"
+	environment_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	inspector_tabs.add_child(environment_scroll)
+	environment_panel = EnvironmentPanel.new()
+	environment_scroll.add_child(environment_panel)
 
 func _vector_fields(key: String, limits: Array, names: Array) -> void:
 	var row := HBoxContainer.new()
@@ -245,6 +259,16 @@ func _spin(minimum: float, maximum: float, step: float) -> SpinBox:
 	return spin
 
 func _build_footer() -> void:
+	interaction_hint = _label("+", 18, INK)
+	root.add_child(interaction_hint)
+	interaction_hint.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	interaction_hint.offset_left = -150
+	interaction_hint.offset_right = 150
+	interaction_hint.offset_top = -12
+	interaction_hint.offset_bottom = 45
+	interaction_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	interaction_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	interaction_hint.visible = false
 	var tools := _panel(Rect2(-265, -88, 530, 74), Vector4(0.5, 1, 0.5, 1))
 	var row := HBoxContainer.new()
 	tools.add_child(row)
@@ -253,14 +277,14 @@ func _build_footer() -> void:
 	row.add_child(_button("聚焦  F", "focus"))
 	row.add_child(_button("撤销  Ctrl+Z", "undo"))
 	row.add_child(_button("重做", "redo"))
-	footer = _label("256 × 256 m  ·  编辑模式", 12, Color("183f35"))
+	footer = _label("256 × 256 m  ·  编辑模式", 12, Color("e2eee8"))
 	root.add_child(footer)
 	footer.anchor_top = 1
 	footer.anchor_bottom = 1
 	footer.offset_left = 20
 	footer.offset_top = -53
 	footer.offset_bottom = -19
-	var hint := _label("右键旋转  ·  中键平移  ·  滚轮缩放", 12, Color("183f35"))
+	var hint := _label("右键旋转  ·  中键平移  ·  滚轮缩放", 12, Color("e2eee8"))
 	root.add_child(hint)
 	hint.anchor_left = 1
 	hint.anchor_right = 1
@@ -272,6 +296,7 @@ func _build_footer() -> void:
 	hint.offset_bottom = -18
 
 func show_world(world: Dictionary, id: String) -> void:
+	environment_panel.show_environment(world.environment)
 	_selected = id
 	_ids.clear()
 	list.clear()
@@ -291,7 +316,10 @@ func show_world(world: Dictionary, id: String) -> void:
 	for field in fields.values():
 		field.editable = enabled
 	color_input.disabled = not enabled
-	selection_label.text = "立方体 · 可编辑" if enabled else "请选择一个对象"
+	selection_label.text = "对象 · 可编辑" if enabled else "请选择一个对象"
+	buttons.interact.disabled = not item.get("state", {}).has("active")
+	buttons.interact.text = ("关闭" if item.get("state", {}).get("active", false) else "开启") + "门 / 灯"
+	material_picker.disabled = not enabled
 	selection_id.text = "对象 ID\n" + id if enabled else "从左侧添加对象，或在场景中点击选择。"
 	if not enabled:
 		name_input.text = ""
@@ -307,6 +335,7 @@ func show_world(world: Dictionary, id: String) -> void:
 	_original_yaw = rad_to_deg(Quaternion(_rotation[0], _rotation[1], _rotation[2], _rotation[3]).get_euler().z)
 	fields.yaw.set_value_no_signal(_original_yaw)
 	color_input.color = Color(item.color)
+	material_picker.select(Schema.MATERIALS.find(item.material))
 
 func _apply() -> void:
 	if _selected.is_empty():
@@ -325,16 +354,20 @@ func _apply() -> void:
 			position[i] = fields["position" + str(i)].value
 		if not is_equal_approx(fields["size" + str(i)].value, _displayed["size" + str(i)]):
 			dimensions[i] = fields["size" + str(i)].value
-	patch_requested.emit({"name": name_input.text.strip_edges(), "position": position, "size": dimensions, "rotation": rotation, "color": "#" + color_input.color.to_html(false).to_upper()})
+	patch_requested.emit({"name": name_input.text.strip_edges(), "position": position, "size": dimensions, "rotation": rotation, "color": "#" + color_input.color.to_html(false).to_upper(), "material": Schema.MATERIALS[material_picker.selected]})
 
 func set_status(text: String, warning: bool = false) -> void:
 	status.text = text
 	status.add_theme_color_override("font_color", Color("f0cb88") if warning else ACCENT)
 
 func set_walk(active: bool) -> void:
+	_list_panel.visible = not active
+	_inspector_panel.visible = not active
 	mode_button.text = "返回编辑  Esc" if active else "进入漫游  Tab"
-	footer.text = "WASD 移动 · 空格跳跃 · Shift 加速" if active else "256 × 256 m  ·  编辑模式"
+	footer.text = "WASD 移动 · 空格跳跃 · E 交互" if active else "256 × 256 m  ·  编辑模式"
 	terrain_panel.apply_button.disabled = active
+	environment_panel.apply_button.disabled = active
+	interaction_hint.visible = active
 
 func set_history(state: Dictionary) -> void:
 	buttons.undo.disabled = state.undo == 0

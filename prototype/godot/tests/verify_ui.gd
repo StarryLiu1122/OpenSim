@@ -12,6 +12,9 @@ func check(ok: bool, name: String) -> void:
 	print(("PASS " if ok else "FAIL ") + name)
 
 func _click(control: Control) -> void:
+	# Containers may queue layout after state changes; target the drawn control.
+	await process_frame
+	await RenderingServer.frame_post_draw
 	var center := control.get_global_rect().get_center()
 	var target := control.get_window()
 	if target != root:
@@ -36,6 +39,7 @@ func _click_point(center: Vector2) -> void:
 	target.push_input(release, true)
 	await process_frame
 	await process_frame
+	await create_timer(0.04).timeout
 
 func _capture(name: String) -> void:
 	await RenderingServer.frame_post_draw
@@ -62,7 +66,8 @@ func _run() -> void:
 	root.add_child(app)
 	for frame in range(45):
 		await process_frame
-	check(app.world_view.bodies.size() == 8, "UI scene loads eight native physics objects")
+	var initial_count: int = app.service.model.snapshot().objects.size()
+	check(app.world_view.bodies.size() == initial_count and initial_count > 30, "UI scene loads the V3 demonstration objects")
 	check(app.ui.buttons.apply.get_global_rect().end.x < root.size.x, "inspector controls fit the window")
 	check(app.ui.mode_button.get_global_rect().end.y < root.size.y, "bottom toolbar fits the window")
 	await _capture("overview.png")
@@ -73,7 +78,7 @@ func _run() -> void:
 	check(app.service.model.object(app.selected_id).position == before_position, "name-only edit preserves unrounded transform values")
 	await _click(app.ui.buttons.create)
 	var id: String = app.selected_id
-	check(app.service.model.snapshot().objects.size() == 9 and not id.is_empty(), "create button adds and selects a new world object")
+	check(app.service.model.snapshot().objects.size() == initial_count + 1 and not id.is_empty(), "create button adds and selects a new world object")
 	app.ui.name_input.text = "重启恢复验证方块"
 	app.ui.fields.position0.value = 137.25
 	app.ui.fields.position1.value = 119.5
@@ -114,6 +119,7 @@ func _run() -> void:
 	for frame in range(15):
 		await process_frame
 	await _capture("edited.png")
+	await preload("res://tests/verify_v3_ui.gd").new().run(self)
 	await _terrain_checks()
 	var passed := 0
 	for item in cases:
