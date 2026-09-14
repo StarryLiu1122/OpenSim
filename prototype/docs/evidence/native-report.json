@@ -1,0 +1,193 @@
+{
+	"cases": [
+		{
+			"name": "seed satisfies portable schema",
+			"ok": true
+		},
+		{
+			"name": "future schema rejected",
+			"ok": true
+		},
+		{
+			"name": "duplicate persistent ID rejected",
+			"ok": true
+		},
+		{
+			"name": "negative dimensions rejected",
+			"ok": true
+		},
+		{
+			"name": "full object footprint checked at region edge",
+			"ok": true
+		},
+		{
+			"name": "unnormalized quaternion rejected",
+			"ok": true
+		},
+		{
+			"name": "non-finite terrain rejected",
+			"ok": true
+		},
+		{
+			"name": "terrain sample count checked",
+			"ok": true
+		},
+		{
+			"name": "missing asset reference rejected",
+			"ok": true
+		},
+		{
+			"name": "external executable asset paths rejected",
+			"ok": true
+		},
+		{
+			"name": "unknown world fields rejected",
+			"ok": true
+		},
+		{
+			"name": "coordinate conversion round trip",
+			"ok": true
+		},
+		{
+			"name": "east rotated toward north remains correct in engine",
+			"ok": true
+		},
+		{
+			"name": "command creates an object with stable ID",
+			"ok": true
+		},
+		{
+			"name": "duplicate request does not create twice",
+			"ok": true
+		},
+		{
+			"name": "input dictionary cannot mutate world after dispatch",
+			"ok": true
+		},
+		{
+			"name": "reused request ID with altered payload rejected",
+			"ok": true
+		},
+		{
+			"name": "stale revision rejected",
+			"ok": true
+		},
+		{
+			"name": "snapshot returns an isolated copy",
+			"ok": true
+		},
+		{
+			"name": "transform and color update validated together",
+			"ok": true
+		},
+		{
+			"name": "owner cannot be changed through a field patch",
+			"ok": true
+		},
+		{
+			"name": "invalid edit rejected",
+			"ok": true
+		},
+		{
+			"name": "rejected edit leaves revision and state unchanged",
+			"ok": true
+		},
+		{
+			"name": "different local actor cannot delete owned object",
+			"ok": true
+		},
+		{
+			"name": "delete removes object",
+			"ok": true
+		},
+		{
+			"name": "undo restores same object identity",
+			"ok": true
+		},
+		{
+			"name": "malformed envelope rejected",
+			"ok": true
+		},
+		{
+			"name": "unknown operation rejected",
+			"ok": true
+		},
+		{
+			"name": "first save returns success after read-back verification",
+			"ok": true
+		},
+		{
+			"name": "second save replaces primary and keeps backup",
+			"ok": true
+		},
+		{
+			"name": "new service restores stable IDs and attributes within 1e-6",
+			"ok": true
+		},
+		{
+			"name": "corrupt primary restores previous valid backup with warning",
+			"ok": true
+		},
+		{
+			"name": "recovered backup can be saved without losing valid data",
+			"ok": true
+		},
+		{
+			"name": "checksum detects valid JSON with altered content",
+			"ok": true
+		},
+		{
+			"name": "both invalid snapshots leave current world untouched",
+			"ok": true
+		},
+		{
+			"name": "failed publish never marks world saved",
+			"ok": true
+		},
+		{
+			"name": "external file modification is detected before overwrite",
+			"ok": true
+		},
+		{
+			"name": "project selects native Jolt physics",
+			"ok": true
+		},
+		{
+			"name": "capsule lands on real heightmap collision",
+			"ok": true
+		},
+		{
+			"name": "rendered height samples align with collision height",
+			"ok": true
+		},
+		{
+			"name": "hill collision agrees with north-up data mapping",
+			"ok": true
+		},
+		{
+			"name": "jump input lifts avatar through native physics",
+			"ok": true
+		},
+		{
+			"name": "avatar lands again after jumping",
+			"ok": true
+		},
+		{
+			"name": "movement input advances avatar through physics",
+			"ok": true
+		},
+		{
+			"name": "avatar cannot walk through editable box collider",
+			"ok": true
+		},
+		{
+			"name": "physics ray resolves persistent object identity",
+			"ok": true
+		}
+	],
+	"engine": "4.5.1-stable (official)",
+	"failed": 0,
+	"passed": 46,
+	"physics": "Jolt Physics",
+	"suite": "native-domain-persistence-physics"
+}

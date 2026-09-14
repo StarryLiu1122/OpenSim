@@ -1,4 +1,9 @@
 .project
+prototype/.tools/
+prototype/godot/.godot/
+prototype/test-results/
+prototype/runtime/
+prototype/build/
 .settings
 .gitignore
 *.csproj

@@ -1,0 +1,16 @@
+{
+  "version": "4.5.1",
+  "version_output": "4.5.1.stable.official.f62fdbde1",
+  "platform": "windows-x86_64",
+  "archive": "Godot_v4.5.1-stable_win64.exe.zip",
+  "url": "https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/Godot_v4.5.1-stable_win64.exe.zip",
+  "checksum_source": "https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/SHA512-SUMS.txt",
+  "sha512": "ab84df90ead5a888530faaabe744a27678ef7635068883900174fae37f7fc6178d033b551d88963c7dc2466580915a582bbc79aca97c19085900655761f56a27",
+  "executables": {
+    "Godot_v4.5.1-stable_win64.exe": "0603389a51b23aaf833c6b28ca878c517ff0955c7655cc1b0b69a00d2621d3e766405f6d5f2d6a0b6b11d44ec7b1e9eba519549304dfff66d1e3ee7a797b0845",
+    "Godot_v4.5.1-stable_win64_console.exe": "17b8ad8c99eac7549336807adaa1acb3ee6a6b1e3c0539e84bc14ddb846ac92a915a1a8d872be6159667a2ab118a04bcc661f1fde91531b6eb8f00159125f34e"
+  },
+  "physics": "Jolt Physics (bundled)",
+  "renderer": "GL Compatibility (OpenGL 3.3)",
+  "gamefactory_reference": "378a7a733c0975cdb3b3cd924824652e6bbb66de"
+}

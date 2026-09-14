@@ -1,0 +1,33 @@
+; Region Lab uses Godot's native rendering and Jolt physics.
+config_version=5
+
+[application]
+config/name="OpenSim · Region Lab"
+config/version="0.1.0"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.5", "GL Compatibility")
+config/use_custom_user_dir=true
+config/custom_user_dir_name="OpenSimRegionLab"
+
+[display]
+window/size/viewport_width=1440
+window/size/viewport_height=900
+window/size/window_width_override=1440
+window/size/window_height_override=900
+window/size/min_width=1100
+window/size/min_height=700
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+anti_aliasing/quality/msaa_3d=2
+textures/default_filters/use_nearest_mipmap_filter=false
+environment/defaults/default_clear_color=Color(0.79, 0.86, 0.88, 1)
+
+[physics]
+3d/physics_engine="Jolt Physics"
+common/physics_ticks_per_second=60
+
+[audio]
+driver/enable_input=false

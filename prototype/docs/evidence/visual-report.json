@@ -1,0 +1,80 @@
+{
+	"cases": [
+		{
+			"name": "UI scene loads eight native physics objects",
+			"ok": true
+		},
+		{
+			"name": "inspector controls fit the window",
+			"ok": true
+		},
+		{
+			"name": "bottom toolbar fits the window",
+			"ok": true
+		},
+		{
+			"name": "real rendered screenshot: overview.png",
+			"ok": true
+		},
+		{
+			"name": "name-only edit preserves unrounded transform values",
+			"ok": true
+		},
+		{
+			"name": "create button adds and selects a new world object",
+			"ok": true
+		},
+		{
+			"name": "inspector applies name, position and size via command gateway",
+			"ok": true
+		},
+		{
+			"name": "inspector applies color and rotation",
+			"ok": true
+		},
+		{
+			"name": "command result updates real scene transform",
+			"ok": true
+		},
+		{
+			"name": "save button publishes validated snapshot",
+			"ok": true
+		},
+		{
+			"name": "subsequent edit marks world dirty",
+			"ok": true
+		},
+		{
+			"name": "reload asks before discarding unsaved edits",
+			"ok": true
+		},
+		{
+			"name": "confirmed reload restores saved attributes",
+			"ok": true
+		},
+		{
+			"name": "delete button removes data and collider",
+			"ok": true
+		},
+		{
+			"name": "undo restores object ID and collider",
+			"ok": true
+		},
+		{
+			"name": "walk button switches to live avatar camera",
+			"ok": true
+		},
+		{
+			"name": "Escape returns to edit mode and releases mouse",
+			"ok": true
+		},
+		{
+			"name": "real rendered screenshot: edited.png",
+			"ok": true
+		}
+	],
+	"engine": "4.5.1-stable (official)",
+	"failed": 0,
+	"passed": 18,
+	"suite": "native-ui-events-and-render"
+}
