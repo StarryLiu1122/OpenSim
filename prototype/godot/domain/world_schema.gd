@@ -1,8 +1,10 @@
 extends RefCounted
 ## Portable world data. Coordinates: X east, Y north, Z up; distances in metres.
 
-const VERSION := 2
-const Legacy = preload("res://domain/legacy_world_schema.gd")
+const VERSION := 3
+const Previous = preload("res://domain/schema_v2.gd")
+const T = preload("res://domain/world_transforms.gd")
+const MeshAssets = preload("res://adapters/mesh_assets.gd")
 const KINDS := ["box", "cylinder", "sphere", "door", "tree", "lamp"]
 const MATERIALS := ["plain", "concrete", "brick", "wood", "metal"]
 const OWNER := "11111111-1111-4111-8111-111111111111"
@@ -40,7 +42,7 @@ static func exact_keys(value: Dictionary, required: Array) -> bool:
 	return value.size() == required.size() and value.has_all(required)
 
 static func validate(world: Variant) -> String:
-	if not world is Dictionary or not exact_keys(world, ["schema_version", "revision", "region", "terrain", "assets", "objects", "environment"]):
+	if not world is Dictionary or not exact_keys(world, ["schema_version", "revision", "region", "terrain", "assets", "objects", "environment", "groups"]):
 		return "World fields are missing or unknown."
 	if world.schema_version != VERSION:
 		return "Unsupported world schema version."
@@ -71,30 +73,72 @@ static func validate(world: Variant) -> String:
 	var environment_error := validate_environment(world.environment)
 	if not environment_error.is_empty():
 		return environment_error
-	if not world.assets is Array or world.assets != catalog():
-		return "Only the fixed built-in asset catalog is supported."
+	if not world.assets is Array or world.assets.size() < KINDS.size() or world.assets.size() > KINDS.size() + 16 or world.assets.slice(0, KINDS.size()) != catalog():
+		return "The asset catalog must begin with the six fixed built-ins and contain at most 16 imported assets."
+	var mesh_ids: Array = []
+	for asset in world.assets.slice(KINDS.size()):
+		var loaded := MeshAssets.read(asset)
+		if loaded.has("error"):
+			return loaded.error
+		if asset.id in mesh_ids or not kind(asset.id).is_empty():
+			return "Duplicate asset identity."
+		mesh_ids.append(asset.id)
+	if not world.groups is Array or world.groups.size() > 128:
+		return "Invalid group collection."
+	var groups: Dictionary = {}
+	for frame in world.groups:
+		if not frame is Dictionary or not exact_keys(frame, ["id", "name", "root_id", "owner_id", "position", "rotation", "scale"]):
+			return "Invalid group fields."
+		if not is_uuid(frame.id) or not is_uuid(frame.root_id) or not is_uuid(frame.owner_id) or groups.has(frame.id) or not frame.name is String or frame.name.strip_edges().is_empty() or frame.name.length() > 80:
+			return "Invalid group identity."
+		if not vector(frame.position, 3, -100, 600) or not vector(frame.rotation, 4, -1, 1) or not number(frame.scale, 0.1, 10) or abs(T.quat(frame.rotation).length_squared() - 1) > 0.001:
+			return "Invalid group transform."
+		groups[frame.id] = frame
 	if not world.objects is Array or world.objects.size() > MAX_OBJECTS:
 		return "Invalid object collection or object limit exceeded."
 	var seen: Dictionary = {}
 	for item in world.objects:
-		var error := validate_object(item, region)
+		if not item is Dictionary or not item.get("group_id") is String or (not item.group_id.is_empty() and not groups.has(item.group_id)):
+			return "Invalid or missing group reference."
+		if not vector(item.get("position"), 3, -512, 600) or not vector(item.get("size"), 3, 0.02, 320) or not vector(item.get("rotation"), 4, -1, 1):
+			return "Invalid local transform."
+		if abs(T.quat(item.rotation).length_squared() - 1) > 0.001:
+			return "Local rotation must be normalized."
+		var error := validate_object(T.resolve(item, world.groups), region, mesh_ids)
 		if not error.is_empty():
 			return error
 		if seen.has(item.id):
 			return "Duplicate object ID."
-		seen[item.id] = true
+		seen[item.id] = item
+	for frame in world.groups:
+		var count := 0
+		for item in world.objects:
+			if item.group_id == frame.id:
+				count += 1
+				if item.owner_id != frame.owner_id:
+					return "Group members must share ownership."
+		var root: Dictionary = seen.get(frame.root_id, {})
+		if seen.has(frame.id) or count < 2 or count > 100 or root.is_empty() or root.group_id != frame.id:
+			return "Group root or member count is invalid."
+		if T.vec(root.position).length() > 0.00001 or abs(T.quat(root.rotation).dot(Quaternion.IDENTITY)) < 0.999999:
+			return "Root transform belongs to the group; use UpdateGroup."
+	if world.assets.size() > KINDS.size():
+		var text := JSON.stringify(world, "\t", true, true)
+		var envelope := {"format": "region-lab.snapshot", "version": 1, "sha256": "0".repeat(64), "world_json": text}
+		if (JSON.stringify(envelope, "\t", true, true) + "\n").to_utf8_buffer().size() > MAX_FILE_BYTES:
+			return "Embedded world exceeds the snapshot budget."
 	return ""
 
-static func validate_object(item: Variant, region: Dictionary) -> String:
-	if not item is Dictionary or not exact_keys(item, ["id", "name", "asset_id", "owner_id", "position", "rotation", "size", "color", "material", "state"]):
+static func validate_object(item: Variant, region: Dictionary, mesh_ids: Array = []) -> String:
+	if not item is Dictionary or not exact_keys(item, ["id", "name", "asset_id", "owner_id", "position", "rotation", "size", "color", "material", "state", "group_id"]):
 		return "Invalid object fields."
-	if not is_uuid(item.id) or kind(item.asset_id).is_empty() or not is_uuid(item.owner_id):
+	if not is_uuid(item.id) or (kind(item.asset_id).is_empty() and item.asset_id not in mesh_ids) or not is_uuid(item.owner_id):
 		return "Invalid object identity or asset reference."
 	if not item.name is String or item.name.strip_edges().is_empty() or item.name.length() > 80:
 		return "Object name must have 1–80 characters."
 	if not vector(item.position, 3, -100, 600) or not vector(item.size, 3, 0.2, 32) or not vector(item.rotation, 4, -1, 1):
 		return "Invalid transform; dimensions must be 0.2–32 m."
-	if item.material not in MATERIALS:
+	if item.material not in MATERIALS or (item.asset_id in mesh_ids and item.material != "plain"):
 		return "Unknown surface material."
 	if not item.state is Dictionary:
 		return "Object state must be a dictionary."
@@ -118,7 +162,7 @@ static func validate_object(item: Variant, region: Dictionary) -> String:
 	return ""
 
 static func box(name: String, position: Array, size: Array, color: String) -> Dictionary:
-	return {"id": uuid(), "name": name, "asset_id": BOX_ASSET, "owner_id": OWNER, "position": position, "rotation": [0.0, 0.0, 0.0, 1.0], "size": size, "color": color, "material": "plain", "state": {}}
+	return {"id": uuid(), "name": name, "asset_id": BOX_ASSET, "owner_id": OWNER, "position": position, "rotation": [0.0, 0.0, 0.0, 1.0], "size": size, "color": color, "material": "plain", "state": {}, "group_id": ""}
 
 static func seed() -> Dictionary:
 	var heights: Array = []
@@ -134,7 +178,7 @@ static func seed() -> Dictionary:
 		"region": {"id": REGION_ID, "name": "青屿实验区", "size": [256.0, 256.0], "spawn": [128.0, 107.0, 2.5], "owner_id": OWNER},
 		"terrain": {"columns": 65, "rows": 65, "spacing": 4.0, "heights": heights},
 		"assets": catalog(), "environment": default_environment(),
-		"objects": []}
+		"objects": [], "groups": []}
 	world.objects = [
 		box("中央展台", [128.0, 131.0, 0.35], [14.0, 14.0, 0.7], "#D9DED4"),
 		box("青绿立方", [124.0, 129.0, 2.25], [3.0, 3.0, 3.0], "#50A696"),
@@ -186,19 +230,22 @@ static func validate_environment(value: Variant) -> String:
 static func upgrade(value: Variant) -> Dictionary:
 	if not value is Dictionary:
 		return {"error": "World must be a dictionary."}
-	if value.get("schema_version") == 1:
-		var error := Legacy.validate(value)
-		if not error.is_empty():
-			return {"error": error}
-		var world: Dictionary = value.duplicate(true)
+	if value.get("schema_version") == 1 or value.get("schema_version") == 2:
+		var previous := Previous.upgrade(value)
+		if previous.has("error"):
+			return previous
+		var world: Dictionary = previous.world
 		world.schema_version = VERSION
-		world.assets = catalog()
-		world.environment = default_environment()
-		# Preserve V1/V2's visible editing grid when opening an older scene.
-		world.environment.terrain_grid = true
+		world.groups = []
 		for item in world.objects:
-			item.material = "plain"
-			item.state = {}
+			item.group_id = ""
 		return {"world": world, "migrated": true}
 	var error := validate(value)
 	return {"world": value.duplicate(true), "migrated": false} if error.is_empty() else {"error": error}
+
+static func mesh_ids(world: Dictionary) -> Array:
+	var result: Array = []
+	for asset in world.assets:
+		if asset.kind == "mesh":
+			result.append(asset.id)
+	return result

@@ -1,6 +1,6 @@
 # OpenSim 数据模型对应说明
 
-适用版本：Region Lab 0.3.0。参考源码：OpenSimulator 提交 `1f4a6dd1d3ff653ecc2748a7764106c30ac4ef9d`。
+适用版本：Region Lab 0.3.1。参考源码：OpenSimulator 提交 `1f4a6dd1d3ff653ecc2748a7764106c30ac4ef9d`。
 
 本文件定义当前原型与 OpenSim 概念的对应关系，标明已实现的数据范围及后续扩展边界。现阶段尚未提供旧数据库、OAR 或 Viewer 协议迁移能力。
 
@@ -13,9 +13,9 @@
 | [TerrainModule](../../OpenSim/Region/CoreModules/World/Terrain/TerrainModule.cs) | TerrainBrush、SculptTerrain | 四种笔刷、区域归属检查、图形与碰撞更新；未复现原协议参数及全部笔刷算法 |
 | [RegionSettings](../../OpenSim/Framework/RegionSettings.cs) | environment、EnvironmentView | 水位、太阳时刻、雾和地表显示；程序材质近似高度/坡度分层，未实现原纹理 UUID 或 EEP |
 | [Scene](../../OpenSim/Region/Framework/Scenes/Scene.cs) | WorldModel、WorldService、main.gd | 世界状态、编辑命令及运行装配 |
-| [SceneObjectGroup](../../OpenSim/Region/Framework/Scenes/SceneObjectGroup.cs)、[SceneObjectPart](../../OpenSim/Region/Framework/Scenes/SceneObjectPart.cs) | `objects[]` | 方块、圆柱、球与内置复合对象；变换、材质与归属；未实现 linkset、附件或完整 prim 参数 |
+| [SceneObjectGroup](../../OpenSim/Region/Framework/Scenes/SceneObjectGroup.cs)、[SceneObjectPart](../../OpenSim/Region/Framework/Scenes/SceneObjectPart.cs) | `groups[]` + `objects[]` | 根与子部件、局部变换、组操作；仅为 linkset 子集，未实现附件或完整 prim 参数 |
 | [ScenePresence](../../OpenSim/Region/Framework/Scenes/ScenePresence.cs) | Avatar、CharacterBody3D | 本地角色、相机、输入及碰撞；未实现账户会话与外观库存 |
-| [AssetBase](../../OpenSim/Framework/AssetBase.cs) | `assets[]` | 六项内置工厂目录，通过 asset_id 引用；未实现任意外部资产存储 |
+| [AssetBase](../../OpenSim/Framework/AssetBase.cs) | `assets[]` | 六项内置目录及内嵌静态 GLB，通过 asset_id 复用；不兼容 OpenSim mesh asset 编码 |
 | [InventoryItemBase](../../OpenSim/Framework/InventoryItemBase.cs)、[TaskInventoryItem](../../OpenSim/Framework/TaskInventoryItem.cs) | 后续库存实体 | 当前不包含库存记录、父对象关系和权限位 |
 | [PhysicsScene](../../OpenSim/Region/PhysicsModules/SharedBase/PhysicsScene.cs) | WorldView、Avatar、Jolt | 静态对象、门状态碰撞、三角网格地形和角色；未实现车辆、约束和动态物体编辑 |
 | [ISimulationDataStore](../../OpenSim/Region/Framework/Interfaces/ISimulationDataStore.cs) | SnapshotRepository | 完整区域快照及备份；未实现原数据库适配 |
@@ -28,11 +28,12 @@
 | `region.id` | 区域 UUID；当前使用固定演示标识，尚无 Grid 注册 |
 | `region.owner_id` | 区域归属；地形与环境命令校验该字段 |
 | `objects[].id` | 物体实例 UUID，保存、恢复和历史操作保持一致 |
-| `objects[].asset_id` | 资产定义标识；当前支持六项固定内置目录 |
+| `objects[].asset_id` | 资产定义标识；支持六项内置目录和经校验的网格内容 ID |
 | `objects[].owner_id` | 物体归属；修改、删除与行为命令校验该字段 |
-| `objects[].position` | 区域内位置 `[东, 北, 高]`，米 |
+| `objects[].position` | 未组合时为区域坐标，组合成员为组内局部坐标；`[东, 北, 高]`，米 |
+| `objects[].group_id` | 所属组 UUID，独立对象为空字符串 |
 | `objects[].rotation` | 数据坐标系下的单位四元数 `[x,y,z,w]` |
-| `objects[].size` | 各轴尺寸，米；每轴 0.2–32 |
+| `objects[].size` | 局部或世界各轴尺寸；投影后每轴 0.2–32 米 |
 | `objects[].color` | 整体颜色 `#RRGGBB`，未实现分面材质 |
 | `objects[].material` | 内置表面类型；不等价于 OpenSim 分面纹理条目 |
 | `objects[].state` | door/lamp 的 active 状态，其它对象为空字典 |
@@ -94,4 +95,16 @@ RegionSettings 的 WaterHeight 为区域水面高度提供了明确参考；V3 �
 
 OpenSim 的门灯通常依赖物体属性及脚本事件。V3 将其缩小为两个可验证的内置行为：开门改变显示几何与通行碰撞，开灯改变原生局部灯光；状态随区域保存。没有复制脚本库存、事件队列、权限位或完整脚本生命周期。
 
-示例展馆由独立对象组成，门是单一对象的引擎内部复合节点。这一结构不构成 SceneObjectGroup 的根部件/子部件关系，也不能与 OAR 数据直接互换。下一步先定义对象组合和局部变换，再实施外部资产和原版数据导入。
+V3.1 的示例展馆采用 15 个部件构成的组，地板为根，组记录保存世界变换，成员记录局部变换。门仍是一个有独立状态的成员，其内部引擎节点不再细分为可编辑部件。模型公式、根的约束及 API 世界坐标语义见 [组合与资产规范](groups-and-assets.md)。
+
+## 7. 组合及资产与原版的差异
+
+| 概念 | 当前对应 | 差异与后续验证 |
+| --- | --- | --- |
+| SceneObjectGroup 的根/部件集合 | groups.root_id、objects.group_id | 建组与解除保留部件 ID；组拥有独立 UUID，不假定与原版组 ID 规则完全一致 |
+| RootPart / OffsetPosition | 组世界坐标与成员局部坐标 | 通过 WorldTransforms 合成；尚未完成原版运行对照 |
+| 子部件旋转与尺寸 | 局部四元数、局部尺寸、组统一倍率 | 禁止嵌套组与剪切；不复刻 OpenSim 全部缩放限制 |
+| AssetBase 的资源内容 | GLB 字节、完整 SHA256、许可与作者 | 使用 glTF 静态子集，不读取原版 mesh、纹理编码或库存 |
+| 可交互建筑 | GLB 建筑实例与独立 door 成员可组合 | GLB 内部节点不可自动转为脚本对象，也不自动识别门 |
+
+格式 3 迁移不会根据名称自动将旧物体合组。资产引用与库存条目仍分离：同一资产可以被多个对象实例引用，未来库存还需要独立身份、权限和转移规则。OAR、数据库与 Viewer 协议继续作为单独的兼容任务。

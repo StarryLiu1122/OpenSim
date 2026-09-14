@@ -2,6 +2,8 @@ extends Node3D
 ## The only place that translates portable world records into Godot nodes/physics.
 const COORDINATES := Basis(Vector3(1, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0))
 const Builtins = preload("res://adapters/builtin_objects.gd")
+const T = preload("res://domain/world_transforms.gd")
+var mesh_view = preload("res://adapters/mesh_view.gd").new()
 var bodies: Dictionary = {}
 var _records: Dictionary = {}
 var selected := ""
@@ -28,7 +30,7 @@ func rebuild(world: Dictionary) -> void:
 	_terrain = {}
 	sync_terrain(world.terrain, world.region.size)
 	_build_boundary(world.region.size)
-	sync_objects(world.objects)
+	sync_objects(world.objects, world.groups, world.assets)
 
 func sync_terrain(terrain: Dictionary, region_size: Array) -> bool:
 	if _terrain == terrain:
@@ -42,16 +44,19 @@ func sync_terrain(terrain: Dictionary, region_size: Array) -> bool:
 	_brush_key = ""
 	return true
 
-func sync_objects(objects: Array) -> void:
+func sync_objects(objects: Array, groups: Array = [], assets: Array = []) -> void:
+	if not assets.is_empty():
+		mesh_view.prepare(assets)
 	var current: Dictionary = {}
-	for item in objects:
+	for record in objects:
+		var item := T.resolve(record, groups)
 		current[item.id] = true
 		if not bodies.has(item.id):
 			var body := StaticBody3D.new()
 			body.set_meta("world_id", item.id)
 			body.collision_layer = 2
 			body.collision_mask = 4
-			Builtins.build(body, item)
+			_build_object(body, item)
 			var outline := MeshInstance3D.new()
 			outline.name = "Outline"
 			var lines := ImmediateMesh.new()
@@ -85,7 +90,7 @@ func sync_objects(objects: Array) -> void:
 			for child in body.get_children():
 				if child.name != "Outline":
 					child.free()
-			Builtins.build(body, item)
+			_build_object(body, item)
 			_records[item.id] = item.duplicate(true)
 		body.get_node("Outline").scale = dimensions + Vector3.ONE * 0.06
 	for id in bodies.keys():
@@ -226,3 +231,10 @@ func interaction_target(camera: Camera3D, distance: float = 4.0) -> String:
 	var id: String = hit.collider.get_meta("world_id", "")
 	var record: Dictionary = _records.get(id, {})
 	return id if record.get("state", {}).has("active") else ""
+
+
+func _build_object(body: StaticBody3D, item: Dictionary) -> void:
+	if mesh_view.cache.has(item.asset_id):
+		mesh_view.build(body, item)
+	else:
+		Builtins.build(body, item)

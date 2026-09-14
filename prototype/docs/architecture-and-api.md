@@ -1,6 +1,6 @@
 # 架构与接口规范
 
-适用版本：Region Lab 0.3.0。世界格式版本：2；命令协议版本：1。
+适用版本：Region Lab 0.3.1。世界格式版本：3；命令协议版本：1。
 
 ## 1. 模块职责
 
@@ -19,6 +19,8 @@ flowchart LR
 | 模块 | 职责 | 主要文件 |
 | --- | --- | --- |
 | WorldSchema | 世界格式、字段边界、标识和完整性校验 | `godot/domain/world_schema.gd` |
+| WorldTransforms / GroupCommands | 局部与世界变换、组合生命周期 | `godot/domain/world_transforms.gd`、`group_commands.gd` |
+| GlbReader / MeshAssets / MeshView | GLB 校验、内容标识及静态网格投影 | `godot/adapters/` |
 | TerrainBrush | 单次笔刷计算，生成候选高度场 | `godot/domain/terrain_brush.gd` |
 | WorldModel | 数据副本、归属校验、原子状态替换和修订 | `godot/domain/world_model.gd` |
 | WorldService | 命令封装、重复请求、历史、保存恢复 | `godot/domain/world_service.gd` |
@@ -33,21 +35,22 @@ flowchart LR
 
 ## 2. 世界格式
 
-根字段固定为 `schema_version`、`revision`、`region`、`terrain`、`assets`、`objects`、`environment`。
+根字段固定为 `schema_version`、`revision`、`region`、`terrain`、`assets`、`objects`、`environment`、`groups`。
 
 | 字段 | 约束 |
 | --- | --- |
-| `schema_version` | 当前为 2；格式 1 由专用旧版校验器验证后迁移，其它版本拒绝读取 |
+| `schema_version` | 当前为 3；格式 1/2 由专用旧版校验器验证后迁移，其它版本拒绝读取 |
 | `revision` | 0–1,000,000,000 的整数 |
 | `region` | `id/name/size/spawn/owner_id`；尺寸当前固定 256×256 米 |
 | `terrain` | `columns/rows/spacing/heights`；覆盖范围必须与区域一致，高程 -40–80 米 |
-| `assets` | 固定顺序的六项内置目录，ID、kind、uri 均须精确匹配 |
+| `assets` | 前六项为固定内置目录，之后最多 16 个内嵌 mesh 记录 |
 | `environment` | `sun_hour/water_enabled/water_height/fog_density/terrain_grid` |
-| `objects` | 最多 500 个独立对象；ID 唯一，变换和归属须合法 |
+| `groups` | 最多 128 组，每组 2–100 个成员；根、归属、局部与世界变换均须合法 |
+| `objects` | 最多 500 个对象或组成员；ID 唯一，变换和归属须合法 |
 
 未知字段、非有限数值、非法资产引用、未归一化旋转和越界形状均被拒绝。500 是输入上限，尚未作为已验证的性能容量。
 
-坐标、字段及 OpenSim 对应关系见 [数据模型说明](opensim-data-mapping.md)。V3 对象增加 `material` 和 `state` 必填字段。应用版本、世界格式和命令封装版本分别管理；命令封装仍为 1，但 CreateObject 必须提交格式 2 对象，不能省略新增字段。
+坐标、字段及 OpenSim 对应关系见 [数据模型说明](opensim-data-mapping.md)。V3 对象增加 `material` 和 `state` 必填字段。应用版本、世界格式和命令封装版本分别管理；命令封装仍为 1，但 CreateObject 必须提交格式 3 对象，group_id 初始为空字符串，不能省略新增字段。
 
 ## 3. 命令封装
 
@@ -76,7 +79,7 @@ flowchart LR
 | `GetRegionSnapshot` | `{}` | 返回 `payload.world` 独立副本 |
 | `CreateObject` | `{"object": 完整物体}` | 创建物体，校验归属、资产及变换 |
 | `UpdateObject` | `{"id": "UUID", "patch": 修改字段}` | 可改 name、position、rotation、size、color、material |
-| `DeleteObject` | `{"id": "UUID"}` | 删除当前身份拥有的物体 |
+| `DeleteObject` | `{"id": "UUID"}` | 删除当前身份拥有的未组合物体 |
 | `SculptTerrain` | 笔刷参数，见下节 | 修改区域归属允许的高度场 |
 | `UpdateEnvironment` | `{"patch": 修改字段}` | 区域所有者更新环境；拒绝空 patch 和未知字段 |
 | `SetObjectState` | `{"id": "UUID", "active": true}` | 物体所有者设置门/灯状态；只接受 boolean |
@@ -102,7 +105,7 @@ flowchart LR
 }
 ```
 
-常见错误代码为 `INVALID_COMMAND`、`INVALID_PAYLOAD`、`REQUEST_REUSED`、`REVISION_CONFLICT`、`MUTATION_REJECTED`、`SAVE_FAILED`、`LOAD_FAILED`、`NOTHING_TO_UNDO`、`NOTHING_TO_REDO`、`HISTORY_REJECTED` 和 `UNKNOWN_OPERATION`。详细校验原因通过 `message` 返回。
+常见错误代码为 `INVALID_COMMAND`、`INVALID_PAYLOAD`、`REQUEST_REUSED`、`REVISION_CONFLICT`、`MUTATION_REJECTED`、`IMPORT_REJECTED`、`SAVE_FAILED`、`LOAD_FAILED`、`NOTHING_TO_UNDO`、`NOTHING_TO_REDO`、`HISTORY_REJECTED` 和 `UNKNOWN_OPERATION`。详细校验原因通过 `message` 返回。
 
 ## 4. 地形笔刷契约
 
@@ -133,7 +136,7 @@ smooth:  h' = (1-w)h + w × mean(neighborhood_3x3)
 
 ## 5. 历史、修订与重复请求
 
-- 有效物体、地形、环境或行为编辑增加修订，并记录修改前的世界；历史上限为 30 次。
+- 有效物体、地形、环境、行为、组合或资产编辑增加修订，并记录修改前的世界；历史上限为 30 次。
 - 撤销和重做均使用新的修订值。新有效编辑清空重做分支；通过校验的无变化操作保留该分支。
 - 保存不清除历史。恢复存档清空两个历史栈，并使用存档中的修订；该值可能小于恢复前的内存值。
 - 修订达到上限时，新增编辑及历史操作返回错误，保持数据和历史不变。
@@ -178,7 +181,7 @@ EnvironmentView 根据持久化参数设置天空、太阳、雾及 256×256 米
 
 保存顺序为：验证数据 → 写临时文件 → flush 并关闭 → 回读验证 → 更新有效备份 → 替换主文件。损坏主文件不会覆盖有效备份。主文件读取失败时尝试备份；备份恢复返回警告并标记为需要保存。两份文件都无效时不替换内存世界。
 
-格式 1 的载荷通过 LegacyWorldSchema 完整验证后，在副本上补入默认环境、material=plain、state={} 并替换为内置目录。ID、地形、区域和修订保留。LoadRegion 返回 migrated=true，设置 dirty=true；读取不改写原文件。下一次显式保存发布格式 2，并将有效原文件轮换为备份。
+格式 1 的载荷通过 LegacyWorldSchema 完整验证后，在副本上补入默认环境、material=plain、state={} 并替换为内置目录。ID、地形、区域和修订保留。LoadRegion 返回 migrated=true，设置 dirty=true；读取不改写原文件。随后补入 groups=[]、group_id=""；格式 2 则直接补入组合字段。下一次显式保存发布格式 3，并将有效原文件轮换为备份。
 
 快照上限 8 MiB。文件摘要用于损坏检测，不是身份签名。写入前文件指纹可发现已经发生的外部修改，但检查和发布之间没有跨进程锁。断电持久性、多人事务和数据库迁移尚未验证。
 
@@ -204,4 +207,12 @@ EnvironmentView 根据持久化参数设置天空、太阳、雾及 256×256 米
 | tree | 22222222-2222-4222-8222-000000000005 | builtin://unit-tree |
 | lamp | 22222222-2222-4222-8222-000000000006 | builtin://unit-lamp |
 
-目录是内置工厂白名单，不是外部资产仓储；uri 不用于任意文件加载。树木、门和灯内部使用多个引擎节点，但仍对应一个对象 ID。
+上表是目录前六项的内置工厂白名单；后续 mesh 条目存放经校验的 GLB 字节，内置 uri 不用于任意文件加载。树木、门和灯内部使用多个引擎节点，但仍对应一个对象 ID。
+
+## 10. V3.1 扩展
+
+新增 GroupObjects、UpdateGroup、DuplicateGroup、UngroupObjects、DeleteGroup、ImportGlb、RemoveAsset。完整字段和支持边界见 [组合与资产规范](groups-and-assets.md)。这些操作均经过 WorldService，不存在第二条只修改场景节点的持久化编辑路径。RegisterAsset 是 Model 内部操作，不对命令调用方开放。
+
+WorldView 先解析组变换再投影到引擎坐标，未改变的对象保留其 StaticBody3D。导入器产出数据数组，不实例化文件中的节点；MeshView 生成 ArrayMesh、StandardMaterial3D 与静态三角碰撞。快照的 GLB 内容按摘要缓存解析结果，但缓存不是存档的必要依赖。
+
+应用层数据记录仍不含 Godot Node 引用。当前实现使用 GDScript 数学类型进行运行时计算，并在世界校验时调用格式适配器；这不是已经可直接替换为任意语言的服务端库。后续服务拆分应先固定契约与测试，再迁移执行实现。

@@ -8,6 +8,13 @@ const MUTED := Color("9cb3bb")
 const ACCENT := Color("bee8ce")
 const Schema = preload("res://domain/world_schema.gd")
 const EnvironmentPanel = preload("res://client/environment_panel.gd")
+const T = preload("res://domain/world_transforms.gd")
+const GroupPanel = preload("res://client/group_panel.gd")
+const AssetPanel = preload("res://client/asset_panel.gd")
+var group_panel
+var asset_panel
+var selected_ids: Array[String] = []
+var _asset_ids: Array = []
 var environment_panel
 var asset_picker := OptionButton.new()
 var material_picker := OptionButton.new()
@@ -158,6 +165,8 @@ func _build_list() -> void:
 	column.add_child(count_label)
 	for label in ["立方体", "圆柱体", "球体", "伸缩门", "树木", "路灯"]:
 		asset_picker.add_item(label)
+	asset_picker.fit_to_longest_item = false
+	asset_picker.clip_text = true
 	column.add_child(asset_picker)
 	column.add_child(_button("＋  添加所选对象", "create", true))
 	column.add_child(_button("地形编辑", "terrain_mode"))
@@ -166,15 +175,21 @@ func _build_list() -> void:
 	list.custom_minimum_size.y = 160
 	list.fixed_icon_size = Vector2i(12, 12)
 	list.allow_reselect = true
-	list.item_selected.connect(func(index: int): object_selected.emit(_ids[index]))
+	list.select_mode = ItemList.SELECT_MULTI
+	list.multi_selected.connect(func(index: int, active: bool):
+		selected_ids.clear()
+		for selected in list.get_selected_items():
+			selected_ids.append(_ids[selected])
+		object_selected.emit(_ids[index] if active else (selected_ids.back() if not selected_ids.is_empty() else "")))
 	list.item_activated.connect(func(_index: int): action_requested.emit("focus"))
 	column.add_child(list)
 	var row := HBoxContainer.new()
 	row.add_child(_button("复制", "duplicate"))
 	row.add_child(_button("删除", "delete"))
+	row.add_child(_button("组合", "group"))
 	column.add_child(row)
 	column.add_child(_button("切换门 / 灯状态", "interact"))
-	column.add_child(_label("点击对象或列表进行选择\n双击列表 · 聚焦对象", 12, MUTED))
+	column.add_child(_label("Ctrl 多选 · 组合部件\n双击列表 · 聚焦对象", 12, MUTED))
 
 func _build_inspector() -> void:
 	var panel := _panel(Rect2(-366, 94, 350, -174), Vector4(1, 0, 1, 1))
@@ -232,6 +247,16 @@ func _build_inspector() -> void:
 	inspector_tabs.add_child(environment_scroll)
 	environment_panel = EnvironmentPanel.new()
 	environment_scroll.add_child(environment_panel)
+	for entry in [["组合", GroupPanel.new()], ["资产", AssetPanel.new()]]:
+		var page := ScrollContainer.new()
+		page.name = entry[0]
+		page.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		inspector_tabs.add_child(page)
+		page.add_child(entry[1])
+		if entry[0] == "组合":
+			group_panel = entry[1]
+		else:
+			asset_panel = entry[1]
 
 func _vector_fields(key: String, limits: Array, names: Array) -> void:
 	var row := HBoxContainer.new()
@@ -298,17 +323,31 @@ func _build_footer() -> void:
 func show_world(world: Dictionary, id: String) -> void:
 	environment_panel.show_environment(world.environment)
 	_selected = id
+	if not id in selected_ids:
+		selected_ids.assign([id] if not id.is_empty() else [])
+	var previous_asset := chosen_asset_id()
+	asset_picker.clear()
+	_asset_ids.clear()
+	for asset in world.assets:
+		_asset_ids.append(asset.id)
+		asset_picker.add_item(asset.get("name", {"box": "立方体", "cylinder": "圆柱体", "sphere": "球体", "door": "伸缩门", "tree": "树木", "lamp": "路灯"}.get(asset.kind, "网格")))
+	asset_picker.select(maxi(0, _asset_ids.find(previous_asset)))
+	asset_panel.show_asset(world, chosen_asset_id())
 	_ids.clear()
 	list.clear()
 	count_label.text = "%d 个对象  ·  256 × 256 米" % world.objects.size()
 	var item: Dictionary = {}
 	for obj in world.objects:
 		_ids.append(obj.id)
-		list.add_item(obj.name)
+		list.add_item(("◇ " if not obj.group_id.is_empty() else "") + obj.name)
 		list.set_item_tooltip(list.item_count - 1, obj.id)
 		if obj.id == id:
-			item = obj
-			list.select(list.item_count - 1)
+			item = T.resolve(obj, world.groups)
+		if obj.id in selected_ids:
+			list.select(list.item_count - 1, false)
+	selected_ids.assign(selected_ids.filter(func(value): return value in _ids))
+	group_panel.show_group(world, item, selected_ids.size())
+	buttons.group.disabled = selected_ids.size() < 2
 	var enabled := not item.is_empty()
 	for key in ["duplicate", "delete", "apply", "ground"]:
 		buttons[key].disabled = not enabled
@@ -319,11 +358,20 @@ func show_world(world: Dictionary, id: String) -> void:
 	selection_label.text = "对象 · 可编辑" if enabled else "请选择一个对象"
 	buttons.interact.disabled = not item.get("state", {}).has("active")
 	buttons.interact.text = ("关闭" if item.get("state", {}).get("active", false) else "开启") + "门 / 灯"
-	material_picker.disabled = not enabled
+	material_picker.disabled = not enabled or Schema.kind(item.get("asset_id", "")).is_empty()
 	selection_id.text = "对象 ID\n" + id if enabled else "从左侧添加对象，或在场景中点击选择。"
 	if not enabled:
 		name_input.text = ""
 		return
+	var frame := T.group(world, item.group_id)
+	if not frame.is_empty() and frame.root_id == id:
+		for i in range(3):
+			fields["position" + str(i)].editable = false
+		fields.yaw.editable = false
+		buttons.ground.disabled = true
+		selection_label.text = "根部件 · 位姿请在组合页编辑"
+	if not item.group_id.is_empty():
+		buttons.delete.disabled = true
 	name_input.text = item.name
 	_original_item = item.duplicate(true)
 	for i in range(3):
@@ -376,3 +424,6 @@ func set_history(state: Dictionary) -> void:
 func typing() -> bool:
 	var focus := root.get_viewport().gui_get_focus_owner()
 	return focus is LineEdit or focus is TextEdit
+
+func chosen_asset_id() -> String:
+	return _asset_ids[asset_picker.selected] if asset_picker.selected >= 0 and asset_picker.selected < _asset_ids.size() else Schema.BOX_ASSET

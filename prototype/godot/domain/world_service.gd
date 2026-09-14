@@ -2,6 +2,7 @@ extends RefCounted
 ## UI and automated callers use the same versioned command gateway.
 const Schema = preload("res://domain/world_schema.gd")
 const Model = preload("res://domain/world_model.gd")
+const MeshAssets = preload("res://adapters/mesh_assets.gd")
 const Repository = preload("res://adapters/snapshot_repository.gd")
 
 var model = Model.new()
@@ -43,6 +44,13 @@ func dispatch(command: Variant) -> Dictionary:
 func _execute(operation: String, id: String, payload: Dictionary) -> Dictionary:
 	if operation in ["GetRegionSnapshot", "SaveRegion", "LoadRegion", "Undo", "Redo"] and not payload.is_empty():
 		return _result(operation, id, false, {}, "INVALID_PAYLOAD", "This operation takes no payload fields.")
+	if operation == "ImportGlb":
+		if actor != model.snapshot().region.owner_id:
+			return _result(operation, id, false, {}, "MUTATION_REJECTED", "Only the region owner may import assets.")
+		var imported := MeshAssets.import_file(payload)
+		if imported.has("error"):
+			return _result(operation, id, false, {}, "IMPORT_REJECTED", imported.error)
+		return _mutate(operation, id, "RegisterAsset", {"asset": imported.asset})
 	match operation:
 		"GetRegionSnapshot":
 			return _result(operation, id, true, {"world": model.snapshot()})
@@ -56,7 +64,9 @@ func _execute(operation: String, id: String, payload: Dictionary) -> Dictionary:
 			var loaded: Dictionary = repository.load_world()
 			if loaded.has("error"):
 				return _result(operation, id, false, {}, "LOAD_FAILED", loaded.error)
-			model.replace(loaded.world)
+			var load_error: String = model.replace(loaded.world)
+			if not load_error.is_empty():
+				return _result(operation, id, false, {}, "LOAD_FAILED", load_error)
 			_history.clear()
 			_redo.clear()
 			_requests.clear()
@@ -80,19 +90,8 @@ func _execute(operation: String, id: String, payload: Dictionary) -> Dictionary:
 			destination.append(current)
 			dirty = true
 			return _result(operation, id, true, {})
-		"CreateObject", "UpdateObject", "DeleteObject", "SculptTerrain", "UpdateEnvironment", "SetObjectState":
-			var previous: Dictionary = model.snapshot()
-			var mutation: Dictionary = model.mutate(operation, payload, actor)
-			if mutation.has("error"):
-				return _result(operation, id, false, {}, "MUTATION_REJECTED", mutation.error)
-			if not mutation.get("changed", true):
-				return _result(operation, id, true, mutation)
-			_history.append(previous)
-			_redo.clear()
-			if _history.size() > 30:
-				_history.pop_front()
-			dirty = true
-			return _result(operation, id, true, mutation)
+		"CreateObject", "UpdateObject", "DeleteObject", "SculptTerrain", "UpdateEnvironment", "SetObjectState", "GroupObjects", "UpdateGroup", "DuplicateGroup", "UngroupObjects", "DeleteGroup", "RemoveAsset":
+			return _mutate(operation, id, operation, payload)
 	return _result(operation, id, false, {}, "UNKNOWN_OPERATION", "Unsupported operation.")
 
 func history_state() -> Dictionary:
@@ -100,3 +99,18 @@ func history_state() -> Dictionary:
 
 func _result(operation: String, request_id: String, ok: bool, payload: Dictionary, code: String = "", message: String = "") -> Dictionary:
 	return {"api_version": 1, "ok": ok, "operation": operation, "request_id": request_id, "revision": model.revision(), "payload": payload, "warnings": [], "errors": [] if ok else [{"code": code, "message": message}]}
+
+
+func _mutate(operation: String, id: String, mutation_name: String, payload: Dictionary) -> Dictionary:
+	var previous: Dictionary = model.snapshot()
+	var mutation: Dictionary = model.mutate(mutation_name, payload, actor)
+	if mutation.has("error"):
+		return _result(operation, id, false, {}, "MUTATION_REJECTED", mutation.error)
+	if not mutation.get("changed", true):
+		return _result(operation, id, true, mutation)
+	_history.append(previous)
+	_redo.clear()
+	if _history.size() > 30:
+		_history.pop_front()
+	dirty = true
+	return _result(operation, id, true, mutation)

@@ -55,7 +55,7 @@ func _migration(suite: SceneTree) -> void:
 	var original_hash := FileAccess.get_sha256(path)
 	var service = Service.new(path)
 	var result: Dictionary = service.request("LoadRegion")
-	suite.check(result.ok and result.payload.migrated and service.dirty and service.model.snapshot().schema_version == 2, "legacy snapshot upgrade is explicit and requires a save")
+	suite.check(result.ok and result.payload.migrated and service.dirty and service.model.snapshot().schema_version == Schema.VERSION, "legacy snapshot upgrade is explicit and requires a save")
 	suite.check(FileAccess.get_sha256(path) == original_hash, "loading an older snapshot never rewrites its original bytes")
 	var legacy: Dictionary = JSON.parse_string(JSON.parse_string(FileAccess.get_file_as_string(source)).world_json)
 	var upgraded: Dictionary = service.model.snapshot()
@@ -71,7 +71,7 @@ func _migration(suite: SceneTree) -> void:
 	suite.check(Schema.upgrade(legacy).has("error"), "legacy migration validates old records before adding defaults")
 	legacy.erase("objects")
 	suite.check(Schema.upgrade(legacy).has("error"), "malformed legacy snapshots cannot be migrated")
-	upgraded.schema_version = 3
+	upgraded.schema_version = Schema.VERSION + 1
 	suite.check(Schema.upgrade(upgraded).has("error"), "future snapshot versions cannot be coerced to V3")
 
 func _physics(suite: SceneTree, door: Dictionary) -> void:

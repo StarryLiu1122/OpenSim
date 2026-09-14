@@ -37,7 +37,8 @@
         "material": "metal",
         "state": {
           "active": false
-        }
+        },
+        "group_id": ""
       }
     }
   },

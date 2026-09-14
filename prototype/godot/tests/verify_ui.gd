@@ -120,6 +120,7 @@ func _run() -> void:
 		await process_frame
 	await _capture("edited.png")
 	await preload("res://tests/verify_v3_ui.gd").new().run(self)
+	await preload("res://tests/verify_v31_ui.gd").new().run(self)
 	await _terrain_checks()
 	var passed := 0
 	for item in cases:

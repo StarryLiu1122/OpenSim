@@ -1,208 +1,272 @@
 {
-	"cases": [
-		{
-			"name": "UI scene loads the V3 demonstration objects",
-			"ok": true
-		},
-		{
-			"name": "inspector controls fit the window",
-			"ok": true
-		},
-		{
-			"name": "bottom toolbar fits the window",
-			"ok": true
-		},
-		{
-			"name": "real rendered screenshot: overview.png",
-			"ok": true
-		},
-		{
-			"name": "name-only edit preserves unrounded transform values",
-			"ok": true
-		},
-		{
-			"name": "create button adds and selects a new world object",
-			"ok": true
-		},
-		{
-			"name": "inspector applies name, position and size via command gateway",
-			"ok": true
-		},
-		{
-			"name": "inspector applies color and rotation",
-			"ok": true
-		},
-		{
-			"name": "command result updates real scene transform",
-			"ok": true
-		},
-		{
-			"name": "save button publishes validated snapshot",
-			"ok": true
-		},
-		{
-			"name": "subsequent edit marks world dirty",
-			"ok": true
-		},
-		{
-			"name": "reload asks before discarding unsaved edits",
-			"ok": true
-		},
-		{
-			"name": "confirmed reload restores saved attributes",
-			"ok": true
-		},
-		{
-			"name": "delete button removes data and collider",
-			"ok": true
-		},
-		{
-			"name": "undo restores object ID and collider",
-			"ok": true
-		},
-		{
-			"name": "walk button switches to live avatar camera",
-			"ok": true
-		},
-		{
-			"name": "Escape returns to edit mode and releases mouse",
-			"ok": true
-		},
-		{
-			"name": "real rendered screenshot: edited.png",
-			"ok": true
-		},
-		{
-			"name": "environment tab opens through native UI event",
-			"ok": true
-		},
-		{
-			"name": "environment panel changes persistent time and rendered sunlight",
-			"ok": true
-		},
-		{
-			"name": "environment panel changes actual water elevation",
-			"ok": true
-		},
-		{
-			"name": "environment edit can be undone through the toolbar",
-			"ok": true
-		},
-		{
-			"name": "environment edit can be redone through the toolbar",
-			"ok": true
-		},
-		{
-			"name": "real rendered screenshot: night.png",
-			"ok": true
-		},
-		{
-			"name": "environment settings restore from the saved scene",
-			"ok": true
-		},
-		{
-			"name": "selected door opens through the object action button",
-			"ok": true
-		},
-		{
-			"name": "undo restores the closed door state",
-			"ok": true
-		},
-		{
-			"name": "opened door state survives native UI save and reload",
-			"ok": true
-		},
-		{
-			"name": "walking E key closes the targeted door within interaction range",
-			"ok": true
-		},
-		{
-			"name": "walking E key opens the same door",
-			"ok": true
-		},
-		{
-			"name": "avatar walks from courtyard into the demonstration building",
-			"ok": true
-		},
-		{
-			"name": "real rendered screenshot: interior.png",
-			"ok": true
-		},
-		{
-			"name": "asset selector creates a cylinder through the command gateway",
-			"ok": true
-		},
-		{
-			"name": "material selector writes the portable surface identifier",
-			"ok": true
-		},
-		{
-			"name": "primitive surface material survives save and reload",
-			"ok": true
-		},
-		{
-			"name": "walking interaction beyond four metres makes no mutation",
-			"ok": true
-		},
-		{
-			"name": "terrain tool opens terrain inspector",
-			"ok": true
-		},
-		{
-			"name": "terrain controls fit the inspector width",
-			"ok": true
-		},
-		{
-			"name": "terrain apply button changes the selected height samples",
-			"ok": true
-		},
-		{
-			"name": "terrain UI edit preserves all object transforms",
-			"ok": true
-		},
-		{
-			"name": "terrain UI edit reaches the native collider",
-			"ok": true
-		},
-		{
-			"name": "terrain undo button restores height field",
-			"ok": true
-		},
-		{
-			"name": "terrain redo button restores height field",
-			"ok": true
-		},
-		{
-			"name": "terrain save and reload restores the edited height field",
-			"ok": true
-		},
-		{
-			"name": "terrain reload clears UI history",
-			"ok": true
-		},
-		{
-			"name": "viewport click picks terrain and applies one stamp",
-			"ok": true
-		},
-		{
-			"name": "terrain brush footprint is displayed",
-			"ok": true
-		},
-		{
-			"name": "terrain edit prevents avatar burial without resetting horizontal position",
-			"ok": true
-		},
-		{
-			"name": "real rendered screenshot: terrain.png",
-			"ok": true
-		},
-		{
-			"name": "reload places avatar above edited spawn terrain",
-			"ok": true
-		}
-	],
-	"engine": "4.5.1-stable (official)",
-	"failed": 0,
-	"passed": 50,
-	"suite": "native-ui-events-and-render"
+  "cases": [
+    {
+      "name": "UI scene loads the V3 demonstration objects",
+      "ok": true
+    },
+    {
+      "name": "inspector controls fit the window",
+      "ok": true
+    },
+    {
+      "name": "bottom toolbar fits the window",
+      "ok": true
+    },
+    {
+      "name": "real rendered screenshot: overview.png",
+      "ok": true
+    },
+    {
+      "name": "name-only edit preserves unrounded transform values",
+      "ok": true
+    },
+    {
+      "name": "create button adds and selects a new world object",
+      "ok": true
+    },
+    {
+      "name": "inspector applies name, position and size via command gateway",
+      "ok": true
+    },
+    {
+      "name": "inspector applies color and rotation",
+      "ok": true
+    },
+    {
+      "name": "command result updates real scene transform",
+      "ok": true
+    },
+    {
+      "name": "save button publishes validated snapshot",
+      "ok": true
+    },
+    {
+      "name": "subsequent edit marks world dirty",
+      "ok": true
+    },
+    {
+      "name": "reload asks before discarding unsaved edits",
+      "ok": true
+    },
+    {
+      "name": "confirmed reload restores saved attributes",
+      "ok": true
+    },
+    {
+      "name": "delete button removes data and collider",
+      "ok": true
+    },
+    {
+      "name": "undo restores object ID and collider",
+      "ok": true
+    },
+    {
+      "name": "walk button switches to live avatar camera",
+      "ok": true
+    },
+    {
+      "name": "Escape returns to edit mode and releases mouse",
+      "ok": true
+    },
+    {
+      "name": "real rendered screenshot: edited.png",
+      "ok": true
+    },
+    {
+      "name": "environment tab opens through native UI event",
+      "ok": true
+    },
+    {
+      "name": "environment panel changes persistent time and rendered sunlight",
+      "ok": true
+    },
+    {
+      "name": "environment panel changes actual water elevation",
+      "ok": true
+    },
+    {
+      "name": "environment edit can be undone through the toolbar",
+      "ok": true
+    },
+    {
+      "name": "environment edit can be redone through the toolbar",
+      "ok": true
+    },
+    {
+      "name": "real rendered screenshot: night.png",
+      "ok": true
+    },
+    {
+      "name": "environment settings restore from the saved scene",
+      "ok": true
+    },
+    {
+      "name": "selected door opens through the object action button",
+      "ok": true
+    },
+    {
+      "name": "undo restores the closed door state",
+      "ok": true
+    },
+    {
+      "name": "opened door state survives native UI save and reload",
+      "ok": true
+    },
+    {
+      "name": "walking E key closes the targeted door within interaction range",
+      "ok": true
+    },
+    {
+      "name": "walking E key opens the same door",
+      "ok": true
+    },
+    {
+      "name": "avatar walks from courtyard into the demonstration building",
+      "ok": true
+    },
+    {
+      "name": "real rendered screenshot: interior.png",
+      "ok": true
+    },
+    {
+      "name": "asset selector creates a cylinder through the command gateway",
+      "ok": true
+    },
+    {
+      "name": "material selector writes the portable surface identifier",
+      "ok": true
+    },
+    {
+      "name": "primitive surface material survives save and reload",
+      "ok": true
+    },
+    {
+      "name": "walking interaction beyond four metres makes no mutation",
+      "ok": true
+    },
+    {
+      "name": "Ctrl-click selects multiple real scene list entries",
+      "ok": true
+    },
+    {
+      "name": "group button creates an assembly and opens its inspector",
+      "ok": true
+    },
+    {
+      "name": "group inspector applies a world rotation",
+      "ok": true
+    },
+    {
+      "name": "group inspector duplicates all members",
+      "ok": true
+    },
+    {
+      "name": "group inspector deletes the selected copy",
+      "ok": true
+    },
+    {
+      "name": "real rendered screenshot: groups.png",
+      "ok": true
+    },
+    {
+      "name": "UI imports static GLB and selects new asset: pavilion",
+      "ok": true
+    },
+    {
+      "name": "UI creates mesh instance using native dimensions: pavilion",
+      "ok": true
+    },
+    {
+      "name": "UI imports static GLB and selects new asset: bench",
+      "ok": true
+    },
+    {
+      "name": "UI creates mesh instance using native dimensions: bench",
+      "ok": true
+    },
+    {
+      "name": "long asset names create bounded object names without expanding the scene panel",
+      "ok": true
+    },
+    {
+      "name": "UI imports static GLB and selects new asset: tree",
+      "ok": true
+    },
+    {
+      "name": "UI creates mesh instance using native dimensions: tree",
+      "ok": true
+    },
+    {
+      "name": "real rendered screenshot: imported-assets.png",
+      "ok": true
+    },
+    {
+      "name": "UI reload restores group records and all imported geometry",
+      "ok": true
+    },
+    {
+      "name": "V3.1 restored world has no pending edits or retained history",
+      "ok": true
+    },
+    {
+      "name": "terrain tool opens terrain inspector",
+      "ok": true
+    },
+    {
+      "name": "terrain controls fit the inspector width",
+      "ok": true
+    },
+    {
+      "name": "terrain apply button changes the selected height samples",
+      "ok": true
+    },
+    {
+      "name": "terrain UI edit preserves all object transforms",
+      "ok": true
+    },
+    {
+      "name": "terrain UI edit reaches the native collider",
+      "ok": true
+    },
+    {
+      "name": "terrain undo button restores height field",
+      "ok": true
+    },
+    {
+      "name": "terrain redo button restores height field",
+      "ok": true
+    },
+    {
+      "name": "terrain save and reload restores the edited height field",
+      "ok": true
+    },
+    {
+      "name": "terrain reload clears UI history",
+      "ok": true
+    },
+    {
+      "name": "viewport click picks terrain and applies one stamp",
+      "ok": true
+    },
+    {
+      "name": "terrain brush footprint is displayed",
+      "ok": true
+    },
+    {
+      "name": "terrain edit prevents avatar burial without resetting horizontal position",
+      "ok": true
+    },
+    {
+      "name": "real rendered screenshot: terrain.png",
+      "ok": true
+    },
+    {
+      "name": "reload places avatar above edited spawn terrain",
+      "ok": true
+    }
+  ],
+  "engine": "4.5.1-stable (official)",
+  "failed": 0,
+  "passed": 66,
+  "suite": "native-ui-events-and-render"
 }

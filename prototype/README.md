@@ -1,8 +1,8 @@
-# Region Lab V3 使用说明
+# Region Lab V3.1 使用说明
 
-版本：0.3.0。本文适用于 Windows x64 源码运行方式。
+版本：0.3.1。本文适用于 Windows x64 源码运行方式。
 
-Region Lab 是基于 Godot 的单区域编辑原型。V3 支持六类对象、程序材质、地形编辑、区域环境、门灯交互、角色漫游和统一保存恢复。新世界提供庭院、湖岸及可进入的展馆。区域尺寸为 256×256 米，当前采用本机单用户模式。
+Region Lab 是基于 Godot 的单区域编辑原型。V3.1 支持对象组合、静态 GLB 导入、六类内置对象、程序材质、地形编辑、区域环境、门灯交互、角色漫游和统一保存恢复。新世界提供庭院、湖岸及可进入的展馆。区域尺寸为 256×256 米，当前采用本机单用户模式。
 
 ## 1. 环境要求
 
@@ -23,11 +23,11 @@ Region Lab 是基于 Godot 的单区域编辑原型。V3 支持六类对象、�
 ### 2.1 获取代码
 
 ```powershell
-git clone --branch codex/region-lab-v3 https://github.com/StarryLiu1122/OpenSim.git
+git clone --branch codex/region-lab-v3-1 https://github.com/StarryLiu1122/OpenSim.git
 cd OpenSim\prototype
 ```
 
-也可在 GitHub 下载该分支 ZIP 并解压。已有仓库可在保存本地修改后，获取并切换至 `codex/region-lab-v3`。
+也可在 GitHub 下载该分支 ZIP 并解压。已有仓库可在保存本地修改后，获取并切换至 `codex/region-lab-v3-1`。
 
 ### 2.2 安装引擎
 
@@ -88,13 +88,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Godot.ps
 
 ### 4.1 首次体验
 
-1. 使用一个新的存档路径启动，例如 `Start.cmd -WorldFile "$PWD\runtime\v3-demo.json"`。已有 V1/V2 存档将保留原场景，不自动替换为展馆。
+1. 使用一个新的存档路径启动，例如 `Start.cmd -WorldFile "$PWD\runtime\v31-demo.json"`。已有 V1/V2/V3 存档将保留原场景，不自动替换为展馆。
 2. Tab 进入漫游，沿道路向前走到展馆入口。漫游时隐藏两侧编辑面板。
 3. 在 4 米内对准门或门框，按 E 开门，继续向前进入室内。打开后门洞中央为空，应对准门框关闭。
 4. Esc 返回编辑。在“环境”页设置 20 时，点击“应用环境设置”，观察路灯与夜景。
 5. 保存世界，关闭后用同一路径重新启动，核对环境与门灯状态。
 
-展馆各墙体、屋顶和陈设可分别选择编辑。它们尚未组成 linkset；整体移动建筑需要后续对象组功能。
+新建展馆的 15 个部件已组成一组，地板为根。选择任意成员后进入“组合”页，可整体移动、旋转、统一缩放或复制；门灯仍可分别操作。已有存档保持原有部件关系。
 
 ### 4.2 区域环境
 
@@ -109,6 +109,27 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Godot.ps
 环境操作与物体、地形共用撤销和重做。水面为视觉效果，当前没有游泳、浮力、潮汐或水流。树木仅树干参与碰撞；叶冠不阻挡角色。门使用内置伸缩状态，不执行外部脚本。
 
 ![V3 区域场景](docs/images/overview.png)
+
+### 4.3 组合编辑
+
+1. 在左侧列表按 Ctrl 多选至少两个未组合部件，最后选择的对象作为根，点击“组合”。
+2. 在“组合”页修改名称、组位置、水平旋转或统一缩放，点击“应用组合变换”。
+3. 填写副本偏移，点击“复制整个组合”；新副本拥有独立 ID 和交互状态。
+4. “解除组合”保留部件当前世界位置；“删除整个组合”删除所有成员，均可撤销。
+
+组倍率为 0.1–10，但成员投影后仍须满足每轴 0.2–32 米及区域边界。薄地板可能限制整体缩小。根部件的位置和旋转在“组合”页编辑，子部件仍可在“对象”页按世界坐标调整。Ctrl+D 只复制当前单个部件为独立对象。
+
+### 4.4 导入 GLB
+
+1. 打开右侧“资产”页，点击“选择 GLB 文件”，或输入文件路径。
+2. 填写名称、许可和作者来源。示例位于 `fixtures/meshes/`，可填写 `CC0-1.0` 和 `Region Lab contributors`。
+3. 点击“导入资产”。成功后左侧类型列表选中该模型，点击“添加所选对象”放置实例。
+4. 在对象页调整位置、尺寸、角度和整体颜色；同一模型可多次放置。其 PBR 表面来自原文件，不能切换内置程序材质。
+5. 保存后模型内容内嵌在存档中，搬移存档无须携带源 GLB。没有实例引用的资产可在资产页移除，移除可撤销。
+
+支持范围：静态 GLB 2.0、单文件不超过 2 MiB、不超过 20,000 三角形（包括碰撞代理）、每轴尺寸 0.2–32 米、不透明材质、内嵌 PNG 基础色贴图。动画、外部贴图、压缩扩展等会被拒绝，完整限制及导出要求见 [组合与资产规范](docs/groups-and-assets.md)。快照整体上限仍为 8 MiB。
+
+示例建筑使用保留门洞的碰撞代理，可直接进入内部；树的代理只包括树干。三个样本用于功能验证，不是实景扫描资产。导入 GLB 内部的节点不可单独编辑；需要可动门时，另外添加内置门并与建筑组合。
 
 ## 5. 地形编辑
 
@@ -144,9 +165,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Godot.ps
 
 保存流程包括数据校验、临时写入、回读验证、有效备份更新和主文件替换。主存档无效时尝试备份；恢复备份后界面提示检查并保存。两份文件均无效时保留当前内存世界并报告错误。
 
-V3 使用世界格式版本 2，可读取 V1/V2 的格式 1 存档。读取时先验证旧结构、在内存中补齐环境、材质和行为字段，并标记为待保存；原文件此时不改写。首次保存升级结果时，原格式保留在 .bak。V1/V2 程序不能读取格式 2；如需返回旧版，应使用升级前副本或尚未被后续保存轮换的旧备份。不要让两个程序实例同时写入同一世界文件。快照为单写入者存储，外部修改检测不提供跨进程事务保证。
+V3.1 使用世界格式版本 3，可读取 V1/V2 的格式 1 和 V3 的格式 2。先验证旧数据，再在内存中补齐组与资产相关字段，标记为待保存；读取时不改写原文件。首次保存升级结果时，原格式保留在 .bak。旧版程序不能读取格式 3；返回旧版应使用升级前副本。不要让两个程序实例写入同一世界文件，当前文件存储不提供跨进程事务。
 
-保存内容包括区域、地形、环境、内置资产目录、物体材质和门灯状态。编辑相机、角色实时位置、选择状态和撤销历史不持久化；角色重新启动时位于区域起点。撤销或重做后的世界按已修改状态处理，保存后清除标记。
+保存内容包括区域、地形、环境、组合、资产目录及 GLB 内容、物体材质和门灯状态。编辑相机、角色实时位置、选择状态和撤销历史不持久化；角色重新启动时位于区域起点。撤销或重做后的世界按已修改状态处理，保存后清除标记。
 
 ## 7. 测试与自动化
 
@@ -177,10 +198,20 @@ $engine = ".\.tools\godot-4.5.1\Godot_v4.5.1-stable_win64_console.exe"
 
 批处理应在图形程序关闭后执行。创建物体样例另见 [create-and-save.commands.json](fixtures/create-and-save.commands.json)，环境与开门样例见 [environment-and-door.commands.json](fixtures/environment-and-door.commands.json)，命令语义见 [接口文档](docs/architecture-and-api.md)。
 
+固定场景性能测量：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Measure-RegionLab.ps1
+```
+
+需要图形会话，输出至独立 `test-results/benchmark-.../`。报告包含实际硬件、场景设置、帧间隔及资源监测，解释见 [性能基线](docs/performance.md)。
+
 ## 8. 常见故障
 
 | 现象 | 处理 |
 | --- | --- |
+| 模型导入被拒绝 | 查看弹窗具体原因；确认米制、静态 GLB、内嵌 PNG、无扩展及动画；按规范简化后重试 |
+| 组合变换被拒绝 | 检查所有成员的尺寸和区域边界，尤其薄地板；整组操作失败不会提交部分成员 |
 | 找不到引擎或版本不符 | 运行 `Install.cmd`，或指定固定版本的 console 可执行文件 |
 | 下载失败或校验失败 | 从官方发行页下载同名压缩包后离线安装；保留校验检查 |
 | 黑屏、图形初始化失败 | 检查 OpenGL 3.3 驱动；无图形会话可先运行非视觉测试 |
@@ -191,4 +222,4 @@ $engine = ".\.tools\godot-4.5.1\Godot_v4.5.1-stable_win64_console.exe"
 
 ## 9. 相关文档
 
-[架构与接口](docs/architecture-and-api.md) · [数据对应](docs/opensim-data-mapping.md) · [技术选型](docs/engine-decision.md) · [V3 版本说明](docs/releases/v3.md) · [后续计划](../docs/plans/stage-one-rebuild-plan.md)
+[架构与接口](docs/architecture-and-api.md) · [数据对应](docs/opensim-data-mapping.md) · [技术选型](docs/engine-decision.md) · [V3.1 版本说明](docs/releases/v3.1.md) · [后续计划](../docs/plans/stage-one-rebuild-plan.md)

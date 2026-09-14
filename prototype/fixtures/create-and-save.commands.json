@@ -25,7 +25,8 @@
         ],
         "color": "#50A696",
         "material": "plain",
-        "state": {}
+        "state": {},
+        "group_id": ""
       }
     }
   },

@@ -1,5 +1,7 @@
 extends RefCounted
 const Schema = preload("res://domain/world_schema.gd")
+const T = preload("res://domain/world_transforms.gd")
+const Groups = preload("res://domain/group_commands.gd")
 const TerrainBrush = preload("res://domain/terrain_brush.gd")
 
 var _world: Dictionary
@@ -22,14 +24,44 @@ func replace(candidate: Dictionary) -> String:
 func object(id: String) -> Dictionary:
 	for item in _world.objects:
 		if item.id == id:
-			return item.duplicate(true)
+			return T.resolve(item, _world.groups)
 	return {}
 
 func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary:
 	var next := snapshot()
 	var object_id := ""
 	var changed_samples := 0
+	var extra: Dictionary = {}
 	match operation:
+		"GroupObjects", "UpdateGroup", "DuplicateGroup", "UngroupObjects", "DeleteGroup":
+			extra = Groups.apply(next, operation, payload, actor)
+			if extra.has("error"):
+				return extra
+			object_id = extra.id
+		"RegisterAsset":
+			if actor != next.region.owner_id or not Schema.exact_keys(payload, ["asset"]):
+				return {"error": "Only the region owner may register an asset."}
+			var checked := Schema.MeshAssets.read(payload.asset)
+			if checked.has("error"):
+				return checked
+			object_id = payload.asset.id
+			for asset in next.assets:
+				if asset.id == object_id:
+					if asset.get("sha256") != payload.asset.sha256:
+						return {"error": "Asset ID prefix collision; existing content was preserved."}
+					return {"id": object_id, "changed": false, "revision": revision(), "reused": true}
+			next.assets.append(payload.asset.duplicate(true))
+		"RemoveAsset":
+			if actor != next.region.owner_id or not Schema.exact_keys(payload, ["id"]) or payload.id not in Schema.mesh_ids(next):
+				return {"error": "Only the region owner may remove an imported asset."}
+			for item in next.objects:
+				if item.asset_id == payload.id:
+					return {"error": "Asset is still referenced by a world object."}
+			for asset in next.assets:
+				if asset.id == payload.id:
+					next.assets.erase(asset)
+					break
+			object_id = payload.id
 		"UpdateEnvironment":
 			if actor != next.region.owner_id:
 				return {"error": "Only the region owner may edit the environment."}
@@ -53,7 +85,7 @@ func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary
 			if not Schema.exact_keys(payload, ["object"]) or not payload.object is Dictionary:
 				return {"error": "CreateObject requires an object."}
 			var item: Dictionary = payload.object.duplicate(true)
-			if item.get("owner_id") != actor:
+			if item.get("owner_id") != actor or item.get("group_id", "") != "":
 				return {"error": "Cannot create an object for another owner."}
 			object_id = str(item.get("id", ""))
 			next.objects.append(item)
@@ -72,6 +104,8 @@ func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary
 			if next.objects[index].owner_id != actor:
 				return {"error": "Only the owner may edit this object."}
 			if operation == "DeleteObject":
+				if not next.objects[index].group_id.is_empty():
+					return {"error": "Ungroup the object or delete the whole group first."}
 				next.objects.remove_at(index)
 			elif operation == "SetObjectState":
 				if Schema.kind(next.objects[index].asset_id) not in ["door", "lamp"] or not payload.active is bool:
@@ -80,10 +114,15 @@ func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary
 			else:
 				if not payload.patch is Dictionary or payload.patch.is_empty():
 					return {"error": "UpdateObject requires a nonempty patch."}
+				var updated := T.resolve(next.objects[index], next.groups)
 				for key in payload.patch:
 					if key not in ["name", "position", "rotation", "size", "color", "material"]:
 						return {"error": "Field is not editable: " + str(key)}
-					next.objects[index][key] = payload.patch[key]
+					updated[key] = payload.patch[key]
+				var edit_error := Schema.validate_object(updated, next.region, Schema.mesh_ids(next))
+				if not edit_error.is_empty():
+					return {"error": edit_error}
+				next.objects[index] = updated if updated.group_id.is_empty() else T.localize(updated, T.group(next, updated.group_id))
 		_:
 			return {"error": "Unknown mutation."}
 	var candidate_error := Schema.validate(next)
@@ -96,4 +135,6 @@ func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary
 	if not error.is_empty():
 		return {"error": error}
 	_world = next.duplicate(true)
-	return {"id": object_id, "revision": revision(), "changed": true, "changed_samples": changed_samples}
+	var result := {"id": object_id, "revision": revision(), "changed": true, "changed_samples": changed_samples}
+	result.merge(extra, true)
+	return result

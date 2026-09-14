@@ -51,6 +51,9 @@ func _ready() -> void:
 	ui.action_requested.connect(_action)
 	ui.object_selected.connect(_select)
 	ui.patch_requested.connect(_patch)
+	ui.group_panel.command_requested.connect(_extended_command)
+	ui.asset_panel.command_requested.connect(_extended_command)
+	ui.asset_picker.item_selected.connect(func(_index): ui.asset_panel.show_asset(service.model.snapshot(), ui.chosen_asset_id()))
 	ui.terrain_panel.apply_requested.connect(_sculpt)
 	ui.environment_panel.apply_requested.connect(func(patch: Dictionary): _feedback(service.request("UpdateEnvironment", {"patch": patch})))
 	_dialog = ConfirmationDialog.new()
@@ -92,7 +95,7 @@ func _rebuild() -> void:
 func _refresh() -> void:
 	var world: Dictionary = service.model.snapshot()
 	var terrain_changed: bool = world_view.sync_terrain(world.terrain, world.region.size)
-	world_view.sync_objects(world.objects)
+	world_view.sync_objects(world.objects, world.groups, world.assets)
 	world_view.sync_environment(world.environment)
 	environment_view.sync(world.environment)
 	if terrain_changed:
@@ -142,17 +145,28 @@ func _action(action: String) -> void:
 		"terrain_mode":
 			_set_walk(false)
 			ui.inspector_tabs.current_tab = 1
+		"group":
+			_extended_command("GroupObjects", {"id": Schema.uuid(), "name": "对象组合", "root_id": selected_id, "object_ids": ui.selected_ids.duplicate()})
+			ui.inspector_tabs.current_tab = 3
 		"create":
 			var p := WorldView.to_world(orbit_target)
 			p[0] = clampf(p[0] + randf_range(-3, 3), 2, 254)
 			p[1] = clampf(p[1] - 8, 2, 254)
 			p[2] = world_view.ground_height(p[0], p[1]) + 1
-			var kind: String = Schema.KINDS[ui.asset_picker.selected]
+			var asset_id: String = ui.chosen_asset_id()
+			var kind: String = Schema.kind(asset_id)
 			var dimensions: Array = {"door": [2.6, 0.3, 3.2], "tree": [4.4, 4.4, 7.0], "lamp": [0.7, 0.7, 4.2]}.get(kind, [2.0, 2.0, 2.0])
+			if kind.is_empty():
+				for asset in service.model.snapshot().assets:
+					if asset.id == asset_id:
+						dimensions = asset.bounds.duplicate()
 			p[0] = clampf(p[0], dimensions[0] / 2.0, 256.0 - dimensions[0] / 2.0)
 			p[1] = clampf(p[1], dimensions[1] / 2.0, 256.0 - dimensions[1] / 2.0)
 			p[2] = world_view.ground_height(p[0], p[1]) + dimensions[2] / 2.0
-			var item := Schema.primitive(kind, "新" + ui.asset_picker.get_item_text(ui.asset_picker.selected), p, dimensions, "#50A696")
+			var item := Schema.primitive(kind if not kind.is_empty() else "box", ("新" + ui.asset_picker.get_item_text(ui.asset_picker.selected)).left(80), p, dimensions, "#50A696")
+			item.asset_id = asset_id
+			if kind.is_empty():
+				item.color = "#FFFFFF"
 			var result: Dictionary = service.request("CreateObject", {"object": item})
 			if result.ok:
 				selected_id = item.id
@@ -167,6 +181,7 @@ func _action(action: String) -> void:
 			if item.is_empty():
 				return
 			item.id = Schema.uuid()
+			item.group_id = ""
 			item.name = item.name.left(75) + " 副本"
 			item.position[0] += float(item.size[0]) + 1
 			var result: Dictionary = service.request("CreateObject", {"object": item})
@@ -225,7 +240,7 @@ func _feedback(result: Dictionary) -> void:
 	elif not result.warnings.is_empty():
 		ui.set_status("●  已恢复备份，请检查并保存", true)
 	elif result.operation == "LoadRegion" and result.payload.get("migrated", false):
-		ui.set_status("●  旧存档已升级，请保存为 V3 格式", true)
+		ui.set_status("●  旧存档已升级，请保存为 V3.1 格式", true)
 	elif result.operation == "SaveRegion":
 		ui.set_status("●  保存成功 · " + Time.get_time_string_from_system())
 	elif result.operation == "SculptTerrain":
@@ -337,3 +352,15 @@ func _verify_render() -> void:
 	var error := get_viewport().get_texture().get_image().save_png(output)
 	print(JSON.stringify({"operation": "render", "ok": error == OK, "path": output, "objects": service.model.snapshot().objects.size()}))
 	get_tree().quit(0 if error == OK else 1)
+
+func _extended_command(operation: String, payload: Dictionary) -> void:
+	var result: Dictionary = service.request(operation, payload)
+	if result.ok and result.payload.has("root_id"):
+		selected_id = result.payload.root_id
+	if service.model.object(selected_id).is_empty():
+		selected_id = ""
+	_feedback(result)
+	if result.ok and operation == "ImportGlb":
+		ui.asset_picker.select(ui._asset_ids.find(result.payload.id))
+		ui.asset_panel.show_asset(service.model.snapshot(), result.payload.id)
+		ui.set_status("资产导入完成 · 可在左侧添加实例", service.dirty)

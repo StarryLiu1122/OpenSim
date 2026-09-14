@@ -1,5 +1,6 @@
 extends RefCounted
 ## New-install demonstration only. Existing snapshots are never replaced by this scene.
+const Groups = preload("res://domain/group_commands.gd")
 const Schema = preload("res://domain/world_schema.gd")
 
 static func create() -> Dictionary:
@@ -47,6 +48,10 @@ static func create() -> Dictionary:
 		var sample := int(round(north / 4.0)) * 65 + int(round(east / 4.0))
 		var height := 6.0 + float(index % 3)
 		objects.append(Schema.primitive("tree", "庭院乔木 %02d" % index, [east, north, float(world.terrain.heights[sample]) + height / 2.0], [4.4, 4.4, height], "#567746"))
+	var members: Array = []
+	for item in objects.slice(2, 17):
+		members.append(item.id)
+	Groups.apply(world, "GroupObjects", {"id": Schema.uuid(), "name": "展馆建筑", "root_id": objects[2].id, "object_ids": members}, Schema.OWNER)
 	return world
 
 static func _add(objects: Array, name: String, position: Array, size: Array, color: String, material: String) -> void:

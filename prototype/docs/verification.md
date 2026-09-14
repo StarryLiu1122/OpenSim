@@ -1,89 +1,85 @@
-# V3 验证记录
+# V3.1 验证记录
 
-版本：0.3.0。验证日期：2026-09-14。
+版本：0.3.1。验证日期：2026-09-15。
 
 ## 1. 环境
 
 | 项目 | 实测配置 |
 | --- | --- |
-| 操作系统 | Windows 11 家庭版中文版 x64，10.0.26200 |
-| 脚本环境 | Windows PowerShell 5.1 |
+| 系统 | Windows 11 x64，10.0.26200 |
+| 处理器 | Intel Core Ultra 7 255HX |
+| 显卡与驱动 | NVIDIA GeForce RTX 5060 Laptop GPU，NVIDIA 592.01 |
 | 引擎 | Godot 4.5.1 标准版，4.5.1.stable.official.f62fdbde1 |
-| 渲染 | Compatibility，OpenGL 3.3 |
-| 显卡 | NVIDIA GeForce RTX 5060 Laptop GPU，NVIDIA 592.01 |
-| 物理 | Jolt；静态三角地形、原始几何、复合门及角色胶囊 |
-| 依赖校验 | 官方压缩包和可执行文件 SHA512 与锁文件一致 |
+| 图形与物理 | Compatibility / OpenGL 3.3，Jolt |
+| 安装与脚本 | 官方固定归档 SHA512 校验，Windows PowerShell 5.1 |
 
 ## 2. 执行方法与结果
 
-在 prototype 目录执行：
+在 prototype 目录运行：
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Test-RegionLab.ps1 -Visual
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Measure-RegionLab.ps1
 ```
 
-| 检查组 | 结果 | 主要覆盖内容 |
+| 检查组 | 结果 | 覆盖内容 |
 | --- | --- | --- |
-| 原生数据、持久化和物理 | 136 / 136 通过 | 原有功能、环境校验、门灯状态、资产目录、迁移和真实碰撞 |
-| 界面与渲染 | 50 / 50 通过 | 对象与地形编辑、环境页、门灯操作、建筑通行、保存恢复 |
-| 独立进程恢复 | 通过 | 一个进程保存并退出，另一个进程恢复环境、门状态、材质、物体及地形 |
-| 物体批处理 | 通过 | 创建固定 ID 方块、保存与查询 |
-| 地形批处理 | 通过 | 设高、撤销、重做和保存；[80,80] 采样高程为 8 米 |
-| 环境与行为批处理 | 通过 | 设置夜间环境、创建门、开门、保存并查询 |
+| 原生数据、存储与物理 | 188 / 188 | 原有功能、组合、GLB 子集与异常输入、旧格式迁移、原生碰撞 |
+| 界面与渲染 | 66 / 66 | 原有编辑、Ctrl 多选、组合操作、导入、长名称布局、实例创建与恢复 |
+| 独立进程恢复 | 通过 | 原有地形、环境、门状态与物体恢复 |
+| 内嵌资产独立进程恢复 | 通过 | 导入后删除临时源 GLB，保存并退出；只搬移世界文件，另进程恢复组与网格 |
+| 离线批处理 | 3 组通过 | 物体创建、地形操作、环境与门状态；共用命令服务 |
+| 性能工作负载 | 2 组完成 | 日间 43 对象、夜间 243 对象；原始间隔、资源监测与截图 |
 
-报告：[汇总](evidence/summary.json)、[原生检查](evidence/native-report.json)、[界面检查](evidence/visual-report.json)。完整运行日志保留在各次本机 test-results/run-... 目录。
+机器可读报告：[汇总](evidence/summary.json)、[原生检查](evidence/native-report.json)、[界面检查](evidence/visual-report.json)、[性能记录](evidence/benchmark.json)。完整日志在每次独立的 test-results 目录中。
 
-界面测试通过真实 Godot Viewport 注入点击与按键，属性输入通过控件赋值。50 项包含 5 项截图生成检查。截图用于审阅场景、中文显示和面板布局，不构成视觉质量评分或完整覆盖率。
+界面测试通过真实 Viewport 输入鼠标和按键，属性输入通过控件赋值。66 项中有 7 项检查截图是否生成；截图另经人工视觉检查，不等同于视觉质量评分或覆盖率。性能结果按 [测量方法](performance.md) 解释，不作为硬件最低帧率承诺。
 
-## 3. 关键验证
+## 3. V3.1 关键行为
 
-| 类别 | 检查内容 |
+| 领域 | 验证内容 |
 | --- | --- |
-| 环境 | 字段与类型边界、非有限数值、归属、无变化命令、撤销和重做 |
-| 门 | 关闭时阻挡真实胶囊，打开后可以穿过门洞；按钮与 E 键改变相同状态 |
-| 灯 | 开关改变实际 OmniLight3D 能量；状态可存档 |
-| 对象 | 六类对象输入、非法材质、非均匀尺寸凸碰撞、资产引用完整性 |
-| 迁移 | V1/V2 实际样本；保留 ID、地形和修订；读取不写盘；保存保留旧格式备份 |
-| 存储 | 完整状态恢复、损坏校验、有效备份、写入失败及已有外部修改检测 |
-| 地形 | 笔刷算法、非共面单元四点、更新及撤销后的网格和碰撞一致性 |
-| 界面 | 环境页切换、交互距离、进入示例建筑、返回编辑、材质与状态恢复 |
+| 组合 | 建立与解除保持世界位姿，组位移/旋转/统一缩放正确合成，成员按世界坐标编辑 |
+| 原子性 | 重复成员、已有组成员、根位姿绕过、越界、零倍率、非法旋转及跨归属均拒绝 |
+| 生命周期 | 复制产生独立成员 ID，删除仅影响目标组；撤销、重做、保存与恢复保留关系 |
+| 物理 | 旋转缩放后的门碰撞位于正确位置；开门后通道开放；副本保持独立门状态 |
+| 导入 | 原始建筑、长凳、树导入；内嵌 PNG、代理识别、同内容去重与引用保护 |
+| 非法 GLB | 容器长度、外部 buffer/图片、循环节点、非法访问器范围、NaN、过量顶点、镜像、动画、扩展和不支持的属性 |
+| 内容完整性 | 字节摘要、包围尺寸和内嵌标识一致；移动存档及空缓存读取后重建 |
+| 建筑通行 | 入口中心射线可通行、墙体阻挡射线；真实角色胶囊进入 GLB 建筑并落在地板上 |
+| 兼容性 | V1/V2 的格式 1 与 V3 的格式 2 样本先校验再迁移；读取不改写原文件 |
 
-存档数值恢复使用 1e-6 容差；指定地形射线与网格高度检查使用 0.002 米容差；椭球顶部检查使用 0.03 米容差；角色落地使用适合胶囊接触的 0.2 米容差。这些值是具体测试判据，未声明为全场景误差上界。
+变换合成使用约 2e-5 米的具体测试容差；存档数值对照使用 1e-6。地形、胶囊与椭球沿用对应的接触/射线容差。它们是具体样例的验收判据，不是所有形状或参数的误差上界。
 
 ## 4. 独立目录复现
 
-从待提交 Git 内容导出原型到同机全新、含空格的目录，不带引擎、.godot 缓存和用户存档。使用固定官方压缩包离线安装，首次启动先于编辑器导入及测试执行。
+从待提交 Git 内容导出 prototype 至同机新建、含空格的目录，不带引擎、.godot 缓存与用户存档。使用固定官方归档离线安装，先执行首次启动和截图，再执行完整测试及性能测量。
 
 ```powershell
-.\Install.cmd -ArchivePath "<官方压缩包绝对路径>"
+.\Install.cmd -ArchivePath "<官方归档绝对路径>"
 .\Start.cmd -WorldFile "$PWD\runtime\first-launch.json" -Screenshot "$PWD\test-results\first-launch.png"
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Test-RegionLab.ps1 -Visual
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Measure-RegionLab.ps1
 ```
 
-独立目录结果和被验证文件摘要见 [复现记录](evidence/clean-reproduction.json)。此步骤验证同一台 Windows 机器的新目录，不等同于全新操作系统测试。
+复现步骤、结果和运行文件摘要见 [clean-reproduction.json](evidence/clean-reproduction.json)。运行文件与交付代码逐个核对 SHA256；此验证是同一台 Windows 机器的全新目录，不是全新操作系统或跨平台测试。
 
 ## 5. 实际画面
 
-日间场景：
+组合面板：
 
-![日间区域](images/overview.png)
+![展馆组合](images/groups.png)
 
-夜间环境：
+静态资产导入与实例：
 
-![夜间区域](images/night.png)
+![导入 GLB 资产](images/imported-assets.png)
 
-进入展馆：
-
-![建筑内部](images/interior.png)
+其余画面：[首次区域](images/overview.png)、[夜景](images/night.png)、[展馆内部](images/interior.png)、[地形编辑](images/terrain.png)。
 
 ## 6. 验证边界
 
-- 当前交付为本机单用户；数据库、多人、身份认证、库存和完整脚本尚未实现。
-- 原版固定 OpenSim 源码尚未完成独立构建与运行对照，映射仍以源码分析为依据。
-- 没有导入无人机、CAD/BIM、OAR 或真实扫描资产；画面为程序化验证场景。
-- 水面、太阳时刻和内置行为不是水动力、天文日照或完整脚本模拟。
-- 未进行 500 对象、高分辨率地形、大量阴影灯光的容量基准。
-- 未验证 Linux、macOS、Web、独立导出包、断电持久性或跨进程并发写入。
-- 未接入在线模型，也未执行完整 GameFactory 生成流程。
+当前未实现数据库、多人同步、完整身份权限、库存、LSL/OSSL 或 Firestorm。原版固定 OpenSim 源码尚未完成独立运行对照，现有对应说明以源码分析为依据。
 
-后续验收条件见 [版本计划](../../docs/plans/stage-one-rebuild-plan.md)。
+样本为项目原始简化模型，不含真实扫描、无人机、CAD/BIM 或 OAR 数据。GLB 支持范围以规范为准；复杂导出文件可能因不支持的属性被拒绝。未验证 500 对象容量、大量高分辨率贴图、动态网格、断电持久性、并发文件写入、Linux/macOS/Web 或独立导出包。未接入在线模型，也未执行完整 GameFactory 生成流程。
+
+历史 V3 结果见 [固定提交记录](https://github.com/StarryLiu1122/OpenSim/blob/3de81d513c8c2612604b33540df095e3e0644e2d/prototype/docs/verification.md)，后续工作见 [V3.1 实施方案](../../docs/plans/v3.1-implementation-plan.md)。
