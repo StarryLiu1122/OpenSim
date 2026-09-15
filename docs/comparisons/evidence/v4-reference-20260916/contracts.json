@@ -1,0 +1,175 @@
+{
+  "failed": 0,
+  "scope": "JSON Schema structural examples only",
+  "passed": 28,
+  "results": [
+    {
+      "name": "GetCapabilities",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "GetSnapshot",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "GetReceipt",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "CreateBox",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "Link",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "Move",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "Rotate",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "MoveMember",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "Scale",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "Duplicate",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "Unlink",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "Delete",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "Backup",
+      "actual": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "name": "unknown_operation",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "wrong_protocol_version",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "missing_trace",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "extra_subject",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "uppercase_request",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "zero_request",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "missing_member",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "size_zero",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "size_string",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "position_two_axes",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "quaternion_three_axes",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "scale_zero",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "external_path",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "empty_name",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "name": "snapshot_extra_payload",
+      "actual": false,
+      "expected": false,
+      "ok": true
+    }
+  ]
+}

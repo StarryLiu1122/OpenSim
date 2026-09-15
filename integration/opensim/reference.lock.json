@@ -1,0 +1,9 @@
+{
+  "upstream_commit": "1f4a6dd1d3ff653ecc2748a7764106c30ac4ef9d",
+  "import_commit": "d9f40880cf5ee8cfc8638bc3566c9e56b71221a5",
+  "git_tree": "fbf3a3c632b08e6d90a3afd519e9577fa20eb695",
+  "application_version": "0.9.3.0",
+  "sdk_version": "8.0.424",
+  "target_framework": "net8.0",
+  "configuration": "Release"
+}

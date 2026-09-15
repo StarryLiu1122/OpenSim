@@ -1,0 +1,778 @@
+{
+  "passed": 130,
+  "failed": 0,
+  "scope": "world-space static box transforms; identity policies compared separately",
+  "tolerance": 0.0002,
+  "checks": [
+    {
+      "field": "part_count",
+      "ok": true,
+      "step": "C01"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C01"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C01"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C01"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C01"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C01"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C01"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C01"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C01"
+    },
+    {
+      "field": "part_count",
+      "ok": true,
+      "step": "C02"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C02"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C02"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C02"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C02"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C02"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C02"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C02"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C02"
+    },
+    {
+      "field": "part_count",
+      "ok": true,
+      "step": "C03"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C03"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C03"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C03"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C03"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C03"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C03"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C03"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C03"
+    },
+    {
+      "field": "part_count",
+      "ok": true,
+      "step": "C04"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C04"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C04"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C04"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C04"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C04"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C04"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C04"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C04"
+    },
+    {
+      "field": "part_count",
+      "ok": true,
+      "step": "C05"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C05"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C05"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C05"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C05"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C05"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C05"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C05"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C05"
+    },
+    {
+      "field": "part_count",
+      "ok": true,
+      "step": "C06"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C06"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C06"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C06"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C06"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C06"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C06"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C06"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C06"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C06"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C06"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C06"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C06"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C06"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C06"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C06"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C06"
+    },
+    {
+      "field": "part_count",
+      "ok": true,
+      "step": "C09"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C09"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C09"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C09"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C09"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C09"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C09"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C09"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C09"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C09"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C09"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C09"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C09"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C09"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C09"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C09"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C09"
+    },
+    {
+      "field": "part_count",
+      "ok": true,
+      "step": "C07"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C07"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C07"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C07"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C07"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C07"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C07"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C07"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C07"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C07"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C07"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C07"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C07"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C07"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C07"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C07"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C07"
+    },
+    {
+      "field": "part_count",
+      "ok": true,
+      "step": "C08"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08"
+    },
+    {
+      "field": "part_count",
+      "ok": true,
+      "step": "C08-restart"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08-restart"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08-restart"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08-restart"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08-restart"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08-restart"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08-restart"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08-restart"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-child",
+      "step": "C08-restart"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08-restart"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08-restart"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08-restart"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08-restart"
+    },
+    {
+      "field": "name",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08-restart"
+    },
+    {
+      "field": "position",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08-restart"
+    },
+    {
+      "field": "size",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08-restart"
+    },
+    {
+      "field": "rotation",
+      "ok": true,
+      "part": "V4-root",
+      "step": "C08-restart"
+    }
+  ]
+}

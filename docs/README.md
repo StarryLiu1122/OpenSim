@@ -1,6 +1,6 @@
 # 项目文档库
 
-本目录集中管理项目目标来源、技术决策、版本规划及历史材料。当前实现版本为 Region Lab V3.1 / 0.3.1；规划中的功能只有在代码、测试和验证记录齐备后才标记为交付。
+本目录集中管理项目目标来源、技术决策、版本规划及历史材料。当前桌面版本为 Region Lab V3.1 / 0.3.1；V4 已交付首批原版对照增量，整阶段仍在实施。各项完成状态以代码、测试和验证记录为依据。
 
 ## 项目目标与规划
 
@@ -10,6 +10,16 @@
 | [目标与技术路线对齐](plans/platform-integration-alignment.md) | 逐项对应原文目标、当前能力、FP 接口、工程调整及待确认输入 |
 | [总体版本路线](plans/stage-one-rebuild-plan.md) | 个人推进顺序、各子版本范围、依赖与验收 |
 | [V4 实施计划](plans/v4-implementation-plan.md) | 原版对照、Web 预验证、融合网关和数据库的详细任务 |
+| [V4 执行记录](plans/v4-progress.md) | 首批交付、21 项任务状态和下一批执行顺序 |
+
+## V4 运行与合同
+
+| 文档 | 用途 |
+| --- | --- |
+| [原版集成工具](../integration/README.md) | 固定构建、隔离区域、模块、协议 Bot 与测试步骤 |
+| [两部件运行对照](comparisons/v4-reference-linkset.md) | 原版/Godot 原始数据、比较结果及差异范围 |
+| [FP 参考子集](contracts/fp-reference-v0.md) | 实际端点、结构 schema、时钟、幂等和未实现范围 |
+| [存储合同草案](contracts/storage-v4-draft.md) | 实体、事务、资产发布、导出恢复及待选型事项 |
 
 ## 当前原型
 

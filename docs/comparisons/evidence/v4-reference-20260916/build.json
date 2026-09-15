@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "upstream_commit": "1f4a6dd1d3ff653ecc2748a7764106c30ac4ef9d",
+  "imported_tree": "fbf3a3c632b08e6d90a3afd519e9577fa20eb695",
+  "sdk": "8.0.424",
+  "configuration": "Release",
+  "opensim_sha256": "87e930160cedd4f458d96bddda089e0fe1ee9f2011709c6a96999d7afa9e7c1f",
+  "source": "<isolated-reference>/source",
+  "warnings": 0,
+  "errors": 0
+}

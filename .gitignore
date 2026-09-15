@@ -125,3 +125,15 @@ doc/doxygen.error.log
 bin/OpenSim.ini
 
 *.patch
+
+# Region Lab integration builds and isolated reference instances
+integration/runtime/
+integration/**/reference-private.json
+integration/**/fusion-data/
+integration/**/obj/
+integration/**/bin/
+services/**/obj/
+services/**/bin/
+services/runtime/
+!integration/**/*.csproj
+!services/**/*.csproj

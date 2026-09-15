@@ -4,7 +4,9 @@
 
 项目以 **OpenSimulator 0.9.3.0** 为数据与行为参考，以 **Godot** 逐步重建现代客户端和区域能力。仓库保留原版 C# 源码，在 `prototype/` 中独立开发 **Region Lab**。总体目标依据老师提供的两份 [项目指导文档](docs/references/teacher/2026-09-15/README.md)，实施顺序及技术约束见 [目标对齐说明](docs/plans/platform-integration-alignment.md) 和 [版本路线](docs/plans/stage-one-rebuild-plan.md)。
 
-**当前交付版本为 Region Lab V3.1 / 0.3.1：Windows 本机单用户、256×256 米单区域编辑原型。** 当前采用 Godot 4.5.1 标准版、Jolt 和 GDScript；数据库、网络客户端、融合网关和在线智能体均尚未实现。
+**当前桌面交付版本为 Region Lab V3.1 / 0.3.1：Windows 本机单用户、256×256 米单区域编辑原型。V4 已开始实施，首批原版运行对照与实验适配器为 0.4.0-dev。** 当前桌面采用 Godot 4.5.1 标准版、Jolt 和 GDScript；现代数据库、多人客户端、完整 FP 网关和在线模型尚未交付。
+
+V4 已在独立目录构建并运行固定 OpenSim，接入受控 Bot，完成两部件静态变换与正常重启的核心对照。启动与复现见 [V4 集成工具](integration/README.md)，实际结果及未完成项见 [运行对照](docs/comparisons/v4-reference-linkset.md) 和 [21 项任务执行记录](docs/plans/v4-progress.md)。
 
 ![Region Lab 区域场景](prototype/docs/images/overview.png)
 
@@ -62,7 +64,7 @@ flowchart LR
 | V8 | 分级容量验证、跨区域与多端部署、国产算力适配 | 按硬件和负载报告容量、延迟、稳定性及适配结果 |
 | 专题阶段 | WebGPU、GPU 物理、完整旧协议与脚本兼容、联邦及云渲染 | 先取得技术验证和业务必要性证据，再确定独立版本范围 |
 
-详细子版本、依赖、任务和验收见 [总体路线](docs/plans/stage-one-rebuild-plan.md)；最近一轮从 [V4 实施计划](docs/plans/v4-implementation-plan.md) 开始。任务按个人串行推进安排，原材料中的 18 个月总周期和 4 个月客户端周期保留为项目层参考，不直接作为个人工期承诺。
+详细子版本、依赖、任务和验收见 [总体路线](docs/plans/stage-one-rebuild-plan.md)；V4 按 [实施计划](docs/plans/v4-implementation-plan.md) 推进，逐项状态见 [执行记录](docs/plans/v4-progress.md)。任务按个人串行推进安排，原材料中的 18 个月总周期和 4 个月客户端周期保留为项目层参考，不直接作为个人工期承诺。
 
 ### 客户端技术基线
 
@@ -98,6 +100,8 @@ cd OpenSim\prototype
 | [目标与技术路线对齐](docs/plans/platform-integration-alignment.md) | 原文要求、当前差距、FP 映射及技术核实 |
 | [版本路线](docs/plans/stage-one-rebuild-plan.md) | V4～V8 子版本、依赖与发布条件 |
 | [V4 实施计划](docs/plans/v4-implementation-plan.md) | 首轮任务、输入、交付物、验收案例与决策点 |
+| [V4 执行记录](docs/plans/v4-progress.md) | 已实现增量、21 项任务状态、缺口和下一批顺序 |
+| [原版集成工具](integration/README.md) | 固定构建、区域模块、Bot、接口和跨实现测试 |
 | [原型架构与接口](prototype/docs/architecture-and-api.md) | 已实现的领域模型、命令与快照协议 |
 | [数据对应](prototype/docs/opensim-data-mapping.md) | 原版源码入口、语义映射与差异 |
 | [组合与资产规范](prototype/docs/groups-and-assets.md) | 局部变换、静态 GLB 支持范围与存储限制 |
@@ -137,7 +141,7 @@ docs/
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Test-RegionLab.ps1 -Visual
 ```
 
-原版构建参考 [BUILDING.md](BUILDING.md)，固定基线见 [源码来源](docs/UPSTREAM.md)。原版实际运行对照尚待 V4 验收。新增网络、数据库和实验能力必须补充故障、重启、权限及回放检查，并明确报告尚未支持的行为。
+原版构建参考 [BUILDING.md](BUILDING.md)，固定基线见 [源码来源](docs/UPSTREAM.md)。V4 首批已完成固定原版独立运行及核心静态对象对照，详见 [证据记录](docs/comparisons/v4-reference-linkset.md)。Bot 库退出兼容性、完整权限、Web 与真实建筑验收仍待完成；新增数据库和实验能力须各自补充故障、事务、恢复及回放验证。
 
 ## 上游与许可证
 

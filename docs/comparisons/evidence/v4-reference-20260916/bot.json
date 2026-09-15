@@ -1,0 +1,83 @@
+{
+  "test": "original-protocol-bot",
+  "state": "finished",
+  "logged_in": true,
+  "moved": true,
+  "turn_confirmed": true,
+  "logged_out": true,
+  "error": "",
+  "source": "OpenMetaverse client plus independent region-module observations",
+  "samples": [
+    {
+      "phase": "start",
+      "position": [
+        100,
+        100,
+        1.0531839
+      ],
+      "region_avatars": [
+        {
+          "id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+          "position": [
+            100,
+            100,
+            1.0531839
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "after_move",
+      "position": [
+        105.48204,
+        99.999565,
+        1.0899895
+      ],
+      "region_avatars": [
+        {
+          "id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+          "position": [
+            105.48204,
+            99.999565,
+            1.0899895
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "turn",
+      "region_avatars": [
+        {
+          "id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+          "position": [
+            105.48204,
+            99.999565,
+            1.0899895
+          ],
+          "rotation": [
+            0,
+            0,
+            0.7071068,
+            0.7071067
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "logout",
+      "region_avatars": []
+    }
+  ]
+}

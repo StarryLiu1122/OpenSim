@@ -1,0 +1,75 @@
+{
+  "passed": 12,
+  "results": [
+    {
+      "error": "INVALID_ENVELOPE",
+      "name": "uppercase request ID",
+      "status": 400,
+      "ok": true
+    },
+    {
+      "error": "INVALID_ENVELOPE",
+      "name": "zero request ID",
+      "status": 400,
+      "ok": true
+    },
+    {
+      "error": "INVALID_FIELDS",
+      "name": "unexpected subject",
+      "status": 400,
+      "ok": true
+    },
+    {
+      "error": "INVALID_ENVELOPE",
+      "name": "unsupported FP",
+      "status": 400,
+      "ok": true
+    },
+    {
+      "error": "INVALID_ENVELOPE",
+      "name": "deadline without timezone",
+      "status": 400,
+      "ok": true
+    },
+    {
+      "error": "INVALID_ENVELOPE",
+      "name": "string payload",
+      "status": 400,
+      "ok": true
+    },
+    {
+      "error": "UNSUPPORTED_OPERATION",
+      "name": "unknown operation",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "error": "INVALID_FIELDS",
+      "name": "caller cannot select owner",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "error": "INVALID_VECTOR",
+      "name": "null vector",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "ok": true,
+      "name": "duplicate property",
+      "status": 400
+    },
+    {
+      "ok": true,
+      "name": "invalid bearer token",
+      "status": 401
+    },
+    {
+      "ok": true,
+      "name": "unsupported HTTP method",
+      "status": 405
+    }
+  ],
+  "failed": 0
+}

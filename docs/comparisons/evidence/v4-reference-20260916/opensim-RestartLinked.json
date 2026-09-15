@@ -1,0 +1,1169 @@
+{
+  "phase": "RestartLinked",
+  "utc": "2026-09-15T17:06:27.4090649+00:00",
+  "passed": 17,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "Capability handshake",
+      "ok": true
+    },
+    {
+      "name": "Restart creates a new epoch",
+      "ok": true
+    },
+    {
+      "name": "GetSnapshot completed",
+      "ok": true
+    },
+    {
+      "name": "Old generation mutation cannot replay",
+      "ok": true
+    },
+    {
+      "name": "C07 linked restart group count",
+      "ok": true
+    },
+    {
+      "name": "C07 linked restart group identity",
+      "ok": true
+    },
+    {
+      "name": "C07 linked restart part identity and transform",
+      "ok": true
+    },
+    {
+      "name": "C07 linked restart part identity and transform",
+      "ok": true
+    },
+    {
+      "name": "C07 linked restart group identity",
+      "ok": true
+    },
+    {
+      "name": "C07 linked restart part identity and transform",
+      "ok": true
+    },
+    {
+      "name": "C07 linked restart part identity and transform",
+      "ok": true
+    },
+    {
+      "name": "Unlink completed",
+      "ok": true
+    },
+    {
+      "name": "GetSnapshot completed",
+      "ok": true
+    },
+    {
+      "name": "C08 two independent original parts plus copy",
+      "ok": true
+    },
+    {
+      "name": "C08 ID and world transform preserved",
+      "ok": true
+    },
+    {
+      "name": "C08 ID and world transform preserved",
+      "ok": true
+    },
+    {
+      "name": "Backup completed",
+      "ok": true
+    }
+  ],
+  "captures": {
+    "C07": {
+      "region_id": "50ac42de-7875-4d23-b8a0-7e1ebd3b15f2",
+      "coordinate_system": "X-east,Y-north,Z-up;metres",
+      "scope": "configured-owner-objects-and-avatar",
+      "avatars": [],
+      "groups": [
+        {
+          "group_id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+          "root_id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+          "position": [
+            130,
+            128,
+            2
+          ],
+          "rotation": [
+            0,
+            0,
+            0.7071068,
+            0.7071068
+          ],
+          "parts": [
+            {
+              "id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+              "name": "V4-root",
+              "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+              "link_number": 1,
+              "local_position": [
+                0,
+                0,
+                0
+              ],
+              "stored_rotation_offset": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "world_position": [
+                130,
+                128,
+                2
+              ],
+              "world_rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "size": [
+                2,
+                2,
+                2
+              ]
+            },
+            {
+              "id": "ab968202-77cc-429e-ba52-64118371817b",
+              "name": "V4-child",
+              "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+              "link_number": 2,
+              "local_position": [
+                6,
+                0,
+                0
+              ],
+              "stored_rotation_offset": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "world_position": [
+                130,
+                134,
+                2
+              ],
+              "world_rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "size": [
+                2,
+                2,
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "group_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+          "root_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+          "position": [
+            120,
+            128,
+            2
+          ],
+          "rotation": [
+            0,
+            0,
+            0.7071068,
+            0.7071068
+          ],
+          "parts": [
+            {
+              "id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+              "name": "V4-root",
+              "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+              "link_number": 1,
+              "local_position": [
+                0,
+                0,
+                0
+              ],
+              "stored_rotation_offset": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "world_position": [
+                120,
+                128,
+                2
+              ],
+              "world_rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "size": [
+                2,
+                2,
+                2
+              ]
+            },
+            {
+              "id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+              "name": "V4-child",
+              "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+              "link_number": 2,
+              "local_position": [
+                6,
+                0,
+                0
+              ],
+              "stored_rotation_offset": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "world_position": [
+                120,
+                134,
+                2
+              ],
+              "world_rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "size": [
+                2,
+                2,
+                2
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "C08": {
+      "region_id": "50ac42de-7875-4d23-b8a0-7e1ebd3b15f2",
+      "coordinate_system": "X-east,Y-north,Z-up;metres",
+      "scope": "configured-owner-objects-and-avatar",
+      "avatars": [],
+      "groups": [
+        {
+          "group_id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+          "root_id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+          "position": [
+            120,
+            134,
+            2
+          ],
+          "rotation": [
+            0,
+            0,
+            0.7071068,
+            0.7071068
+          ],
+          "parts": [
+            {
+              "id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+              "name": "V4-child",
+              "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+              "link_number": 0,
+              "local_position": [
+                0,
+                0,
+                0
+              ],
+              "stored_rotation_offset": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "world_position": [
+                120,
+                134,
+                2
+              ],
+              "world_rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "size": [
+                2,
+                2,
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "group_id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+          "root_id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+          "position": [
+            130,
+            128,
+            2
+          ],
+          "rotation": [
+            0,
+            0,
+            0.7071068,
+            0.7071068
+          ],
+          "parts": [
+            {
+              "id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+              "name": "V4-root",
+              "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+              "link_number": 1,
+              "local_position": [
+                0,
+                0,
+                0
+              ],
+              "stored_rotation_offset": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "world_position": [
+                130,
+                128,
+                2
+              ],
+              "world_rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "size": [
+                2,
+                2,
+                2
+              ]
+            },
+            {
+              "id": "ab968202-77cc-429e-ba52-64118371817b",
+              "name": "V4-child",
+              "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+              "link_number": 2,
+              "local_position": [
+                6,
+                0,
+                0
+              ],
+              "stored_rotation_offset": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "world_position": [
+                130,
+                134,
+                2
+              ],
+              "world_rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "size": [
+                2,
+                2,
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "group_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+          "root_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+          "position": [
+            120,
+            128,
+            2
+          ],
+          "rotation": [
+            0,
+            0,
+            0.7071068,
+            0.7071068
+          ],
+          "parts": [
+            {
+              "id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+              "name": "V4-root",
+              "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+              "link_number": 0,
+              "local_position": [
+                0,
+                0,
+                0
+              ],
+              "stored_rotation_offset": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "world_position": [
+                120,
+                128,
+                2
+              ],
+              "world_rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "size": [
+                2,
+                2,
+                2
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "exchanges": [
+    {
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "2532e093-a387-4549-9195-1d6768548ecb",
+        "trace_id": "e74e6db4-6d1e-4bb8-b6ad-acc71b8ec180",
+        "world_epoch": "",
+        "operation": "GetCapabilities",
+        "expires_at": "2026-09-16T01:06:56.8323506+08:00",
+        "payload": {}
+      },
+      "result": {
+        "fp_version": "0.1",
+        "request_id": "2532e093-a387-4549-9195-1d6768548ecb",
+        "trace_id": "e74e6db4-6d1e-4bb8-b6ad-acc71b8ec180",
+        "world_epoch": "58028701-0175-4348-aff0-40395a31f74e",
+        "operation": "GetCapabilities",
+        "state": "completed",
+        "error": "",
+        "tick": 102,
+        "adapter_sequence": 0,
+        "data": {
+          "adapter": "opensim-reference/0.4.0-dev",
+          "operations": [
+            "GetCapabilities",
+            "GetSnapshot",
+            "GetReceipt",
+            "CreateBox",
+            "Link",
+            "Move",
+            "Rotate",
+            "MoveMember",
+            "Scale",
+            "Duplicate",
+            "Unlink",
+            "Delete",
+            "Backup"
+          ],
+          "max_body_bytes": 65536,
+          "max_parts": 128,
+          "max_mutation_receipts_per_epoch": 1024,
+          "persistent_receipt_replay": false,
+          "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+          "snapshot_scope": "configured-owner-objects-and-avatar",
+          "authority": "OpenSim",
+          "event_stream": false,
+          "adapter_sequence_semantics": "successful adapter mutations only; not a world revision"
+        }
+      }
+    },
+    {
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "f2eb64c5-430e-4a85-aa34-b0c66b6bf6c2",
+        "trace_id": "e74e6db4-6d1e-4bb8-b6ad-acc71b8ec180",
+        "world_epoch": "58028701-0175-4348-aff0-40395a31f74e",
+        "operation": "GetSnapshot",
+        "expires_at": "2026-09-16T01:06:56.9879264+08:00",
+        "payload": {}
+      },
+      "result": {
+        "fp_version": "0.1",
+        "request_id": "f2eb64c5-430e-4a85-aa34-b0c66b6bf6c2",
+        "trace_id": "e74e6db4-6d1e-4bb8-b6ad-acc71b8ec180",
+        "world_epoch": "58028701-0175-4348-aff0-40395a31f74e",
+        "operation": "GetSnapshot",
+        "state": "completed",
+        "error": "",
+        "tick": 103,
+        "adapter_sequence": 0,
+        "data": {
+          "region_id": "50ac42de-7875-4d23-b8a0-7e1ebd3b15f2",
+          "coordinate_system": "X-east,Y-north,Z-up;metres",
+          "scope": "configured-owner-objects-and-avatar",
+          "avatars": [],
+          "groups": [
+            {
+              "group_id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+              "root_id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+              "position": [
+                130,
+                128,
+                2
+              ],
+              "rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "parts": [
+                {
+                  "id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+                  "name": "V4-root",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 1,
+                  "local_position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "world_position": [
+                    130,
+                    128,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                },
+                {
+                  "id": "ab968202-77cc-429e-ba52-64118371817b",
+                  "name": "V4-child",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 2,
+                  "local_position": [
+                    6,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "world_position": [
+                    130,
+                    134,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "group_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+              "root_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+              "position": [
+                120,
+                128,
+                2
+              ],
+              "rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "parts": [
+                {
+                  "id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+                  "name": "V4-root",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 1,
+                  "local_position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "world_position": [
+                    120,
+                    128,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                },
+                {
+                  "id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+                  "name": "V4-child",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 2,
+                  "local_position": [
+                    6,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "world_position": [
+                    120,
+                    134,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "d9de851a-44f9-47b2-bc7d-2f4e129967c6",
+        "trace_id": "1ba3d60f-10b7-488f-bc9c-95a722a9bfb0",
+        "world_epoch": "fe4fc18f-77ab-4d4e-8557-7e9c8ec2ceb2",
+        "operation": "Delete",
+        "expires_at": "2026-09-16T01:06:57.0252416+08:00",
+        "payload": {
+          "group_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a"
+        }
+      },
+      "result": {
+        "fp_version": "0.1",
+        "request_id": "d9de851a-44f9-47b2-bc7d-2f4e129967c6",
+        "trace_id": "1ba3d60f-10b7-488f-bc9c-95a722a9bfb0",
+        "world_epoch": "58028701-0175-4348-aff0-40395a31f74e",
+        "operation": "Delete",
+        "state": "rejected",
+        "error": "EPOCH_MISMATCH",
+        "tick": 104,
+        "adapter_sequence": 0,
+        "data": null
+      }
+    },
+    {
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "b081cee2-fbef-43d9-a66a-f93bdf23aeb4",
+        "trace_id": "e74e6db4-6d1e-4bb8-b6ad-acc71b8ec180",
+        "world_epoch": "58028701-0175-4348-aff0-40395a31f74e",
+        "operation": "Unlink",
+        "expires_at": "2026-09-16T01:06:57.1198825+08:00",
+        "payload": {
+          "group_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a"
+        }
+      },
+      "result": {
+        "fp_version": "0.1",
+        "request_id": "b081cee2-fbef-43d9-a66a-f93bdf23aeb4",
+        "trace_id": "e74e6db4-6d1e-4bb8-b6ad-acc71b8ec180",
+        "world_epoch": "58028701-0175-4348-aff0-40395a31f74e",
+        "operation": "Unlink",
+        "state": "completed",
+        "error": "",
+        "tick": 105,
+        "adapter_sequence": 1,
+        "data": {
+          "region_id": "50ac42de-7875-4d23-b8a0-7e1ebd3b15f2",
+          "coordinate_system": "X-east,Y-north,Z-up;metres",
+          "scope": "configured-owner-objects-and-avatar",
+          "avatars": [],
+          "groups": [
+            {
+              "group_id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+              "root_id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+              "position": [
+                120,
+                134,
+                2
+              ],
+              "rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "parts": [
+                {
+                  "id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+                  "name": "V4-child",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 0,
+                  "local_position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "world_position": [
+                    120,
+                    134,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "group_id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+              "root_id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+              "position": [
+                130,
+                128,
+                2
+              ],
+              "rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "parts": [
+                {
+                  "id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+                  "name": "V4-root",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 1,
+                  "local_position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "world_position": [
+                    130,
+                    128,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                },
+                {
+                  "id": "ab968202-77cc-429e-ba52-64118371817b",
+                  "name": "V4-child",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 2,
+                  "local_position": [
+                    6,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "world_position": [
+                    130,
+                    134,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "group_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+              "root_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+              "position": [
+                120,
+                128,
+                2
+              ],
+              "rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "parts": [
+                {
+                  "id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+                  "name": "V4-root",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 0,
+                  "local_position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "world_position": [
+                    120,
+                    128,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "5d2eb2a6-99d6-41f0-8a59-92ee5fbb2e38",
+        "trace_id": "e74e6db4-6d1e-4bb8-b6ad-acc71b8ec180",
+        "world_epoch": "58028701-0175-4348-aff0-40395a31f74e",
+        "operation": "GetSnapshot",
+        "expires_at": "2026-09-16T01:06:57.2140558+08:00",
+        "payload": {}
+      },
+      "result": {
+        "fp_version": "0.1",
+        "request_id": "5d2eb2a6-99d6-41f0-8a59-92ee5fbb2e38",
+        "trace_id": "e74e6db4-6d1e-4bb8-b6ad-acc71b8ec180",
+        "world_epoch": "58028701-0175-4348-aff0-40395a31f74e",
+        "operation": "GetSnapshot",
+        "state": "completed",
+        "error": "",
+        "tick": 106,
+        "adapter_sequence": 1,
+        "data": {
+          "region_id": "50ac42de-7875-4d23-b8a0-7e1ebd3b15f2",
+          "coordinate_system": "X-east,Y-north,Z-up;metres",
+          "scope": "configured-owner-objects-and-avatar",
+          "avatars": [],
+          "groups": [
+            {
+              "group_id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+              "root_id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+              "position": [
+                120,
+                134,
+                2
+              ],
+              "rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "parts": [
+                {
+                  "id": "4a2b00ad-b4dd-40ff-bf92-1b097cb6605d",
+                  "name": "V4-child",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 0,
+                  "local_position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "world_position": [
+                    120,
+                    134,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "group_id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+              "root_id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+              "position": [
+                130,
+                128,
+                2
+              ],
+              "rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "parts": [
+                {
+                  "id": "59e6f4ae-2355-4b4b-b58a-5887e490fb9f",
+                  "name": "V4-root",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 1,
+                  "local_position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "world_position": [
+                    130,
+                    128,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                },
+                {
+                  "id": "ab968202-77cc-429e-ba52-64118371817b",
+                  "name": "V4-child",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 2,
+                  "local_position": [
+                    6,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0,
+                    1
+                  ],
+                  "world_position": [
+                    130,
+                    134,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                }
+              ]
+            },
+            {
+              "group_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+              "root_id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+              "position": [
+                120,
+                128,
+                2
+              ],
+              "rotation": [
+                0,
+                0,
+                0.7071068,
+                0.7071068
+              ],
+              "parts": [
+                {
+                  "id": "d2dd58f0-a555-47e6-86a5-6ee17567be9a",
+                  "name": "V4-root",
+                  "owner_id": "527bb1b6-f169-44ea-92af-991e181bbd24",
+                  "link_number": 0,
+                  "local_position": [
+                    0,
+                    0,
+                    0
+                  ],
+                  "stored_rotation_offset": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "world_position": [
+                    120,
+                    128,
+                    2
+                  ],
+                  "world_rotation": [
+                    0,
+                    0,
+                    0.7071068,
+                    0.7071068
+                  ],
+                  "size": [
+                    2,
+                    2,
+                    2
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "293ef226-9950-4f7f-bbbc-064d2e33f1f5",
+        "trace_id": "e74e6db4-6d1e-4bb8-b6ad-acc71b8ec180",
+        "world_epoch": "58028701-0175-4348-aff0-40395a31f74e",
+        "operation": "Backup",
+        "expires_at": "2026-09-16T01:06:57.2820459+08:00",
+        "payload": {}
+      },
+      "result": {
+        "fp_version": "0.1",
+        "request_id": "293ef226-9950-4f7f-bbbc-064d2e33f1f5",
+        "trace_id": "e74e6db4-6d1e-4bb8-b6ad-acc71b8ec180",
+        "world_epoch": "58028701-0175-4348-aff0-40395a31f74e",
+        "operation": "Backup",
+        "state": "completed",
+        "error": "",
+        "tick": 107,
+        "adapter_sequence": 2,
+        "data": {
+          "requested": true,
+          "durability": "verify by clean shutdown and restart"
+        }
+      }
+    }
+  ]
+}

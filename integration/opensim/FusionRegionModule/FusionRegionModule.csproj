@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>RegionLab.Fusion</AssemblyName>
+    <Version>0.4.0</Version>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <RestoreIgnoreFailedSources>true</RestoreIgnoreFailedSources>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="OpenSim.Region.Framework"><HintPath>$(OpenSimBin)/OpenSim.Region.Framework.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="OpenSim.Framework"><HintPath>$(OpenSimBin)/OpenSim.Framework.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="OpenSim.Framework.Servers"><HintPath>$(OpenSimBin)/OpenSim.Framework.Servers.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="OpenSim.Framework.Servers.HttpServer"><HintPath>$(OpenSimBin)/OpenSim.Framework.Servers.HttpServer.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="OpenSim.Services.Interfaces"><HintPath>$(OpenSimBin)/OpenSim.Services.Interfaces.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="OpenMetaverse"><HintPath>$(OpenSimBin)/OpenMetaverse.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="OpenMetaverseTypes"><HintPath>$(OpenSimBin)/OpenMetaverseTypes.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Mono.Addins"><HintPath>$(OpenSimBin)/Mono.Addins.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Nini"><HintPath>$(OpenSimBin)/Nini.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <Target Name="RequireReference" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(OpenSimBin)/OpenSim.dll')" Text="Pass -p:OpenSimBin=the fixed reference bin directory." />
+  </Target>
+</Project>

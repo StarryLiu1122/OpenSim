@@ -1,0 +1,101 @@
+{
+  "files": [
+    {
+      "file": "bin/OpenMetaverse.dll",
+      "sha256": "d38d69c4f3a8756c7df85d3f1f5849b4da8a2045eb740809183bc1529fa7dd6c",
+      "assembly_version": "0.9.4.0",
+      "origin": "unchanged upstream input"
+    },
+    {
+      "file": "bin/OpenMetaverseTypes.dll",
+      "sha256": "4e8eb6b49e13449b241835a99cdeeb71f7b1d91a4dcefc793abb536f916f5d9e",
+      "assembly_version": "0.0.0.0",
+      "origin": "unchanged upstream input"
+    },
+    {
+      "file": "bin/OpenMetaverse.StructuredData.dll",
+      "sha256": "30741059dfbd7e4a5916f9dd13f4b69fffb5473b472d23eec1a6bb00adaade08",
+      "assembly_version": "0.0.0.0",
+      "origin": "unchanged upstream input"
+    },
+    {
+      "file": "bin/log4net.dll",
+      "sha256": "826bc88829ccb83b9e00ffc6a1abeefe72c3db607e069a8bf1ce4a114d86d5bc",
+      "assembly_version": "2.0.15.0",
+      "origin": "unchanged upstream input"
+    },
+    {
+      "file": "bin/Nini.dll",
+      "sha256": "1c491199a5258861b71037fbad6e5a61bc5257735576fbd98b6469c9651336d5",
+      "assembly_version": "1.1.0.2",
+      "origin": "unchanged upstream input"
+    },
+    {
+      "file": "bin/Mono.Addins.dll",
+      "sha256": "eb5c2d5970b15d81d72b94cb0ab92d6a2a23a6ae25287f45eca68ec86e56a577",
+      "assembly_version": "1.0.0.0",
+      "origin": "unchanged upstream input"
+    },
+    {
+      "file": "bin/zlib.net.dll",
+      "sha256": "166212b6e4022227e085a37296a427d144c908f31a5114513214e0b33308de02",
+      "assembly_version": "1.0.4.0",
+      "origin": "unchanged upstream input"
+    },
+    {
+      "file": "bin/XMLRPC.dll",
+      "sha256": "39abb8a85525887c496d306938222dcfc818cab6c02d6dee8199e9ad560617ca",
+      "assembly_version": "1.10.0.4",
+      "origin": "unchanged upstream input"
+    },
+    {
+      "file": "bin/System.Configuration.ConfigurationManager.dll",
+      "sha256": "60623b2abfe8531b797f781e468ef042ecedec89328cf3809de6a4444ec322f2",
+      "assembly_version": "6.0.0.0",
+      "origin": "unchanged upstream input"
+    },
+    {
+      "file": "bin/Mono.Data.Sqlite.dll",
+      "sha256": "de4a956a44947dbaf0a95cd9cdef31988d5bb2f1268946041d0a194dde591b0c",
+      "assembly_version": "2.0.0.0",
+      "origin": "unchanged upstream input"
+    },
+    {
+      "file": "bin/SmartThreadPool.dll",
+      "sha256": "5d9ebd157b237e5e4be78290a9e9f346d31263a51a00c571caba62490365172e",
+      "assembly_version": "2.2.3.0",
+      "origin": "built from fixed source"
+    },
+    {
+      "file": "bin/OpenSim.Region.Framework.dll",
+      "sha256": "106f02c2817f028235415c88021a41918495d95769d96271f3d64312d030525b",
+      "assembly_version": "0.9.3.0",
+      "origin": "built from fixed source"
+    },
+    {
+      "file": "bin/OpenSim.Framework.dll",
+      "sha256": "a41c18d3f6cf4245082e6347b659123b857699d57ed0eb79eb82a1fe64000bfe",
+      "assembly_version": "0.9.3.0",
+      "origin": "built from fixed source"
+    },
+    {
+      "file": "bin/OpenSim.Framework.Servers.dll",
+      "sha256": "5997b82de54b5f005156c1a44f86412ec5ed869ae36fca4ad05182e72a3a7747",
+      "assembly_version": "0.0.0.0",
+      "origin": "built from fixed source"
+    },
+    {
+      "file": "bin/OpenSim.Framework.Servers.HttpServer.dll",
+      "sha256": "8e587946f5c17cb2fdffd0520fbe97fa3a3c0fb02b49897fcb23b23d842330ba",
+      "assembly_version": "0.9.3.0",
+      "origin": "built from fixed source"
+    },
+    {
+      "file": "bin/OpenSim.Services.Interfaces.dll",
+      "sha256": "8b133c713eede05e8f6c02ee690621babadac29da5f9b20528b2eb02ce898545",
+      "assembly_version": "0.9.3.0",
+      "origin": "built from fixed source"
+    }
+  ],
+  "source_tree": "fbf3a3c632b08e6d90a3afd519e9577fa20eb695"
+}

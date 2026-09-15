@@ -1,0 +1,497 @@
+{
+  "notes": "Static structural examples. Replace IDs, epoch and deadline from a live handshake before sending; passing schema does not grant permissions or satisfy semantic checks.",
+  "cases": [
+    {
+      "name": "GetCapabilities",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "",
+        "operation": "GetCapabilities",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {}
+      }
+    },
+    {
+      "name": "GetSnapshot",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "GetSnapshot",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {}
+      }
+    },
+    {
+      "name": "GetReceipt",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "GetReceipt",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "name": "CreateBox",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "CreateBox",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "name": "Example box",
+          "position": [
+            120,
+            128,
+            2
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "Link",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Link",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "root_id": "11111111-1111-4111-8111-111111111111",
+          "child_id": "22222222-2222-4222-8222-222222222222"
+        }
+      }
+    },
+    {
+      "name": "Move",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Move",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111",
+          "position": [
+            123,
+            132,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rotate",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Rotate",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111",
+          "rotation": [
+            0,
+            0,
+            0.70710678,
+            0.70710678
+          ]
+        }
+      }
+    },
+    {
+      "name": "MoveMember",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "MoveMember",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111",
+          "member_id": "22222222-2222-4222-8222-222222222222",
+          "local_position": [
+            3,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "Scale",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Scale",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111",
+          "factor": 2
+        }
+      }
+    },
+    {
+      "name": "Duplicate",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Duplicate",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111",
+          "offset": [
+            10,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "Unlink",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Unlink",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "name": "Delete",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Delete",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "name": "Backup",
+      "valid": true,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Backup",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {}
+      }
+    },
+    {
+      "name": "unknown_operation",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "",
+        "operation": "RunScript",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {}
+      }
+    },
+    {
+      "name": "wrong_protocol_version",
+      "valid": false,
+      "command": {
+        "fp_version": "1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "",
+        "operation": "GetCapabilities",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {}
+      }
+    },
+    {
+      "name": "missing_trace",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "world_epoch": "",
+        "operation": "GetCapabilities",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {}
+      }
+    },
+    {
+      "name": "extra_subject",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "",
+        "operation": "GetCapabilities",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {},
+        "issued_by": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "name": "uppercase_request",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "",
+        "operation": "GetCapabilities",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {}
+      }
+    },
+    {
+      "name": "zero_request",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "00000000-0000-0000-0000-000000000000",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "",
+        "operation": "GetCapabilities",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {}
+      }
+    },
+    {
+      "name": "missing_member",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "MoveMember",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111",
+          "local_position": [
+            3,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "name": "size_zero",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "CreateBox",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "name": "Example box",
+          "position": [
+            120,
+            128,
+            2
+          ],
+          "size": [
+            0,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "size_string",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "CreateBox",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "name": "Example box",
+          "position": [
+            120,
+            128,
+            2
+          ],
+          "size": [
+            "1",
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "position_two_axes",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Move",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111",
+          "position": [
+            120,
+            128
+          ]
+        }
+      }
+    },
+    {
+      "name": "quaternion_three_axes",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Rotate",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111",
+          "rotation": [
+            0,
+            0,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "scale_zero",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "Scale",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "group_id": "11111111-1111-4111-8111-111111111111",
+          "factor": 0
+        }
+      }
+    },
+    {
+      "name": "external_path",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "CreateBox",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "name": "Example box",
+          "position": [
+            120,
+            128,
+            2
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ],
+          "path": "C:/arbitrary/file"
+        }
+      }
+    },
+    {
+      "name": "empty_name",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "CreateBox",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "name": "",
+          "position": [
+            120,
+            128,
+            2
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "name": "snapshot_extra_payload",
+      "valid": false,
+      "command": {
+        "fp_version": "0.1",
+        "request_id": "11111111-1111-4111-8111-111111111111",
+        "trace_id": "22222222-2222-4222-8222-222222222222",
+        "world_epoch": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        "operation": "GetSnapshot",
+        "expires_at": "2030-01-01T00:00:00Z",
+        "payload": {
+          "region": "unscoped"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "status": "V4 first implementation increment; full V4 not accepted",
+  "opensim_assertions": 81,
+  "date": "2026-09-16",
+  "module_sha256": "d26abd33339b8248a587b344b5667c87ccbc0381abaabe07b2b35b491b78cb39",
+  "bot": "region-confirmed login, bounded move, turn, logout; upstream Thread.Abort compatibility warning remains",
+  "prototype": {
+    "ok": true,
+    "engine": "4.5.1.stable.official.f62fdbde1",
+    "native_passed": 188,
+    "separate_process_persistence": true,
+    "separate_process_embedded_assets": true,
+    "offline_batch_adapter": true,
+    "terrain_batch_adapter": true,
+    "environment_behavior_batch_adapter": true,
+    "application_version": "0.3.1",
+    "visual_passed": 0,
+    "visual_requested": false
+  },
+  "schema_examples": 28,
+  "bot_sha256": "09a223551d909e4310dcd3d660a1cb1d5fd58be508a10df234bc87ebcc41b6da",
+  "cross_implementation_comparisons": 130,
+  "live_protocol_rejections": 12,
+  "godot_reference_assertions": 40
+}

@@ -1,0 +1,36 @@
+2026-09-16 00:52:08,618 INFO  [STARTUP]: version: OpenSim 0.9.3.0 Nessie Release
+2026-09-16 00:52:08,618 INFO  [STARTUP]: Operating system version: Microsoft Windows NT 10.0.26200.0, .NET platform Win/DotNet, Runtime 8.0.30
+2026-09-16 00:52:11,695 INFO  [SCENE]: Loaded 0 objects from the datastore
+2026-09-16 00:53:29,702 INFO  [SCENE]: Closing down the single simulator: V4 Reference
+2026-09-16 00:53:30,205 DEBUG [SCENE]: Persisting changed objects
+2026-09-16 00:53:33,386 INFO  [SHUTDOWN]: Shutdown processing on main thread complete.  Exiting...
+2026-09-16 00:55:03,971 INFO  [STARTUP]: version: OpenSim 0.9.3.0 Nessie Release
+2026-09-16 00:55:03,971 INFO  [STARTUP]: Operating system version: Microsoft Windows NT 10.0.26200.0, .NET platform Win/DotNet, Runtime 8.0.30
+2026-09-16 00:55:05,544 INFO  [SCENE]: Loaded 2 objects from the datastore
+2026-09-16 00:55:42,071 INFO  [SCENE]: Closing down the single simulator: V4 Reference
+2026-09-16 00:55:42,575 DEBUG [SCENE]: Persisting changed objects
+2026-09-16 00:55:45,760 INFO  [SHUTDOWN]: Shutdown processing on main thread complete.  Exiting...
+2026-09-16 00:56:13,531 INFO  [STARTUP]: version: OpenSim 0.9.3.0 Nessie Release
+2026-09-16 00:56:13,531 INFO  [STARTUP]: Operating system version: Microsoft Windows NT 10.0.26200.0, .NET platform Win/DotNet, Runtime 8.0.30
+2026-09-16 00:56:14,808 INFO  [SCENE]: Loaded 3 objects from the datastore
+2026-09-16 00:58:47,920 INFO  [SCENE]: Closing down the single simulator: V4 Reference
+2026-09-16 00:58:48,426 DEBUG [SCENE]: Persisting changed objects
+2026-09-16 00:58:51,622 INFO  [SHUTDOWN]: Shutdown processing on main thread complete.  Exiting...
+2026-09-16 01:03:17,295 INFO  [STARTUP]: version: OpenSim 0.9.3.0 Nessie Release
+2026-09-16 01:03:17,295 INFO  [STARTUP]: Operating system version: Microsoft Windows NT 10.0.26200.0, .NET platform Win/DotNet, Runtime 8.0.30
+2026-09-16 01:03:18,706 INFO  [SCENE]: Loaded 3 objects from the datastore
+2026-09-16 01:05:31,551 INFO  [SCENE]: Closing down the single simulator: V4 Reference
+2026-09-16 01:05:32,057 DEBUG [SCENE]: Persisting changed objects
+2026-09-16 01:05:35,239 INFO  [SHUTDOWN]: Shutdown processing on main thread complete.  Exiting...
+2026-09-16 01:06:16,303 INFO  [STARTUP]: version: OpenSim 0.9.3.0 Nessie Release
+2026-09-16 01:06:16,303 INFO  [STARTUP]: Operating system version: Microsoft Windows NT 10.0.26200.0, .NET platform Win/DotNet, Runtime 8.0.30
+2026-09-16 01:06:17,567 INFO  [SCENE]: Loaded 2 objects from the datastore
+2026-09-16 01:07:25,446 INFO  [SCENE]: Closing down the single simulator: V4 Reference
+2026-09-16 01:07:25,948 DEBUG [SCENE]: Persisting changed objects
+2026-09-16 01:07:29,134 INFO  [SHUTDOWN]: Shutdown processing on main thread complete.  Exiting...
+2026-09-16 01:07:58,932 INFO  [STARTUP]: version: OpenSim 0.9.3.0 Nessie Release
+2026-09-16 01:07:58,932 INFO  [STARTUP]: Operating system version: Microsoft Windows NT 10.0.26200.0, .NET platform Win/DotNet, Runtime 8.0.30
+2026-09-16 01:08:00,166 INFO  [SCENE]: Loaded 3 objects from the datastore
+2026-09-16 01:08:42,595 INFO  [SCENE]: Closing down the single simulator: V4 Reference
+2026-09-16 01:08:43,104 DEBUG [SCENE]: Persisting changed objects
+2026-09-16 01:08:46,297 INFO  [SHUTDOWN]: Shutdown processing on main thread complete.  Exiting...

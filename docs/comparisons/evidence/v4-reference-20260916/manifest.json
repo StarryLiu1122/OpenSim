@@ -1,0 +1,86 @@
+{
+  "scope": "redacted test evidence; no runtime credentials, databases, executables or caches",
+  "files": [
+    {
+      "sha256": "2a2aef4050ed93aede19aaf268091538e737e15801b0c9e13315c51ac4fde0bc",
+      "bytes": 282,
+      "file": "bot-library-warning.txt"
+    },
+    {
+      "sha256": "cce324bb29ea87d5f80adde7849c8085e3d88b0db9f3f5ac9430527c086a0166",
+      "bytes": 1532,
+      "file": "bot.json"
+    },
+    {
+      "sha256": "57aa0a4ac6767ed15e00f1a0910761ff0d26f9ad44efa933bfdd46dda4c0684c",
+      "bytes": 358,
+      "file": "build.json"
+    },
+    {
+      "sha256": "a80a99a7ea225cf8ed75aa6ca2843afdf5760754b9e9707fd03cdd359a018be4",
+      "bytes": 3088,
+      "file": "contracts.json"
+    },
+    {
+      "sha256": "8a58399de78cd7ea4329e0020ef7db67b31cf530e2aa97aa387c3498444eb957",
+      "bytes": 3621,
+      "file": "dependencies.json"
+    },
+    {
+      "sha256": "39ab615d5ec48d0db66fcab56cd62a38e5fc0f0bf5937f8d6cab895d29303c83",
+      "bytes": 24506,
+      "file": "godot-Create.json"
+    },
+    {
+      "sha256": "c34efdfa36cee89e61ae05ae2ee89634a1abd0a45edf5de87297fc0ddb6c5fee",
+      "bytes": 10302,
+      "file": "godot-RestartLinked.json"
+    },
+    {
+      "sha256": "b2e275d404f928affba68201982518a00a7ec3e1390f34c5ef0a2957392c09e0",
+      "bytes": 4954,
+      "file": "godot-RestartUnlinked.json"
+    },
+    {
+      "sha256": "4d83563b2ea3f329d63b6878a052a56ea2245fce334f4aca2e5673ea1b7de3a2",
+      "bytes": 3306,
+      "file": "lifecycle-excerpts.txt"
+    },
+    {
+      "sha256": "f715b378c20423310c0c70c95ba98c6a325effe4d6c074c6e63d6f1e4233681b",
+      "bytes": 16351,
+      "file": "native-regression.json"
+    },
+    {
+      "sha256": "0dd06c9d889359f56a2460dbffeaab1df6b31d2d31d4db1d9e907e31f6e5cd24",
+      "bytes": 116643,
+      "file": "opensim-Create.json"
+    },
+    {
+      "sha256": "7f07303cd3cb36f798e15c86e6c5bd27e9825eea7b143ed545e6de8c81c4bcea",
+      "bytes": 31831,
+      "file": "opensim-RestartLinked.json"
+    },
+    {
+      "sha256": "9c7929c05790c78c2f066c9967567238cc14e803f7a8d52af4d2ecf6589b90da",
+      "bytes": 14440,
+      "file": "opensim-RestartUnlinked.json"
+    },
+    {
+      "sha256": "5eaa53ef8e1fa0263046d64fe9ff28a573d21bc0e99da9c2c452a941cf12619b",
+      "bytes": 1416,
+      "file": "protocol.json"
+    },
+    {
+      "sha256": "22c96e6cee177960b4748fbbe38d028d9ff61b5f8c6f42719ada2b77f602b122",
+      "bytes": 960,
+      "file": "run-summary.json"
+    },
+    {
+      "sha256": "b57f51c3bfa2cf291e0f67d8359e9910c725bdd83b3048103b394a7824f31a6b",
+      "bytes": 13279,
+      "file": "transform-comparison.json"
+    }
+  ],
+  "version": 1
+}

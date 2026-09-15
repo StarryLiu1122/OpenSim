@@ -2,6 +2,8 @@
 
 版本：0.3.1。本文适用于 Windows x64 源码运行方式。
 
+V4 首批原版运行对照与实验接口位于独立的 [integration](../integration/README.md) 目录；此处桌面原型继续保持 0.3.1。当前进度见 [V4 执行记录](../docs/plans/v4-progress.md)。
+
 Region Lab 是基于 Godot 的单区域编辑原型。V3.1 支持对象组合、静态 GLB 导入、六类内置对象、程序材质、地形编辑、区域环境、门灯交互、角色漫游和统一保存恢复。新世界提供庭院、湖岸及可进入的展馆。区域尺寸为 256×256 米，当前采用本机单用户模式。
 
 Region Lab 是世界模型与智能体协作平台的区域基础，后续将通过 Fusion Protocol 接入原版网关、权威区域服务和现代客户端。总体定位见 [项目 README](../README.md)，原始目标与技术核实见 [对齐说明](../docs/plans/platform-integration-alignment.md)。本文只描述当前可运行版本；浏览器、数据库、多人与在线智能体能力按 [版本路线](../docs/plans/stage-one-rebuild-plan.md) 分阶段交付。

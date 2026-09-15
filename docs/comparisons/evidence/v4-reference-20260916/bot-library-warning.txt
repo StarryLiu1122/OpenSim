@@ -1,0 +1,1 @@
+OpenMetaverse.TexturePipeline.Shutdown(): System.PlatformNotSupportedException: Thread abort is not supported on this platform. Observed during final ReferenceBot logout on .NET 8.0.30. Region presence was removed and the test process exited; this compatibility issue remains open.
