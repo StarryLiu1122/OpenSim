@@ -1,6 +1,8 @@
 # 技术选型与实现决策
 
-适用版本：Region Lab 0.3.1。更新日期：2026-09-15。
+适用版本：Region Lab 0.3.1。更新日期：2026-09-16。
+
+本文记录当前已实施决策。老师提供的总体平台与客户端目标已纳入 [目标对齐说明](../../docs/plans/platform-integration-alignment.md)；近期 Web 路线以 GDScript、WebGL2 与 WebSocket 为规划基线，WebGPU、C# Web、GPU 物理和新服务框架须分别验证，尚未改变本地原型依赖。
 
 ## 1. 引擎与语言
 

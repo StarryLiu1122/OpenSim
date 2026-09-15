@@ -1,0 +1,27 @@
+{
+  "archive_date": "2026-09-15",
+  "source_description": "Project advisor documents supplied by the user",
+  "original_bytes_preserved": true,
+  "documents": [
+    {
+      "id": "A",
+      "filename": "OpenSimulator与世界模型智能体网络平台融合集成分析报告.docx",
+      "document_version": "V1.0",
+      "document_date": "2026-09-15",
+      "size_bytes": 792566,
+      "sha256": "a9b369bc8fa28554af7869c56905bef3e0abe2697a997e955024d8f152d78cf5",
+      "tables": 8,
+      "embedded_images": 2
+    },
+    {
+      "id": "B",
+      "filename": "基于Godot-WebGPU轻客户端的详细技术方案.docx",
+      "document_version": "V1.0",
+      "document_date": "2026-09-15",
+      "size_bytes": 428070,
+      "sha256": "18a06d4440d34a1a492bbd54a0385e25d74aec461f039053060b9aa01b63741d",
+      "tables": 7,
+      "embedded_images": 1
+    }
+  ]
+}

@@ -4,6 +4,8 @@
 
 Region Lab 是基于 Godot 的单区域编辑原型。V3.1 支持对象组合、静态 GLB 导入、六类内置对象、程序材质、地形编辑、区域环境、门灯交互、角色漫游和统一保存恢复。新世界提供庭院、湖岸及可进入的展馆。区域尺寸为 256×256 米，当前采用本机单用户模式。
 
+Region Lab 是世界模型与智能体协作平台的区域基础，后续将通过 Fusion Protocol 接入原版网关、权威区域服务和现代客户端。总体定位见 [项目 README](../README.md)，原始目标与技术核实见 [对齐说明](../docs/plans/platform-integration-alignment.md)。本文只描述当前可运行版本；浏览器、数据库、多人与在线智能体能力按 [版本路线](../docs/plans/stage-one-rebuild-plan.md) 分阶段交付。
+
 ## 1. 环境要求
 
 | 项目 | 要求 |
@@ -23,11 +25,11 @@ Region Lab 是基于 Godot 的单区域编辑原型。V3.1 支持对象组合、
 ### 2.1 获取代码
 
 ```powershell
-git clone --branch codex/region-lab-v3-1 https://github.com/StarryLiu1122/OpenSim.git
+git clone --branch main https://github.com/StarryLiu1122/OpenSim.git
 cd OpenSim\prototype
 ```
 
-也可在 GitHub 下载该分支 ZIP 并解压。已有仓库可在保存本地修改后，获取并切换至 `codex/region-lab-v3-1`。
+也可在 GitHub 下载 `main` 分支 ZIP 并解压。已有仓库可在保存本地修改后更新 `main`。V3.1 固定实现提交为 `1af88966496561787e79bb387083de998dae4a81`；需要复现该版时使用独立目录检出此提交。
 
 ### 2.2 安装引擎
 
@@ -222,4 +224,4 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Measure-RegionLa
 
 ## 9. 相关文档
 
-[架构与接口](docs/architecture-and-api.md) · [数据对应](docs/opensim-data-mapping.md) · [技术选型](docs/engine-decision.md) · [V3.1 版本说明](docs/releases/v3.1.md) · [后续计划](../docs/plans/stage-one-rebuild-plan.md)
+[文档库](../docs/README.md) · [架构与接口](docs/architecture-and-api.md) · [数据对应](docs/opensim-data-mapping.md) · [技术选型](docs/engine-decision.md) · [V3.1 版本说明](docs/releases/v3.1.md) · [后续计划](../docs/plans/stage-one-rebuild-plan.md) · [V4 实施计划](../docs/plans/v4-implementation-plan.md)
