@@ -140,3 +140,9 @@ services/runtime/
 prototype/tools/__pycache__/
 integration/**/__pycache__/
 services/**/__pycache__/
+
+# Private V5 instances and credentials
+**/private-config.json
+**/localhost.pfx
+**/localhost.pem
+**/processes.json

@@ -1,0 +1,40 @@
+name: Region Lab V5 acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: region-lab-v5-gpu
+  cancel-in-progress: false
+jobs:
+  windows-web:
+    # Requires an interactive Windows desktop, OpenGL 3.3 and fixed runtimes.
+    # No claim of a hosted GPU or hosted-run performance baseline is implied.
+    runs-on: [self-hosted, Windows, X64, region-lab-gpu]
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify configured tools and execute Windows plus browser matrix
+        run: |
+          if (!$env:REGIONLAB_GODOT -or !$env:REGIONLAB_WEB_TEMPLATE) { throw 'Configure REGIONLAB_GODOT and REGIONLAB_WEB_TEMPLATE on the runner.' }
+          node -e "if(require('playwright/package.json').version!=='1.62.1')throw Error('Playwright 1.62.1 required')"
+          $out=Join-Path $env:RUNNER_TEMP ('region-lab-v5-'+[guid]::NewGuid().ToString('N'))
+          "V5_RESULTS=$out" >> $env:GITHUB_ENV
+          ./prototype/tools/Test-V5.ps1 -Godot $env:REGIONLAB_GODOT -Template $env:REGIONLAB_WEB_TEMPLATE -Directory $out
+      - name: Upload reports and screenshots only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v5-acceptance-${{ github.run_id }}
+          path: |
+            ${{ env.V5_RESULTS }}/store-tests/report.json
+            ${{ env.V5_RESULTS }}/network-data.json
+            ${{ env.V5_RESULTS }}/native-network/report.json
+            ${{ env.V5_RESULTS }}/native-network/*/client.png
+            ${{ env.V5_RESULTS }}/web-tests/report.json
+            ${{ env.V5_RESULTS }}/web-tests/*-client.png
+            ${{ env.V5_RESULTS }}/export/export-manifest.json
+          if-no-files-found: warn

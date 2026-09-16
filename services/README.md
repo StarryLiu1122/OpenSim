@@ -1,6 +1,8 @@
-# RegionStore 0.4.2：本机 SQLite 仓储
+# V5 服务工具：RegionStore / RegionHost 0.5.1
 
-这是 Region Lab 的可选持久化进程。桌面默认仍使用 JSON；选择 `-Database` 后才使用 SQLite。需要 Windows x64、PowerShell 7、Godot 4.5.1 和 .NET 8 运行时；构建还需要 SDK **8.0.424**。它不提供 HTTP 服务、多客户端同步或 OpenSim 数据库兼容性。
+RegionStore 是 Region Lab 的 SQLite 持久化进程；离线桌面选择 `-Database` 后使用，V5 权威区域固定使用它。RegionHost 提供 Web 文件、受控 HTTPS 资产和 WebSocket 转发，世界权威位于 Godot `network/server.gd`。完整网络运行步骤见 [V5 指南](../prototype/docs/network-quickstart.md)。二者不提供 OpenSim 数据库兼容性。
+
+需要 Windows x64、PowerShell 7、Godot 4.5.1。RegionStore 使用 .NET 8 Runtime，RegionHost 使用 ASP.NET Core 8 Runtime；源码构建均需要 SDK **8.0.424**。依赖锁定不变，数据库新增 schema 3 的 `network_receipts`，将网络成功回执和世界放入同一事务。默认 JSON 离线模式仍不需要 .NET。
 
 实现与决策见 [ADR](../docs/adr/0001-v4-storage.md)、[存储合同](../docs/contracts/storage-v4.md) 和 [V4 验证报告](../docs/comparisons/v4-completion.md)。依赖通过 [packages.lock.json](RegionStore/packages.lock.json) 固定，世界校验直接调用现有 Godot/GDScript 规则。
 
@@ -50,7 +52,9 @@ $restored = Join-Path $PWD ('services\runtime\restored ' + [guid]::NewGuid().ToS
 
 备份包包含一个区域的完整世界和全部登记网格资产，使用事务捕获一致状态，可单独搬移；恢复产生新存储世代。`backup` 与 `export` 相同，不复制运行中的 `.sqlite3` 文件，不依赖原 GLB 路径。多个区域需要逐一备份；首版不提供跨区域一致性。
 
-升级步骤：停止编辑写入 → 导出并试恢复备份 → 在新目录部署新程序 → 对数据库副本执行 `init` 迁移 → 加载核对 → 将启动命令切换到新目录。迁移从 schema 1 到 2 在事务内完成，失败回滚；未来 schema 被拒绝。不要让旧程序打开已经升级的唯一数据库。
+升级步骤：停止编辑写入 → 导出并试恢复备份 → 在新目录部署新程序 → 对数据库副本执行 `init` 迁移 → 加载核对 → 将启动命令切换到新目录。schema 1/2 到 3 的迁移在事务内完成，失败回滚；未来 schema 被拒绝。不要让旧程序打开已经升级的唯一数据库。
+
+V5 的 `receipts` 管理操作读取指定区域的持久网络成功回执；该入口仅供本机权威服务使用，没有对外公开。备份包继续导出世界与登记资产，不携带认证配置和网络回执历史；导入产生新存储世代，服务重启还会生成新网络世代。世界修订、存储提交号、网络世代和传输序列须分别处理，见 [网络合同](../docs/contracts/network-v5.md)。
 
 回滚时停止新程序，保留失败数据以供排查，将**升级前备份**恢复到另一个目录，并使用对应旧程序和格式。回滚会舍弃备份之后的提交。V3.1 只支持 JSON：返回 V3.1 应使用升级前 JSON 副本；不要将 SQLite 或 ZIP 直接交给 V3.1。对于仍兼容世界格式 3 的 V4 发布，可用当前导出恢复工具重建独立目标，再切换客户端。
 
@@ -59,7 +63,7 @@ $restored = Join-Path $PWD ('services\runtime\restored ' + [guid]::NewGuid().ToS
 在已完成构建的机器上执行：
 
 ```powershell
-.\services\New-OfflinePackage.ps1 -Destination 'D:\Packages\Region Lab V4' `
+.\services\New-OfflinePackage.ps1 -Destination 'D:\Packages\Region Lab V5' `
   -GodotArchive 'D:\Downloads\Godot_v4.5.1-stable_win64.exe.zip' -StoreBuildDirectory $build
 ```
 
@@ -67,10 +71,12 @@ $restored = Join-Path $PWD ('services\runtime\restored ' + [guid]::NewGuid().ToS
 
 ```powershell
 .\services\Install-Offline.ps1
-.\prototype\Start.cmd -Database 'D:\RegionLabData\new-v4-world'
+.\prototype\Start.cmd -Database 'D:\RegionLabData\new-v5-world'
 ```
 
-安装器校验包内全部文件 SHA256，并使用固定 Godot 归档进行离线安装。包不包含账户、存档或数据库；已有数据单独备份和恢复。验收使用了本机全新含空格目录，未模拟一台全新操作系统或移除系统 .NET。
+V5 可追加 `-HostBuildDirectory <RegionHost构建目录> -WebBuildDirectory <Web导出目录>`，将已验证运行文件和完整静态客户端一并装入离线包。初始化时使用包内 `services/RegionHost/bin/Release/net8.0/RegionHost.exe`、`services/RegionStore/bin/Release/net8.0/RegionStore.exe` 及 `prototype/build/network-web/web`。这些路径是发布结果，不是要求用户安装 SDK。
+
+安装器校验包内全部文件 SHA256，并使用固定 Godot 归档进行离线安装；网络包额外检查 ASP.NET Core 8。包不包含会话、私钥、存档或数据库；已有数据单独备份恢复。隔离目录验收未模拟全新操作系统或移除系统 .NET。
 
 ## 5. 管理与故障处理
 

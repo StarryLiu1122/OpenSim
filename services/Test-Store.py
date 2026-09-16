@@ -63,7 +63,7 @@ class Suite:
         self.check(generation.returncode == 0 and fixture.exists(), "native WorldService created grouped world with real building and door/lamp state")
         world = json.loads(json.loads(fixture.read_text(encoding="utf-8"))["world_json"])
         init = self.call("init")
-        self.check(init["ok"] and init["schema_version"] == 2, "empty database initialized and migrated")
+        self.check(init["ok"] and init["schema_version"] == 3, "empty database initialized and migrated")
         (self.output / "runtime.json").write_text(json.dumps(init, indent=2) + "\n")
         self.check(self.call("init")["ok"], "repeated migration is idempotent")
         save = self.request("save", input=str(fixture), expected_commit=-1, request_id=str(uuid.uuid4()))
@@ -174,6 +174,7 @@ class Suite:
         self.check(self.invoke(populated)["ok"], "upgrade fixture contains a complete committed region and asset")
         v1_db = v1_root / "worlds.sqlite3"
         with sqlite3.connect(v1_db) as c:
+            c.execute("DROP TABLE network_receipts")
             c.execute("DROP TABLE commits")
             c.execute("ALTER TABLE regions DROP COLUMN epoch")
             c.execute("PRAGMA user_version=1")
@@ -190,6 +191,33 @@ class Suite:
         unavailable = self.output / "unavailable directory"; unavailable.write_text("not a directory")
         request = self.request("init"); request["root"] = str(unavailable)
         self.check(not self.invoke(request)["ok"], "unavailable storage path never reports a successful save")
+        # V5 success receipts and world rows must have the same commit boundary.
+        network_root = self.output / "network receipts"
+        receipt_id, principal_id = str(uuid.uuid4()), str(uuid.uuid4())
+        receipt = dict(request_id=receipt_id, principal_id=principal_id, fingerprint="a" * 64,
+                       result=dict(ok=True, revision=world["revision"], request_id=receipt_id, world_epoch=str(uuid.uuid4())))
+        network_save = self.request("save", input=str(fixture), expected_commit=-1, request_id=receipt_id, network_receipt=receipt)
+        network_save["root"] = str(network_root)
+        failed_save = dict(network_save, fault="before_commit")
+        self.check(self.invoke(failed_save).get("error") == "INJECTED_BEFORE_COMMIT", "network transaction fails before publication")
+        receipts = self.request("receipts"); receipts["root"] = str(network_root)
+        self.check(self.invoke(receipts)["receipts"] == [], "rolled-back world never leaves a success receipt")
+        committed = self.invoke(dict(network_save, fault="crash_after_commit"))
+        self.check(not committed["ok"] and self.invoke(receipts)["receipts"] == [receipt], "success receipt survives writer death after commit")
+        self.check(self.invoke(network_save).get("replayed") is True and len(self.invoke(receipts)["receipts"]) == 1, "network retry replays exactly one durable receipt")
+        changed_receipt = copy.deepcopy(network_save); changed_receipt["network_receipt"]["principal_id"] = str(uuid.uuid4())
+        self.check(self.invoke(changed_receipt).get("error") == "REQUEST_REUSED", "durable request fingerprint binds authenticated principal")
+        invalid_receipt = copy.deepcopy(network_save); invalid_receipt["request_id"] = str(uuid.uuid4())
+        self.check(self.invoke(invalid_receipt).get("error") == "INVALID_NETWORK_RECEIPT", "mismatched receipt and transaction identity rejected")
+        with sqlite3.connect(network_root / "worlds.sqlite3") as c:
+            c.execute("DROP TABLE network_receipts"); c.execute("PRAGMA user_version=2")
+        migrate2 = self.request("init", fault="migration_receipts"); migrate2["root"] = str(network_root)
+        self.check(self.invoke(migrate2).get("error") == "INJECTED_MIGRATION_RECEIPTS", "v2 to v3 migration failure is explicit")
+        with sqlite3.connect(network_root / "worlds.sqlite3") as c:
+            self.check(c.execute("PRAGMA user_version").fetchone()[0] == 2 and not c.execute("SELECT name FROM sqlite_master WHERE name='network_receipts'").fetchall(), "v3 migration rolls back DDL and version together")
+        migrate2.pop("fault")
+        network_load = self.request("load"); network_load["root"] = str(network_root)
+        self.check(self.invoke(migrate2)["ok"] and self.invoke(network_load)["world"] == world, "v2 database retries migration and preserves committed world")
         self.report()
 
 

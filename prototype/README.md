@@ -1,12 +1,12 @@
-# Region Lab V4.2 使用说明
+# Region Lab V5 使用说明
 
-版本：0.4.2。本文适用于 Windows x64 源码运行方式。世界格式仍为 3，本地命令版本仍为 1。
+版本：0.5.1。本文主要描述保留的 Windows x64 离线编辑器。**V5 网络共享区域、双桌面客户端和 Web 客户端请从 [网络运行指南](docs/network-quickstart.md) 开始。** 世界格式仍为 3，本地命令版本仍为 1，现代网络协议为 FP 0.3，数据库 schema 为 3。
 
 V4 新增可选 SQLite 仓储，支持提交冲突检查、独立资产、备份导出和恢复；默认 JSON 保存路径保持兼容。原版网关位于 [integration](../integration/README.md)，数据库部署见 [services](../services/README.md)，阶段证据见 [V4 验收](../docs/comparisons/v4-completion.md)。
 
-Region Lab 是基于 Godot 的单区域编辑原型。V3.1 支持对象组合、静态 GLB 导入、六类内置对象、程序材质、地形编辑、区域环境、门灯交互、角色漫游和统一保存恢复。新世界提供庭院、湖岸及可进入的展馆。区域尺寸为 256×256 米，当前采用本机单用户模式。
+Region Lab 是基于 Godot 的单区域原型，支持对象组合、静态 GLB、六类内置对象、程序材质、地形、环境、门灯交互和角色漫游。新世界提供庭院、湖岸及可进入的展馆。区域尺寸为 256×256 米；离线模式为本机单用户，网络模式由独立权威服务和多个只读投影客户端组成。
 
-Region Lab 是世界模型与智能体协作平台的区域基础，后续将通过 Fusion Protocol 接入原版网关、权威区域服务和现代客户端。总体定位见 [项目 README](../README.md)，原始目标与技术核实见 [对齐说明](../docs/plans/platform-integration-alignment.md)。本文描述当前桌面版本；SQLite 已可选使用，正式浏览器客户端、多人与在线智能体按 [版本路线](../docs/plans/stage-one-rebuild-plan.md) 分阶段交付。
+Region Lab 是世界模型与智能体协作平台的区域基础。总体定位见 [项目 README](../README.md)，原始目标与技术核实见 [对齐说明](../docs/plans/platform-integration-alignment.md)。原版 FP 0.2 网关和现代 FP 0.3 服务分别运行；尚未接入外部智能体平台。网络验收与性能状态见 [V5 记录](../docs/comparisons/v5-completion.md)。
 
 ## 1. 环境要求
 
@@ -27,11 +27,11 @@ Region Lab 是世界模型与智能体协作平台的区域基础，后续将通
 ### 2.1 获取代码
 
 ```powershell
-git clone --branch codex/region-lab-v4 https://github.com/StarryLiu1122/OpenSim.git
+git clone --branch codex/region-lab-v5 https://github.com/StarryLiu1122/OpenSim.git
 cd OpenSim\prototype
 ```
 
-也可在 GitHub 下载 `codex/region-lab-v4` 分支 ZIP 并解压。已有仓库先保存本地修改，再更新该分支。V3.1 固定实现提交为 `1af88966496561787e79bb387083de998dae4a81`；需要复现该版时使用独立目录检出此提交。
+也可在 GitHub 下载 `codex/region-lab-v5` 分支 ZIP 并解压。已有仓库先保存本地修改，再更新该分支。V3.1 固定实现提交为 `1af88966496561787e79bb387083de998dae4a81`；需要复现该版时使用独立目录检出此提交。
 
 ### 2.2 安装引擎
 

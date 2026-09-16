@@ -1,6 +1,15 @@
 # 项目文档库
 
-本目录集中管理项目目标来源、技术决策、版本规划及历史材料。当前桌面版本为 Region Lab V4.2 / 0.4.2；V4.0～V4.2 的 21 项任务已完成声明范围内验收。各项完成状态以代码、测试和验证记录为依据。
+本目录集中管理项目目标来源、技术决策、版本规划及历史材料。当前开发版本为 Region Lab V5 / 0.5.1；各项状态以代码、测试和验证记录为依据。V4.0～V4.2 的 21 项历史任务与证据继续保留。
+
+## V5 当前入口
+
+| 文档 | 用途 |
+| --- | --- |
+| [V5 实施计划](plans/v5-implementation-plan.md) | 12 项任务、实现顺序与验收门槛 |
+| [网络运行指南](../prototype/docs/network-quickstart.md) | 已有 V3.1/V4 用户启动服务、桌面及 Web |
+| [FP 0.3 网络合同](contracts/network-v5.md) | 权威状态、提交、幂等、会话、角色、AOI 与资产 |
+| [V5 验收记录](comparisons/v5-completion.md) | 实测报告、截图、性能样本与未验证边界 |
 
 ## 项目目标与规划
 
@@ -41,6 +50,7 @@
 ## 版本与历史
 
 - [V4.2 版本说明](../prototype/docs/releases/v4.md)。
+- [V5 版本说明](../prototype/docs/releases/v5.md)。
 - [FP 0.1 参考子集](contracts/fp-reference-v0.md) 与 [存储合同草案](contracts/storage-v4-draft.md)，保留首批设计历史。
 
 ### 早期版本与上游

@@ -24,6 +24,6 @@ try {
     $entries = @(Get-ChildItem -LiteralPath $runtime -Recurse -File | Sort-Object FullName | ForEach-Object {
         @{path=[IO.Path]::GetRelativePath($runtime,$_.FullName).Replace('\','/');bytes=$_.Length;sha256=(Get-FileHash -LiteralPath $_.FullName).Hash.ToLowerInvariant()}
     })
-    @{ok=$true;application_version='0.4.2';sdk='8.0.424';offline=[bool]$Offline;lock_sha256=(Get-FileHash RegionStore/packages.lock.json).Hash.ToLowerInvariant();files=$entries} | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'build-report.json') -Encoding utf8
+    @{ok=$true;application_version='0.5.1';sdk='8.0.424';offline=[bool]$Offline;lock_sha256=(Get-FileHash RegionStore/packages.lock.json).Hash.ToLowerInvariant();files=$entries} | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $output 'build-report.json') -Encoding utf8
 } finally { Pop-Location }
 Write-Output "Storage runtime ready: $runtime"

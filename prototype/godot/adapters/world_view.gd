@@ -195,8 +195,14 @@ func _build_terrain(world: Dictionary) -> void:
 	body.collision_layer = 1
 	body.collision_mask = 4
 	var collider := CollisionShape3D.new()
-	# Share exact triangles with rendering; avoids height-field quantization/diagonal drift.
-	collider.shape = terrain_mesh.create_trimesh_shape()
+	# Reuse the exact CPU triangles. Reading them back from the uploaded mesh
+	# stalls WebGL (especially Firefox) and adds no information to the collider.
+	var faces := PackedVector3Array()
+	faces.resize(indices.size())
+	for index in range(indices.size()): faces[index] = vertices[indices[index]]
+	var collision := ConcavePolygonShape3D.new()
+	collision.set_faces(faces)
+	collider.shape = collision
 	body.add_child(collider)
 	add_child(body)
 

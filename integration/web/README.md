@@ -1,6 +1,38 @@
-# V4 WebGL2 能力探测
+# V5 Web 客户端与验证
 
-该目录提供可复现的浏览器**能力实验**，尚不是 V5 浏览器编辑器。固定 Godot 4.5.1 标准版，使用生产 WorldService、GLB 读取、WorldView 和角色碰撞代码。根据 [Godot 4.5 官方 Web 导出说明](https://docs.godotengine.org/en/4.5/tutorials/export/exporting_for_web.html)，此版本通过 Compatibility/WebGL2 运行，不提供本项目所需的 Godot WebGPU 后端；C# 仓储进程不会在浏览器中执行。
+V5 浏览器客户端已接入独立权威区域，运行及导出步骤见 [网络运行指南](../../prototype/docs/network-quickstart.md)。当前固定 Godot 4.5.1 标准版、Jolt、单线程 WebGL2；V4 能力探测保留在下文，不能替代 V5 的认证、同步和资产检查。
+
+## V5 完整复现
+
+测试需要 Windows x64 交互桌面、PowerShell 7、.NET SDK 8.0.424、Godot 4.5.1、Node.js 24、Python，以及 Playwright **1.62.1** 对应的 Chromium / Firefox。`NODE_PATH` 指向已安装 Playwright 的 `node_modules`；自定义浏览器缓存时设置 `PLAYWRIGHT_BROWSERS_PATH`。引擎和模板输入由 [web.lock.json](web.lock.json) 及 `prototype/engine.lock.json` 固定，单线程发布模板必须通过 SHA256 校验。
+
+```powershell
+.\prototype\tools\Test-V5.ps1 `
+  -Godot 'D:\Godot\Godot_v4.5.1-stable_win64_console.exe' `
+  -Template 'D:\Templates\web_nothreads_release.zip' `
+  -Directory 'D:\Tests\V5 new acceptance'
+```
+
+目录必须不存在。脚本构建服务、测试存储和离线界面，再运行真实双桌面、导出 Web，并以两个浏览器各五个新进程执行功能与冷启动检查。测试会显示临时客户端窗口，并只清理自己启动的进程。不要与其他图形性能测试同时运行。离线构建可传入 `-Offline -PackageCache <预先准备的NuGet缓存>`，测试工具和浏览器仍须预先安装。
+
+仅复测 Web 时，先按运行指南创建专用实例并指定完整 Web 导出目录，再运行：
+
+```powershell
+node .\integration\web\test-network.cjs `
+  '--config=D:\Tests\V5 instance\private-config.json' `
+  '--output=D:\Tests\V5 new browser results' --runs=5 `
+  '--fixture=D:\OpenSim\prototype\fixtures\meshes\bench.glb'
+```
+
+该脚本启动并管理实例服务；测试前不要手动启动同一实例。文件选择、取消、导出、指针锁、混合编辑、AOI、资产损坏与重试、断线和重登均使用实际客户端。窗口最小化配合 Playwright 帧时钟暂停验证停顿后收敛；真实 `document.hidden` 值单独记录，不把该用例当作普通浏览器后台节流的完整证明。
+
+当前结果：75 项断言通过，Firefox 冷启动 10.236–10.678 秒，超过 10 秒门槛，测试以非零退出。失败报告和截图见 [V5 证据](../../docs/comparisons/evidence/v5-20260916/README.md)，完整边界见 [V5 验收](../../docs/comparisons/v5-completion.md)。[GitHub 工作流](../../.github/workflows/region-lab-v5.yml) 需要带 `region-lab-gpu` 标签的 Windows 自托管执行机，并配置 `REGIONLAB_GODOT`、`REGIONLAB_WEB_TEMPLATE` 和上述依赖；当前没有远程运行成功的声明。
+
+---
+
+# V4 WebGL2 能力探测（历史）
+
+该历史工具提供可复现的浏览器**能力实验**，与 V5 浏览器客户端分别验证。固定 Godot 4.5.1 标准版，使用生产 WorldService、GLB 读取、WorldView 和角色碰撞代码。根据 [Godot 4.5 官方 Web 导出说明](https://docs.godotengine.org/en/4.5/tutorials/export/exporting_for_web.html)，此版本通过 Compatibility/WebGL2 运行，不提供本项目所需的 Godot WebGPU 后端；C# 仓储进程不会在浏览器中执行。
 
 ## 固定输入与复现
 

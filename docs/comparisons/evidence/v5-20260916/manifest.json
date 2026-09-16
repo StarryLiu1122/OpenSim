@@ -1,0 +1,92 @@
+{
+  "application": "0.5.1",
+  "date": "2026-09-16",
+  "baseline": "07847e85f5850666c9a9d2083b80e81d1abaab92",
+  "files": [
+    {
+      "path": "chromium.png",
+      "bytes": 783408,
+      "sha256": "772216a714c525be2a5fc1c32c35d34f1726f2fbc45fd900ae049b2feb6e39de"
+    },
+    {
+      "path": "deployment-report.json",
+      "bytes": 2113,
+      "sha256": "86faf293407828f42e72516dae76ca4392718498163dd37306dd4ed57bb8c7ff"
+    },
+    {
+      "path": "desktop-a.png",
+      "bytes": 1054609,
+      "sha256": "f0aa6b8fb803d7f9300aaf8c5d88e14e8658ced8e0a9c823c0138a3a32359598"
+    },
+    {
+      "path": "desktop-b.png",
+      "bytes": 1049868,
+      "sha256": "e7e99c945d0eb8dcb6c7a50b1372dbd78c3c37b64052b7377836be999d14d30f"
+    },
+    {
+      "path": "firefox.png",
+      "bytes": 1787510,
+      "sha256": "17c66098f40ff7a50de92b62e7cbeebe0a29f77013b387d7f8a6f00c4c98b22a"
+    },
+    {
+      "path": "hardware.json",
+      "bytes": 690,
+      "sha256": "3af9ed4c607494d0f332b2d84c8523c618b0fa5e50ae5296d681c34a8b834102"
+    },
+    {
+      "path": "host-build-report.json",
+      "bytes": 1213,
+      "sha256": "7dceb2b9470d4e5216a101d08c3bacd2b7a4018ed7d286a5f95d4ce5fb9719cd"
+    },
+    {
+      "path": "native-report.json",
+      "bytes": 16674,
+      "sha256": "57bf496a68469b016cc3242ef5a6e89d1eaf4f6970e93db1bcffe010b2fc6d16"
+    },
+    {
+      "path": "network-data-report.json",
+      "bytes": 1384,
+      "sha256": "e402a5bad2c10a9ee92d2dc9c505597ca244ea9546adb53ed041c88d665db7e4"
+    },
+    {
+      "path": "network-report.json",
+      "bytes": 6307,
+      "sha256": "742ba14f796259518cc31c467d1a533f8baf94f69b2af8f1af62f02ca5199085"
+    },
+    {
+      "path": "package-manifest.json",
+      "bytes": 81421,
+      "sha256": "90244b30eb1fe53a9c9dbad1b20a5d514d2a86f4d9ab293525e04e2467ba4a11"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1693,
+      "sha256": "afb4ce664c32cf166ac61ff6003f6407de8d72a02607c9a430421511fad4db48"
+    },
+    {
+      "path": "store-build-report.json",
+      "bytes": 5797,
+      "sha256": "80739718100be2700966fc42c1057db6b33a55b67e74d43fc3643265f6722075"
+    },
+    {
+      "path": "store-report.json",
+      "bytes": 5919,
+      "sha256": "42df1e6b649891b658959f5dfcfa394e4b02b2b3d869f53131c14b4ef5e54af4"
+    },
+    {
+      "path": "ui-report.json",
+      "bytes": 5728,
+      "sha256": "157b137b617206c7f674d89e44c890af36a527a3a7367a2588826e761acd1447"
+    },
+    {
+      "path": "web-export-manifest.json",
+      "bytes": 3565,
+      "sha256": "e7db61f1f348bb79afafdd85309e277cb0b17ccd24a58a2f59047405a1b02f37"
+    },
+    {
+      "path": "web-report.json",
+      "bytes": 28102,
+      "sha256": "93b81e7c9cbe5f46f3430f2ac6b7142d21f0783c29bbd50bf6d90a7b1b1b5282"
+    }
+  ]
+}

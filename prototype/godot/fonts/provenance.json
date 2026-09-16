@@ -1,0 +1,18 @@
+{
+  "source": "https://github.com/google/fonts/tree/main/ofl/notosanssc",
+  "source_sha256": "a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da",
+  "license": "OFL-1.1",
+  "fonttools": "4.60.1",
+  "weight": 400,
+  "ranges": [
+    "0020-024F",
+    "2000-206F",
+    "2190-21FF",
+    "3000-30FF",
+    "4E00-9FFF",
+    "FF00-FFEF"
+  ],
+  "output_sha256": "fb1199f450e0dd890308a7992f2f8f3173d2067ca55027a7f1e504efd1e9b461",
+  "bytes": 7561388,
+  "glyphs": 22054
+}

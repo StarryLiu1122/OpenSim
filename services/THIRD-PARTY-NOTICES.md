@@ -11,3 +11,9 @@
 | System.Memory（锁定的传递构建依赖） | 4.5.3 | Microsoft，MIT；[许可全文](licenses/System.Memory.txt) |
 
 NuGet 包校验以 [packages.lock.json](RegionStore/packages.lock.json) 的 contentHash 为准，离线发布文件另有 SHA256 清单。外部原版 OpenSim、Bot 库及其构建输出不装入桌面 SQLite 运行包；其源码许可分别保留在固定上游树及 [Bot 锁文件](../integration/opensim/client.lock.json) 对应来源中。
+
+## V5 新增字体与服务框架
+
+Web 中文字体为 Noto Sans SC 的静态 400 字重子集，重命名 Region Lab Sans SC，按 OFL-1.1 分发。[许可](../prototype/godot/fonts/OFL.txt)、[来源与 SHA256](../prototype/godot/fonts/provenance.json) 和 [可重复构建脚本](../prototype/tools/Build-WebFont.py) 一并保留。可选重建使用 FontTools 4.60.1。
+
+RegionHost 使用系统 ASP.NET Core 8 共享框架，没有新增 NuGet 包。Node.js、Playwright 1.62.1 和 Python 仅用于测试，不装入生产客户端。

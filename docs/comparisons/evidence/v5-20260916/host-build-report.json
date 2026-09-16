@@ -1,0 +1,43 @@
+{
+  "files": [
+    {
+      "sha256": "3cc7952787be7d43489891ec4a98f0d089ab0cedb68a61da0244c43df6a02398",
+      "bytes": 65,
+      "path": "packages.lock.json"
+    },
+    {
+      "sha256": "7b0e3e7717e3ef0060e7a6643c0c2ec71ee8bb0a3592a4eb6a2aff8ae73754a6",
+      "bytes": 422,
+      "path": "RegionHost.deps.json"
+    },
+    {
+      "sha256": "498562563ebbc0d79c22e21ef7d39352fe2dace6fe37597b82b5a3fca2dae173",
+      "bytes": 28672,
+      "path": "RegionHost.dll"
+    },
+    {
+      "sha256": "659e8ed0583b22b2bfbb46a483662b172eb04264a8497b2fe558f7e6ee46fbdf",
+      "bytes": 151552,
+      "path": "RegionHost.exe"
+    },
+    {
+      "sha256": "4c0121acffc8ccb0f394b369ea919cbb1e108c8ca91237e6a790e5dd427b84f5",
+      "bytes": 24440,
+      "path": "RegionHost.pdb"
+    },
+    {
+      "sha256": "2927e7d9a65748a82c4f265a0c9c1876a5ee233d9f5283881e0966e81ca94e14",
+      "bytes": 488,
+      "path": "RegionHost.runtimeconfig.json"
+    },
+    {
+      "sha256": "b9c451ca3ee3fba6b558876c8c3fa1145bf111c368d57c703107a17fb6b7b103",
+      "bytes": 496,
+      "path": "web.config"
+    }
+  ],
+  "application_version": "0.5.1",
+  "sdk": "8.0.424",
+  "offline": true,
+  "ok": true
+}

@@ -28,6 +28,7 @@ func _run() -> void:
 	await preload("res://tests/test_terrain.gd").new().run(self)
 	await preload("res://tests/test_v3.gd").new().run(self)
 	await preload("res://tests/test_v31.gd").new().run(self)
+	await preload("res://tests/test_cpu_colliders.gd").new().run(self)
 	var passed := 0
 	for item in cases:
 		if item.ok:

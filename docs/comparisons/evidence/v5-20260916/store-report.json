@@ -1,0 +1,218 @@
+{
+  "test": "sqlite-storage",
+  "passed": true,
+  "checks": [
+    {
+      "name": "native WorldService created grouped world with real building and door/lamp state",
+      "passed": true
+    },
+    {
+      "name": "empty database initialized and migrated",
+      "passed": true
+    },
+    {
+      "name": "repeated migration is idempotent",
+      "passed": true
+    },
+    {
+      "name": "initial atomic database commit",
+      "passed": true
+    },
+    {
+      "name": "database preserves complete world semantics and array order",
+      "passed": true
+    },
+    {
+      "name": "same durable request returns prior commit after process exit",
+      "passed": true
+    },
+    {
+      "name": "persistent request identity rejects altered candidate",
+      "passed": true
+    },
+    {
+      "name": "region/group/member/asset foreign keys are valid",
+      "passed": true
+    },
+    {
+      "name": "groups have independent database records",
+      "passed": true
+    },
+    {
+      "name": "hash-addressed GLB stored once outside SQLite",
+      "passed": true
+    },
+    {
+      "name": "database metadata does not embed binary content",
+      "passed": true
+    },
+    {
+      "name": "production GDScript rejects invalid candidate before database changes",
+      "passed": true
+    },
+    {
+      "name": "shared mesh validator rejects corrupted embedded asset",
+      "passed": true
+    },
+    {
+      "name": "two independent writers: exactly one CAS commit succeeds",
+      "passed": true
+    },
+    {
+      "name": "winning transaction publishes the whole candidate",
+      "passed": true
+    },
+    {
+      "name": "after_groups failure rolls back all member and group changes",
+      "passed": true
+    },
+    {
+      "name": "before_commit failure rolls back all member and group changes",
+      "passed": true
+    },
+    {
+      "name": "binary publication preceding DB failure leaves a detectable orphan",
+      "passed": true
+    },
+    {
+      "name": "exclusive maintenance safely collects the unreferenced asset",
+      "passed": true
+    },
+    {
+      "name": "garbage collection preserves committed content",
+      "passed": true
+    },
+    {
+      "name": "writer reached the uncommitted interruption barrier",
+      "passed": true
+    },
+    {
+      "name": "process termination preserves the previous committed world",
+      "passed": true
+    },
+    {
+      "name": "post-commit process death is resolved by durable idempotent retry",
+      "passed": true
+    },
+    {
+      "name": "unavailable database writer lock is reported as failure",
+      "passed": true
+    },
+    {
+      "name": "damaged binary makes the entire load fail explicitly",
+      "passed": true
+    },
+    {
+      "name": "missing binary cannot silently delete an object",
+      "passed": true
+    },
+    {
+      "name": "consistent region backup includes all referenced content",
+      "passed": true
+    },
+    {
+      "name": "moved self-contained bundle restores IDs, groups, terrain, materials, states and a new epoch",
+      "passed": true
+    },
+    {
+      "name": "bundle path rejected without altering restored database",
+      "passed": true
+    },
+    {
+      "name": "bundle duplicate rejected without altering restored database",
+      "passed": true
+    },
+    {
+      "name": "bundle checksum rejected without altering restored database",
+      "passed": true
+    },
+    {
+      "name": "bundle missing rejected without altering restored database",
+      "passed": true
+    },
+    {
+      "name": "bundle future rejected without altering restored database",
+      "passed": true
+    },
+    {
+      "name": "native legacy migration preserves source: v1-region.snapshot.json",
+      "passed": true
+    },
+    {
+      "name": "native legacy migration preserves source: v2-region.snapshot.json",
+      "passed": true
+    },
+    {
+      "name": "native legacy migration preserves source: v3-region.snapshot.json",
+      "passed": true
+    },
+    {
+      "name": "migration fixture starts from the complete real database schema",
+      "passed": true
+    },
+    {
+      "name": "upgrade fixture contains a complete committed region and asset",
+      "passed": true
+    },
+    {
+      "name": "failed schema migration is explicit",
+      "passed": true
+    },
+    {
+      "name": "failed migration rolls back schema and version atomically",
+      "passed": true
+    },
+    {
+      "name": "migration can be retried after rollback",
+      "passed": true
+    },
+    {
+      "name": "populated database migration preserves all world records and external assets",
+      "passed": true
+    },
+    {
+      "name": "future database version refused",
+      "passed": true
+    },
+    {
+      "name": "unavailable storage path never reports a successful save",
+      "passed": true
+    },
+    {
+      "name": "network transaction fails before publication",
+      "passed": true
+    },
+    {
+      "name": "rolled-back world never leaves a success receipt",
+      "passed": true
+    },
+    {
+      "name": "success receipt survives writer death after commit",
+      "passed": true
+    },
+    {
+      "name": "network retry replays exactly one durable receipt",
+      "passed": true
+    },
+    {
+      "name": "durable request fingerprint binds authenticated principal",
+      "passed": true
+    },
+    {
+      "name": "mismatched receipt and transaction identity rejected",
+      "passed": true
+    },
+    {
+      "name": "v2 to v3 migration failure is explicit",
+      "passed": true
+    },
+    {
+      "name": "v3 migration rolls back DDL and version together",
+      "passed": true
+    },
+    {
+      "name": "v2 database retries migration and preserves committed world",
+      "passed": true
+    }
+  ]
+}

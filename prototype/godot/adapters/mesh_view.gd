@@ -40,7 +40,12 @@ func build(body: StaticBody3D, item: Dictionary) -> void:
 		body.add_child(visual)
 	for surface in data.collision:
 		var collider := CollisionShape3D.new()
-		collider.shape = _mesh(surface, size, source_size).create_trimesh_shape()
+		var faces := PackedVector3Array()
+		faces.resize(surface.indices.size())
+		for index in range(surface.indices.size()): faces[index] = surface.vertices[surface.indices[index]] * size
+		var shape := ConcavePolygonShape3D.new()
+		shape.set_faces(faces)
+		collider.shape = shape
 		body.add_child(collider)
 
 func _mesh(surface: Dictionary, size: Vector3, source_size: Vector3) -> ArrayMesh:

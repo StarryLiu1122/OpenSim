@@ -15,7 +15,7 @@ internal sealed class StoreError(string code) : Exception(code);
 internal sealed class Store : IDisposable
 {
     internal const int MaxWorldBytes = 8 * 1024 * 1024;
-    private const int SchemaVersion = 2;
+    private const int SchemaVersion = 3;
     private readonly string root, database, content;
     private readonly JsonObject configuration;
     private SqliteConnection? connection;
@@ -41,6 +41,7 @@ internal sealed class Store : IDisposable
             "init" => new { ok = true, schema_version = SchemaVersion, sqlite_version = Scalar("SELECT sqlite_version()"), path = database },
             "status" => new { ok = true, schema_version = SchemaVersion, regions = Rows("SELECT id,commit_revision,epoch FROM regions"), sqlite_version = Scalar("SELECT sqlite_version()") },
             "load" => Load(id),
+            "receipts" => new { ok = true, receipts = Rows("SELECT record_json FROM network_receipts WHERE region_id=$r ORDER BY rowid", ("$r", id)).Select(r => JsonNode.Parse((string)r[0]!)).ToArray() },
             "save" => Save(Validate(ReadBounded(S(request, "input"))), id, Long(request, "expected_commit"), Id(S(request, "request_id")), false),
             "export" or "backup" => Export(id, S(request, "output")),
             "import" => Save(Validate(ReadBundle(S(request, "input"))), id, Long(request, "expected_commit"), Id(S(request, "request_id")), true),
@@ -74,11 +75,17 @@ internal sealed class Store : IDisposable
                     PRAGMA user_version=1;
                     """);
                 }
+                if (version < 2)
+                {
                 Exec("ALTER TABLE regions ADD COLUMN epoch TEXT NOT NULL DEFAULT ''");
                 Exec("UPDATE regions SET epoch=$epoch WHERE epoch=''", ("$epoch", Guid.NewGuid().ToString()));
                 Inject("migration");
                 Exec("CREATE TABLE commits(region_id TEXT NOT NULL REFERENCES regions(id), request_id TEXT NOT NULL, fingerprint TEXT NOT NULL, commit_revision INTEGER NOT NULL, epoch TEXT NOT NULL, PRIMARY KEY(region_id,request_id))");
                 Exec("PRAGMA user_version=2");
+                }
+                Exec("CREATE TABLE network_receipts(region_id TEXT NOT NULL, request_id TEXT NOT NULL, principal_id TEXT NOT NULL CHECK(length(principal_id)=36), record_json TEXT NOT NULL CHECK(length(record_json)<=65536), PRIMARY KEY(region_id,request_id), FOREIGN KEY(region_id,request_id) REFERENCES commits(region_id,request_id))");
+                Inject("migration_receipts");
+                Exec("PRAGMA user_version=3");
                 transaction.Commit();
             }
             catch { transaction.Rollback(); throw; }
@@ -132,7 +139,15 @@ internal sealed class Store : IDisposable
     {
         if (S(world["region"]!.AsObject(), "id") != id) throw new StoreError("REGION_ID_MISMATCH");
         if (expected < -1) throw new StoreError("INVALID_EXPECTED_COMMIT");
-        string fingerprint = Hash(Encoding.UTF8.GetBytes(world.ToJsonString() + "|" + expected + "|" + newEpoch));
+        JsonObject? receipt = configuration["network_receipt"]?.AsObject();
+        if (receipt != null)
+        {
+            if (receipt.ToJsonString().Length > 65536 || Id(S(receipt, "request_id")) != requestId ||
+                !Regex.IsMatch(S(receipt, "fingerprint"), "^[a-f0-9]{64}$") || receipt["result"] is not JsonObject result ||
+                result["ok"]?.GetValue<bool>() != true || Long(result, "revision") != Long(world, "revision")) throw new StoreError("INVALID_NETWORK_RECEIPT");
+            Id(S(receipt, "principal_id"));
+        }
+        string fingerprint = Hash(Encoding.UTF8.GetBytes(world.ToJsonString() + "|" + expected + "|" + newEpoch + (receipt == null ? "" : "|" + receipt.ToJsonString())));
         transaction = connection!.BeginTransaction(deferred: false);
         try
         {
@@ -185,6 +200,8 @@ internal sealed class Store : IDisposable
                 Exec("INSERT INTO objects(region_id,id,group_id,asset_id,owner_id,ordinal,record_json) VALUES($r,$i,$g,$a,$o,$n,$j)", ("$r", id), ("$i", S(item, "id")), ("$g", group.Length == 0 ? null : group), ("$a", S(item, "asset_id")), ("$o", S(item, "owner_id")), ("$n", ordinal++), ("$j", item.ToJsonString()));
             }
             Exec("INSERT INTO commits(region_id,request_id,fingerprint,commit_revision,epoch) VALUES($r,$q,$f,$c,$e)", ("$r", id), ("$q", requestId), ("$f", fingerprint), ("$c", revision), ("$e", epoch));
+            if (receipt != null)
+                Exec("INSERT INTO network_receipts(region_id,request_id,principal_id,record_json) VALUES($r,$q,$p,$j)", ("$r", id), ("$q", requestId), ("$p", S(receipt, "principal_id")), ("$j", receipt.ToJsonString()));
             Inject("before_commit");
             if (fault == "hold_before_commit") { File.WriteAllText(Path.Combine(root, "fault-ready.txt"), requestId); Thread.Sleep(30000); }
             transaction.Commit();
@@ -256,7 +273,7 @@ internal sealed class Store : IDisposable
             transaction.Commit();
         }
         finally { transaction.Dispose(); transaction = null; }
-        var manifest = new { format = "region-lab.bundle", version = 1, tool_version = "0.4.2", region_id = id, source_commit_revision = row[0], source_epoch = row[1], entries = files.Select(p => new { path = p.Key, bytes = p.Value.Length, sha256 = Hash(p.Value) }).ToArray() };
+        var manifest = new { format = "region-lab.bundle", version = 1, tool_version = "0.5.1", region_id = id, source_commit_revision = row[0], source_epoch = row[1], entries = files.Select(p => new { path = p.Key, bytes = p.Value.Length, sha256 = Hash(p.Value) }).ToArray() };
         Directory.CreateDirectory(Path.GetDirectoryName(output)!); string temporary = output + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {

@@ -1,0 +1,86 @@
+{
+  "checks": [
+    {
+      "detail": {
+        "files": 428,
+        "version": "0.5.1"
+      },
+      "passed": true,
+      "name": "verified offline package includes desktop, authority and Web runtimes"
+    },
+    {
+      "detail": null,
+      "passed": true,
+      "name": "fresh package has no imported project cache"
+    },
+    {
+      "detail": {
+        "revision": 2
+      },
+      "passed": true,
+      "name": "official service launcher imports fresh resources and starts authority"
+    },
+    {
+      "detail": {
+        "status": 200
+      },
+      "passed": true,
+      "name": "packaged gateway serves the complete Web entry"
+    },
+    {
+      "detail": {
+        "epoch": "42ce4f12-e7bf-47fa-bd47-eabc7502bc2f",
+        "revision": 2,
+        "objects": 44,
+        "groups": 1,
+        "assets": 7,
+        "avatars": 3
+      },
+      "passed": true,
+      "name": "two nonblocking official desktop launches authenticate into the same region"
+    },
+    {
+      "detail": {
+        "windows": 2
+      },
+      "passed": true,
+      "name": "both official clients have actual desktop windows"
+    },
+    {
+      "detail": null,
+      "passed": true,
+      "name": "closing both clients leaves the authority running"
+    },
+    {
+      "detail": null,
+      "passed": true,
+      "name": "official stop also terminates the actual authority PID"
+    },
+    {
+      "detail": null,
+      "passed": true,
+      "name": "gateway endpoint closes after official stop"
+    },
+    {
+      "detail": {
+        "epoch": "1fd5f302-4ad3-4cf2-a55d-990242366971",
+        "revision": 2,
+        "objects": 44,
+        "groups": 1,
+        "assets": 7,
+        "avatars": 1
+      },
+      "passed": true,
+      "name": "official restart restores persisted world with a new network epoch"
+    },
+    {
+      "detail": {
+        "matching_lines": 0
+      },
+      "passed": true,
+      "name": "deployment logs contain no script, parse or fatal errors"
+    }
+  ],
+  "passed": true,
+  "suite": "V5 official offline deployment"
+}

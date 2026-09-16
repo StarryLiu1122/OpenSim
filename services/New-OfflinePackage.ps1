@@ -1,12 +1,12 @@
 [CmdletBinding()]
-param([Parameter(Mandatory)][string]$Destination,[Parameter(Mandatory)][string]$GodotArchive,[Parameter(Mandatory)][string]$StoreBuildDirectory)
+param([Parameter(Mandatory)][string]$Destination,[Parameter(Mandatory)][string]$GodotArchive,[Parameter(Mandatory)][string]$StoreBuildDirectory,[string]$HostBuildDirectory='',[string]$WebBuildDirectory='')
 $ErrorActionPreference='Stop'
 $destinationPath=[IO.Path]::GetFullPath($Destination)
 if (Test-Path -LiteralPath $destinationPath) { throw 'Use a new package directory.' }
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $build=[IO.Path]::GetFullPath($StoreBuildDirectory)
 $report=Get-Content -LiteralPath (Join-Path $build 'build-report.json') -Raw | ConvertFrom-Json
-if (!$report.ok -or $report.application_version -ne '0.4.2') { throw 'Verified V4 storage build required.' }
+if (!$report.ok -or $report.application_version -ne '0.5.1') { throw 'Verified V5 storage build required.' }
 foreach($entry in $report.files) {
     if ((Get-FileHash -LiteralPath (Join-Path $build ('runtime/'+$entry.path))).Hash.ToLowerInvariant() -ne $entry.sha256) { throw 'Storage runtime hash mismatch.' }
 }
@@ -19,6 +19,7 @@ foreach($relative in @('prototype/godot','prototype/fixtures','prototype/tools',
     foreach($file in Get-ChildItem -LiteralPath $from -Recurse -File) {
         $inside=[IO.Path]::GetRelativePath($from,$file.FullName)
         if ($inside -match '(^|[\\/])(\.godot|__pycache__|bin|obj|runtime)([\\/]|$)') { continue }
+        if ($file.Name -in @('private-config.json','localhost.pfx','localhost.pem','processes.json')) { continue }
         $target=Join-Path $destinationPath ($relative+'/'+$inside)
         New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
         Copy-Item -LiteralPath $file.FullName -Destination $target
@@ -32,10 +33,29 @@ foreach($relative in @('README.md','LICENSE.txt','prototype/Start.cmd','prototyp
 $runtime=Join-Path $destinationPath 'services/RegionStore/bin/Release/net8.0'
 New-Item -ItemType Directory -Path $runtime -Force | Out-Null
 Copy-Item -Path (Join-Path $build 'runtime/*') -Destination $runtime -Recurse
+if($HostBuildDirectory) {
+    $hostReport=Get-Content -LiteralPath (Join-Path $HostBuildDirectory 'build-report.json') -Raw|ConvertFrom-Json
+    if(!$hostReport.ok -or $hostReport.application_version -ne '0.5.1'){throw 'Verified V5 host build required.'}
+    foreach($entry in $hostReport.files){if((Get-FileHash -LiteralPath (Join-Path $HostBuildDirectory ('runtime/'+$entry.path))).Hash.ToLowerInvariant() -ne $entry.sha256){throw 'Host runtime hash mismatch.'}}
+    $hostRuntime=Join-Path $destinationPath 'services/RegionHost/bin/Release/net8.0';New-Item -ItemType Directory -Path $hostRuntime -Force|Out-Null
+    Copy-Item -Path (Join-Path $HostBuildDirectory 'runtime/*') -Destination $hostRuntime -Recurse
+}
+if($WebBuildDirectory) {
+    if(!$HostBuildDirectory){throw 'Web package requires HostBuildDirectory.'}
+    $webReport=Get-Content -LiteralPath (Join-Path $WebBuildDirectory 'export-manifest.json') -Raw|ConvertFrom-Json
+    $webTarget=Join-Path $destinationPath 'prototype/build/network-web/web';New-Item -ItemType Directory -Path $webTarget -Force|Out-Null
+    foreach($entry in $webReport.files){
+        if($entry.path -ne [IO.Path]::GetFileName($entry.path)){throw 'Invalid Web export entry.'}
+        $source=Join-Path $WebBuildDirectory ('web/'+$entry.path)
+        if((Get-FileHash -LiteralPath $source).Hash.ToLowerInvariant() -ne $entry.sha256){throw 'Web export hash mismatch.'}
+        Copy-Item -LiteralPath $source -Destination (Join-Path $webTarget $entry.path)
+    }
+    Copy-Item -LiteralPath (Join-Path $WebBuildDirectory 'export-manifest.json') -Destination (Split-Path -Parent $webTarget)
+}
 New-Item -ItemType Directory -Path (Join-Path $destinationPath 'archives') | Out-Null
 Copy-Item -LiteralPath $GodotArchive -Destination (Join-Path $destinationPath ('archives/'+$lock.archive))
 $files=@(Get-ChildItem -LiteralPath $destinationPath -Recurse -File | Sort-Object FullName | ForEach-Object {
     @{path=[IO.Path]::GetRelativePath($destinationPath,$_.FullName).Replace('\','/');bytes=$_.Length;sha256=(Get-FileHash -LiteralPath $_.FullName).Hash.ToLowerInvariant()}
 })
-@{version='0.4.2';platform='Windows x64';requires='.NET 8 runtime preinstalled for SQLite; JSON mode only needs bundled Godot';files=$files} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $destinationPath 'package-manifest.json') -Encoding utf8
+@{version='0.5.1';platform='Windows x64';network=[bool]$HostBuildDirectory;web=[bool]$WebBuildDirectory;requires='ASP.NET Core 8 runtime for network; .NET 8 runtime for SQLite; PowerShell 7 for services';files=$files} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $destinationPath 'package-manifest.json') -Encoding utf8
 Write-Output "Offline package prepared: $destinationPath"

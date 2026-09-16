@@ -16,7 +16,7 @@ func _ready() -> void:
 	settings.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	environment.environment = settings
 	add_child(environment)
-	sun.shadow_enabled = true
+	sun.shadow_enabled = not OS.has_feature("web")
 	sun.directional_shadow_max_distance = 240
 	add_child(sun)
 	var plane := PlaneMesh.new()

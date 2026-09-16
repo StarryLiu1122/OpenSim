@@ -225,3 +225,9 @@ WorldView 先解析组变换再投影到引擎坐标，未改变的对象保留�
 WorldService 构造函数可注入实现 repository_contract.gd 的仓储，默认仍为 SnapshotRepository。SQLite 适配器维护独立的 commit_revision 和待确认 request_id，通过本机受控 CLI 校验并提交完整候选；失败不清除 dirty。数据库存在但缺少该区域时可新建，损坏或不可读数据库必须进入明确错误路径，不能悄悄变成新世界。
 
 世界内部 revision、数据库 commit_revision、恢复 epoch 和 FP event_seq 各自独立。命令封装 1 的进程内幂等缓存没有变成远程持久去重；后者由 RegionStore/FP 各自合同承担。具体 SQL、文件发布顺序、包限额、迁移与错误语义见 [存储合同](../../docs/contracts/storage-v4.md)，原版网络接口见 [FP 0.2](../../docs/contracts/fp-v02.md)。
+
+## V5 网络运行补充
+
+网络入口位于 "godot/network"，由独立权威 WorldService、SQLite 提交工作线程、只读 LocalWorldView、桌面/Web 客户端及 HTTPS 资产加载器组成。原离线 WorldService 与批处理入口保留。网络不接受 SaveRegion、LoadRegion 或完整世界替换；变更确认、epoch/revision/seq、会话和 AOI 合同见 [FP 0.3](../../docs/contracts/network-v5.md)，启动见 [网络指南](network-quickstart.md)。
+
+角色为会话瞬态数据；场景和门灯在数据库持久化。世界格式 3、领域封装 1 不变，SQLite schema 升为 3。网络成功回执与世界事务原子提交；备份包仍只导出世界和资产，不复制认证配置或历史回执。

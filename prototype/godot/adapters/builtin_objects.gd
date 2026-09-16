@@ -45,7 +45,7 @@ static func build(body: StaticBody3D, item: Dictionary) -> void:
 			var light := OmniLight3D.new()
 			light.name = "LampLight"
 			light.position.y = d.y * 0.38
-			light.shadow_enabled = true
+			light.shadow_enabled = not OS.has_feature("web")
 			light.light_color = Color("ffdc9e")
 			light.light_energy = 0.85 if item.state.active else 0.0
 			light.omni_range = clampf(d.y * 3.0, 3.0, 18.0)
@@ -97,8 +97,16 @@ static func _round(body: StaticBody3D, size: Vector3, position: Vector3, materia
 	if solid:
 		# Bake nonuniform scale into the convex shape, rather than scaling physics bodies.
 		var points := PackedVector3Array()
-		for point in mesh.get_faces():
-			points.append(point * size)
+		# Match the existing 20-segment cylinder / 12-ring sphere tessellation.
+		# Hull vertices are constructed before GPU upload; mesh.get_faces() would
+		# require synchronous WebGL buffer readback for every tree and lamp pole.
+		for ring in range(14 if sphere else 2):
+			var latitude := PI * float(ring) / 13.0 if sphere else 0.0
+			var height := cos(latitude) * 0.5 if sphere else (0.5 if ring == 0 else -0.5)
+			var radius := sin(latitude) * 0.5 if sphere else 0.5
+			for segment in range(20):
+				var angle := TAU * float(segment) / 20.0
+				points.append(Vector3(sin(angle) * radius, height, cos(angle) * radius) * size)
 		var shape := ConvexPolygonShape3D.new()
 		shape.points = points
 		var collider := CollisionShape3D.new()
