@@ -1,0 +1,31 @@
+{
+  "test": "offline-package",
+  "passed": true,
+  "platform": "Windows x64",
+  "application_version": "0.4.2",
+  "files_verified": 338,
+  "installation": "fixed Godot archive installed locally after checksum verification; no downloads",
+  "database_launch_checks": 6,
+  "database_objects": 44,
+  "json_first_launch_objects": 43,
+  "location": "new directory with spaces",
+  "runtime_requirement": ".NET 8 was already installed; this is not a fresh operating-system test",
+  "checks": [
+    {
+      "name": "every packaged runtime file matches the verified build manifest",
+      "passed": true
+    },
+    {
+      "name": "offline install succeeds in a new directory with spaces",
+      "passed": true
+    },
+    {
+      "name": "public launcher uses the packaged engine and storage process to restore SQLite",
+      "passed": true
+    },
+    {
+      "name": "default JSON mode starts from a separate fresh world path",
+      "passed": true
+    }
+  ]
+}

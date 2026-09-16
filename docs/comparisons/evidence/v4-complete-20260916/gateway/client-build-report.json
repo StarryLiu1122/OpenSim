@@ -1,0 +1,84 @@
+{
+  "patch_sha256": "f399668b7178cf678e9bf07946052a0c3cdaee35ffd87f5aa32225d0118543dd",
+  "assemblies": [
+    {
+      "name": "Be.Windows.Forms.HexBox.dll",
+      "sha256": "6419a8b77819734d137f7ed711822b5d9df627db74b487d839a85d25f3e5a9ea"
+    },
+    {
+      "name": "GlacialList.dll",
+      "sha256": "ab9c98242f027859364583903901e36b1e201fd6794b59a69ae6d64ba5b943cd"
+    },
+    {
+      "name": "ICSharpCode.SharpZipLib.dll",
+      "sha256": "9eb44a2dce6d0544187d8cc9f315023bacf75cc3b4c212648e03efde3b4cefc7"
+    },
+    {
+      "name": "log4net.dll",
+      "sha256": "939d87e6ed275ddf4d53c57a2c89346ecbeeb7a2490f80250f36820313166d5e"
+    },
+    {
+      "name": "nunit.framework.dll",
+      "sha256": "a266a9dc1e9a9bb5e52b3c34cca5c93a95b9e5531efcc58064b8c1103fb006a0"
+    },
+    {
+      "name": "openjpeg-dotnet-x86_64.dll",
+      "sha256": "5d08262a39dab2574fa135f53d4562839cdd901db93726bc114de165a54142ed"
+    },
+    {
+      "name": "openjpeg-dotnet.dll",
+      "sha256": "47d7217b4a1e3d477de9d770f18fa3ee136f12f1a79d8f7857150ce864d013f4"
+    },
+    {
+      "name": "OpenMetaverse.dll",
+      "sha256": "16b2d7a463fa50b5817c5de951ea1cb1da3e52b52bd6d3fc78a5c7eaf8ca5897"
+    },
+    {
+      "name": "OpenMetaverse.Rendering.Linden.dll",
+      "sha256": "0b8e52fff7be7694944c5430e6971c9b6cb8001934438009a2142dbda68700ee"
+    },
+    {
+      "name": "OpenMetaverse.StructuredData.dll",
+      "sha256": "6808e61870ad725c13b6980f7e1ce9012823c4f942530752164000c8f1f3248e"
+    },
+    {
+      "name": "OpenMetaverseTypes.dll",
+      "sha256": "5f15eb45d66b15e83172fa4b5bf2f8b2c3e928c36de5abeb8029d01a1d75cb69"
+    },
+    {
+      "name": "prebuild.dll",
+      "sha256": "2269a1ec3dd77b0811fb50fdfeb2f9e7878ce7732596ecb88cc04d0590d89ad7"
+    },
+    {
+      "name": "PrimMesher.dll",
+      "sha256": "290e7de73a6061c727ffce3e10cc0fe3e5ef160d9fbeaa107c0e4bb244b3d459"
+    },
+    {
+      "name": "SmartThreadPool.dll",
+      "sha256": "b358a08d9acae5690c1e67bc4b34f0db84d0bcbb4a0c23f710f4b222224ae7b5"
+    },
+    {
+      "name": "System.Drawing.Common.dll",
+      "sha256": "4d3001697df50cca54f32ed2dbbd1f3f415b48d5d756b1bf9500a43ae9b68da0"
+    },
+    {
+      "name": "Tao.OpenGl.dll",
+      "sha256": "1a67dff00084042c44889b186d6978a8efca1aef817540f7683112888a4fb926"
+    },
+    {
+      "name": "Tao.Platform.Windows.dll",
+      "sha256": "bacb5bebf98fe441bdbb4ca689d2f97eade941281eee58213386f85362005105"
+    },
+    {
+      "name": "XMLRPC.dll",
+      "sha256": "705b8a3d80bc81e70420736d499c2ecdd4ba1fd241a020f12a3176450c39b4d9"
+    },
+    {
+      "name": "zlib.net.dll",
+      "sha256": "166212b6e4022227e085a37296a427d144c908f31a5114513214e0b33308de02"
+    }
+  ],
+  "sdk": "8.0.424",
+  "commit": "f3ee229dc2a17e0dfd7256f8f634afe8e7610487",
+  "passed": true
+}

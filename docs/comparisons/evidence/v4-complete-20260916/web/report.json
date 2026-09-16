@@ -1,0 +1,2255 @@
+{
+  "utc": "2026-09-16T04:37:29.182Z",
+  "platform": "win32",
+  "node": "v24.19.0",
+  "fixture_sha256": "d1901a6ef758771084363db0d891a40d3905eef16fae4083d55e6f427e6e397a",
+  "results": [
+    {
+      "engine": "chromium",
+      "browser_version": "151.0.7922.34",
+      "profile": "jolt-single",
+      "initial": {
+        "probe": {
+          "avatar_position": [
+            80,
+            0.200898855924606,
+            -82.0346527099609
+          ],
+          "checks": [
+            {
+              "name": "production GLB importer",
+              "passed": true
+            },
+            {
+              "name": "mesh instance command",
+              "passed": true
+            },
+            {
+              "name": "door command",
+              "passed": true
+            },
+            {
+              "name": "terrain collision",
+              "passed": true
+            },
+            {
+              "name": "GLB doorway ray",
+              "passed": true
+            },
+            {
+              "name": "GLB wall collision",
+              "passed": true
+            },
+            {
+              "name": "closed door collision",
+              "passed": true
+            },
+            {
+              "name": "door interaction command",
+              "passed": true
+            },
+            {
+              "name": "open door passage",
+              "passed": true
+            },
+            {
+              "name": "avatar enters GLB and stands on floor",
+              "passed": true
+            },
+            {
+              "name": "user filesystem snapshot save",
+              "passed": true
+            }
+          ],
+          "engine": "4.5.1-stable (official)",
+          "passed": true,
+          "physics": "Jolt Physics",
+          "previous_revision": -1,
+          "previous_snapshot_loaded": false,
+          "renderer": "gl_compatibility"
+        },
+        "isolated": true,
+        "sharedArrayBuffer": true,
+        "webgl2": true
+      },
+      "file_picker": {
+        "errors": [],
+        "passed": true
+      },
+      "reloaded": {
+        "avatar_position": [
+          80,
+          0.200898855924606,
+          -82.0346527099609
+        ],
+        "checks": [
+          {
+            "name": "production GLB importer",
+            "passed": true
+          },
+          {
+            "name": "mesh instance command",
+            "passed": true
+          },
+          {
+            "name": "door command",
+            "passed": true
+          },
+          {
+            "name": "terrain collision",
+            "passed": true
+          },
+          {
+            "name": "GLB doorway ray",
+            "passed": true
+          },
+          {
+            "name": "GLB wall collision",
+            "passed": true
+          },
+          {
+            "name": "closed door collision",
+            "passed": true
+          },
+          {
+            "name": "door interaction command",
+            "passed": true
+          },
+          {
+            "name": "open door passage",
+            "passed": true
+          },
+          {
+            "name": "avatar enters GLB and stands on floor",
+            "passed": true
+          },
+          {
+            "name": "user filesystem snapshot save",
+            "passed": true
+          }
+        ],
+        "engine": "4.5.1-stable (official)",
+        "passed": true,
+        "physics": "Jolt Physics",
+        "previous_revision": 4,
+        "previous_snapshot_loaded": true,
+        "renderer": "gl_compatibility"
+      },
+      "reload_network_files": [
+        "/jolt-single/index.html",
+        "/jolt-single/index.wasm"
+      ],
+      "passed": true,
+      "console": [
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, single-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        },
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, single-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser_version": "151.0.7922.34",
+      "profile": "jolt-threads",
+      "initial": {
+        "probe": {
+          "avatar_position": [
+            80,
+            0.200898855924606,
+            -82.0346527099609
+          ],
+          "checks": [
+            {
+              "name": "production GLB importer",
+              "passed": true
+            },
+            {
+              "name": "mesh instance command",
+              "passed": true
+            },
+            {
+              "name": "door command",
+              "passed": true
+            },
+            {
+              "name": "terrain collision",
+              "passed": true
+            },
+            {
+              "name": "GLB doorway ray",
+              "passed": true
+            },
+            {
+              "name": "GLB wall collision",
+              "passed": true
+            },
+            {
+              "name": "closed door collision",
+              "passed": true
+            },
+            {
+              "name": "door interaction command",
+              "passed": true
+            },
+            {
+              "name": "open door passage",
+              "passed": true
+            },
+            {
+              "name": "avatar enters GLB and stands on floor",
+              "passed": true
+            },
+            {
+              "name": "user filesystem snapshot save",
+              "passed": true
+            }
+          ],
+          "engine": "4.5.1-stable (official)",
+          "passed": true,
+          "physics": "Jolt Physics",
+          "previous_revision": -1,
+          "previous_snapshot_loaded": false,
+          "renderer": "gl_compatibility"
+        },
+        "isolated": true,
+        "sharedArrayBuffer": true,
+        "webgl2": true
+      },
+      "file_picker": {
+        "errors": [],
+        "passed": true
+      },
+      "reloaded": {
+        "avatar_position": [
+          80,
+          0.200898855924606,
+          -82.0346527099609
+        ],
+        "checks": [
+          {
+            "name": "production GLB importer",
+            "passed": true
+          },
+          {
+            "name": "mesh instance command",
+            "passed": true
+          },
+          {
+            "name": "door command",
+            "passed": true
+          },
+          {
+            "name": "terrain collision",
+            "passed": true
+          },
+          {
+            "name": "GLB doorway ray",
+            "passed": true
+          },
+          {
+            "name": "GLB wall collision",
+            "passed": true
+          },
+          {
+            "name": "closed door collision",
+            "passed": true
+          },
+          {
+            "name": "door interaction command",
+            "passed": true
+          },
+          {
+            "name": "open door passage",
+            "passed": true
+          },
+          {
+            "name": "avatar enters GLB and stands on floor",
+            "passed": true
+          },
+          {
+            "name": "user filesystem snapshot save",
+            "passed": true
+          }
+        ],
+        "engine": "4.5.1-stable (official)",
+        "passed": true,
+        "physics": "Jolt Physics",
+        "previous_revision": 4,
+        "previous_snapshot_loaded": true,
+        "renderer": "gl_compatibility"
+      },
+      "reload_network_files": [
+        "/jolt-threads/index.html",
+        "/jolt-threads/index.wasm"
+      ],
+      "passed": true,
+      "console": [
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, multi-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        },
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, multi-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "browser_version": "151.0.7922.34",
+      "profile": "godot-single",
+      "initial": {
+        "probe": {
+          "avatar_position": [
+            80,
+            0.20083212852478,
+            -82.0346450805664
+          ],
+          "checks": [
+            {
+              "name": "production GLB importer",
+              "passed": true
+            },
+            {
+              "name": "mesh instance command",
+              "passed": true
+            },
+            {
+              "name": "door command",
+              "passed": true
+            },
+            {
+              "name": "terrain collision",
+              "passed": true
+            },
+            {
+              "name": "GLB doorway ray",
+              "passed": true
+            },
+            {
+              "name": "GLB wall collision",
+              "passed": true
+            },
+            {
+              "name": "closed door collision",
+              "passed": true
+            },
+            {
+              "name": "door interaction command",
+              "passed": true
+            },
+            {
+              "name": "open door passage",
+              "passed": true
+            },
+            {
+              "name": "avatar enters GLB and stands on floor",
+              "passed": true
+            },
+            {
+              "name": "user filesystem snapshot save",
+              "passed": true
+            }
+          ],
+          "engine": "4.5.1-stable (official)",
+          "passed": true,
+          "physics": "GodotPhysics3D",
+          "previous_revision": -1,
+          "previous_snapshot_loaded": false,
+          "renderer": "gl_compatibility"
+        },
+        "isolated": true,
+        "sharedArrayBuffer": true,
+        "webgl2": true
+      },
+      "file_picker": {
+        "errors": [],
+        "passed": true
+      },
+      "reloaded": {
+        "avatar_position": [
+          80,
+          0.20083212852478,
+          -82.0346450805664
+        ],
+        "checks": [
+          {
+            "name": "production GLB importer",
+            "passed": true
+          },
+          {
+            "name": "mesh instance command",
+            "passed": true
+          },
+          {
+            "name": "door command",
+            "passed": true
+          },
+          {
+            "name": "terrain collision",
+            "passed": true
+          },
+          {
+            "name": "GLB doorway ray",
+            "passed": true
+          },
+          {
+            "name": "GLB wall collision",
+            "passed": true
+          },
+          {
+            "name": "closed door collision",
+            "passed": true
+          },
+          {
+            "name": "door interaction command",
+            "passed": true
+          },
+          {
+            "name": "open door passage",
+            "passed": true
+          },
+          {
+            "name": "avatar enters GLB and stands on floor",
+            "passed": true
+          },
+          {
+            "name": "user filesystem snapshot save",
+            "passed": true
+          }
+        ],
+        "engine": "4.5.1-stable (official)",
+        "passed": true,
+        "physics": "GodotPhysics3D",
+        "previous_revision": 4,
+        "previous_snapshot_loaded": true,
+        "renderer": "gl_compatibility"
+      },
+      "reload_network_files": [
+        "/godot-single/index.html",
+        "/godot-single/index.wasm"
+      ],
+      "passed": true,
+      "console": [
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, single-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        },
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, single-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        }
+      ]
+    },
+    {
+      "engine": "chromium",
+      "profile": "threads-without-isolation",
+      "isolated": false,
+      "started": false,
+      "message": "Error\nThe following features required to run Godot projects on the Web are missing:\nCross-Origin Isolation - Check that the web server configuration sends the correct headers.\nSharedArrayBuffer - Check that the web server configuration sends the correct headers.\n",
+      "expected": "does not start"
+    },
+    {
+      "engine": "firefox",
+      "browser_version": "153.0",
+      "profile": "jolt-single",
+      "initial": {
+        "probe": {
+          "avatar_position": [
+            80,
+            0.200898855924606,
+            -82.0346527099609
+          ],
+          "checks": [
+            {
+              "name": "production GLB importer",
+              "passed": true
+            },
+            {
+              "name": "mesh instance command",
+              "passed": true
+            },
+            {
+              "name": "door command",
+              "passed": true
+            },
+            {
+              "name": "terrain collision",
+              "passed": true
+            },
+            {
+              "name": "GLB doorway ray",
+              "passed": true
+            },
+            {
+              "name": "GLB wall collision",
+              "passed": true
+            },
+            {
+              "name": "closed door collision",
+              "passed": true
+            },
+            {
+              "name": "door interaction command",
+              "passed": true
+            },
+            {
+              "name": "open door passage",
+              "passed": true
+            },
+            {
+              "name": "avatar enters GLB and stands on floor",
+              "passed": true
+            },
+            {
+              "name": "user filesystem snapshot save",
+              "passed": true
+            }
+          ],
+          "engine": "4.5.1-stable (official)",
+          "passed": true,
+          "physics": "Jolt Physics",
+          "previous_revision": -1,
+          "previous_snapshot_loaded": false,
+          "renderer": "gl_compatibility"
+        },
+        "isolated": true,
+        "sharedArrayBuffer": true,
+        "webgl2": true
+      },
+      "file_picker": {
+        "errors": [],
+        "passed": true
+      },
+      "reloaded": {
+        "avatar_position": [
+          80,
+          0.200898855924606,
+          -82.0346527099609
+        ],
+        "checks": [
+          {
+            "name": "production GLB importer",
+            "passed": true
+          },
+          {
+            "name": "mesh instance command",
+            "passed": true
+          },
+          {
+            "name": "door command",
+            "passed": true
+          },
+          {
+            "name": "terrain collision",
+            "passed": true
+          },
+          {
+            "name": "GLB doorway ray",
+            "passed": true
+          },
+          {
+            "name": "GLB wall collision",
+            "passed": true
+          },
+          {
+            "name": "closed door collision",
+            "passed": true
+          },
+          {
+            "name": "door interaction command",
+            "passed": true
+          },
+          {
+            "name": "open door passage",
+            "passed": true
+          },
+          {
+            "name": "avatar enters GLB and stands on floor",
+            "passed": true
+          },
+          {
+            "name": "user filesystem snapshot save",
+            "passed": true
+          }
+        ],
+        "engine": "4.5.1-stable (official)",
+        "passed": true,
+        "physics": "Jolt Physics",
+        "previous_revision": 4,
+        "previous_snapshot_loaded": true,
+        "renderer": "gl_compatibility"
+      },
+      "reload_network_files": [
+        "/jolt-single/index.html"
+      ],
+      "passed": true,
+      "console": [
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\"]"
+        },
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0) - Compatibility - Using Device: Mozilla - ANGLE (Intel, Intel(R) HD Graphics Direct3D11 vs_5_0 ps_5_0), or similar"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, single-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\"]"
+        },
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0) - Compatibility - Using Device: Mozilla - ANGLE (Intel, Intel(R) HD Graphics Direct3D11 vs_5_0 ps_5_0), or similar"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, single-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser_version": "153.0",
+      "profile": "jolt-threads",
+      "initial": {
+        "probe": {
+          "avatar_position": [
+            80,
+            0.200898855924606,
+            -82.0346527099609
+          ],
+          "checks": [
+            {
+              "name": "production GLB importer",
+              "passed": true
+            },
+            {
+              "name": "mesh instance command",
+              "passed": true
+            },
+            {
+              "name": "door command",
+              "passed": true
+            },
+            {
+              "name": "terrain collision",
+              "passed": true
+            },
+            {
+              "name": "GLB doorway ray",
+              "passed": true
+            },
+            {
+              "name": "GLB wall collision",
+              "passed": true
+            },
+            {
+              "name": "closed door collision",
+              "passed": true
+            },
+            {
+              "name": "door interaction command",
+              "passed": true
+            },
+            {
+              "name": "open door passage",
+              "passed": true
+            },
+            {
+              "name": "avatar enters GLB and stands on floor",
+              "passed": true
+            },
+            {
+              "name": "user filesystem snapshot save",
+              "passed": true
+            }
+          ],
+          "engine": "4.5.1-stable (official)",
+          "passed": true,
+          "physics": "Jolt Physics",
+          "previous_revision": -1,
+          "previous_snapshot_loaded": false,
+          "renderer": "gl_compatibility"
+        },
+        "isolated": true,
+        "sharedArrayBuffer": true,
+        "webgl2": true
+      },
+      "file_picker": {
+        "errors": [],
+        "passed": true
+      },
+      "reloaded": {
+        "avatar_position": [
+          80,
+          0.200898855924606,
+          -82.0346527099609
+        ],
+        "checks": [
+          {
+            "name": "production GLB importer",
+            "passed": true
+          },
+          {
+            "name": "mesh instance command",
+            "passed": true
+          },
+          {
+            "name": "door command",
+            "passed": true
+          },
+          {
+            "name": "terrain collision",
+            "passed": true
+          },
+          {
+            "name": "GLB doorway ray",
+            "passed": true
+          },
+          {
+            "name": "GLB wall collision",
+            "passed": true
+          },
+          {
+            "name": "closed door collision",
+            "passed": true
+          },
+          {
+            "name": "door interaction command",
+            "passed": true
+          },
+          {
+            "name": "open door passage",
+            "passed": true
+          },
+          {
+            "name": "avatar enters GLB and stands on floor",
+            "passed": true
+          },
+          {
+            "name": "user filesystem snapshot save",
+            "passed": true
+          }
+        ],
+        "engine": "4.5.1-stable (official)",
+        "passed": true,
+        "physics": "Jolt Physics",
+        "previous_revision": 4,
+        "previous_snapshot_loaded": true,
+        "renderer": "gl_compatibility"
+      },
+      "reload_network_files": [
+        "/jolt-threads/index.html"
+      ],
+      "passed": true,
+      "console": [
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0) - Compatibility - Using Device: Mozilla - ANGLE (Intel, Intel(R) HD Graphics Direct3D11 vs_5_0 ps_5_0), or similar"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, multi-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\" {file: \"http://127.0.0.1:59992/jolt-threads/index.js\" line: 7}]"
+        },
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0) - Compatibility - Using Device: Mozilla - ANGLE (Intel, Intel(R) HD Graphics Direct3D11 vs_5_0 ps_5_0), or similar"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, multi-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "browser_version": "153.0",
+      "profile": "godot-single",
+      "initial": {
+        "probe": {
+          "avatar_position": [
+            80,
+            0.20083212852478,
+            -82.0346450805664
+          ],
+          "checks": [
+            {
+              "name": "production GLB importer",
+              "passed": true
+            },
+            {
+              "name": "mesh instance command",
+              "passed": true
+            },
+            {
+              "name": "door command",
+              "passed": true
+            },
+            {
+              "name": "terrain collision",
+              "passed": true
+            },
+            {
+              "name": "GLB doorway ray",
+              "passed": true
+            },
+            {
+              "name": "GLB wall collision",
+              "passed": true
+            },
+            {
+              "name": "closed door collision",
+              "passed": true
+            },
+            {
+              "name": "door interaction command",
+              "passed": true
+            },
+            {
+              "name": "open door passage",
+              "passed": true
+            },
+            {
+              "name": "avatar enters GLB and stands on floor",
+              "passed": true
+            },
+            {
+              "name": "user filesystem snapshot save",
+              "passed": true
+            }
+          ],
+          "engine": "4.5.1-stable (official)",
+          "passed": true,
+          "physics": "GodotPhysics3D",
+          "previous_revision": -1,
+          "previous_snapshot_loaded": false,
+          "renderer": "gl_compatibility"
+        },
+        "isolated": true,
+        "sharedArrayBuffer": true,
+        "webgl2": true
+      },
+      "file_picker": {
+        "errors": [],
+        "passed": true
+      },
+      "reloaded": {
+        "avatar_position": [
+          80,
+          0.20083212852478,
+          -82.0346450805664
+        ],
+        "checks": [
+          {
+            "name": "production GLB importer",
+            "passed": true
+          },
+          {
+            "name": "mesh instance command",
+            "passed": true
+          },
+          {
+            "name": "door command",
+            "passed": true
+          },
+          {
+            "name": "terrain collision",
+            "passed": true
+          },
+          {
+            "name": "GLB doorway ray",
+            "passed": true
+          },
+          {
+            "name": "GLB wall collision",
+            "passed": true
+          },
+          {
+            "name": "closed door collision",
+            "passed": true
+          },
+          {
+            "name": "door interaction command",
+            "passed": true
+          },
+          {
+            "name": "open door passage",
+            "passed": true
+          },
+          {
+            "name": "avatar enters GLB and stands on floor",
+            "passed": true
+          },
+          {
+            "name": "user filesystem snapshot save",
+            "passed": true
+          }
+        ],
+        "engine": "4.5.1-stable (official)",
+        "passed": true,
+        "physics": "GodotPhysics3D",
+        "previous_revision": 4,
+        "previous_snapshot_loaded": true,
+        "renderer": "gl_compatibility"
+      },
+      "reload_network_files": [
+        "/godot-single/index.html"
+      ],
+      "passed": true,
+      "console": [
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\"]"
+        },
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0) - Compatibility - Using Device: Mozilla - ANGLE (Intel, Intel(R) HD Graphics Direct3D11 vs_5_0 ps_5_0), or similar"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, single-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"Script terminated by timeout at:\nGodotProcessor/this.port.onmessage@http://127.0.0.1:59992/godot-single/index.audio.worklet.js:107:36\n\" {file: \"http://127.0.0.1:59992/godot-single/index.audio.worklet.js\" line: 107}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"Script terminated by timeout at:\nGodotProcessor/this.port.onmessage@http://127.0.0.1:59992/godot-single/index.audio.worklet.js:107:36\n\" {file: \"http://127.0.0.1:59992/godot-single/index.audio.worklet.js\" line: 107}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"Script terminated by timeout at:\nGodotProcessor/this.port.onmessage@http://127.0.0.1:59992/godot-single/index.audio.worklet.js:107:36\n\" {file: \"http://127.0.0.1:59992/godot-single/index.audio.worklet.js\" line: 107}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"Script terminated by timeout at:\nGodotProcessor/this.port.onmessage@http://127.0.0.1:59992/godot-single/index.audio.worklet.js:107:36\n\" {file: \"http://127.0.0.1:59992/godot-single/index.audio.worklet.js\" line: 107}]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"The WebAssembly exception handling 'try' instruction is deprecated and should no longer be used. Please recompile to use the 'try_table' instruction instead.\"]"
+        },
+        {
+          "type": "log",
+          "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+        },
+        {
+          "type": "log",
+          "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0) - Compatibility - Using Device: Mozilla - ANGLE (Intel, Intel(R) HD Graphics Direct3D11 vs_5_0 ps_5_0), or similar"
+        },
+        {
+          "type": "log",
+          "text": "Build configuration: Emscripten 4.0.10, single-threaded, no GDExtension support."
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true production GLB importer"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true mesh instance command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true terrain collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB doorway ray"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true GLB wall collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true closed door collision"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true door interaction command"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true open door passage"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "warning",
+          "text": "[JavaScript Warning: \"WebGL warning: getBufferSubData: Reading from a buffer with usage other than *_READ causes pipeline stalls. Copy through a STREAM_READ buffer.\"]"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+        },
+        {
+          "type": "log",
+          "text": "WEB_PROBE true user filesystem snapshot save"
+        }
+      ]
+    },
+    {
+      "engine": "firefox",
+      "profile": "threads-without-isolation",
+      "isolated": false,
+      "started": false,
+      "message": "Error\nThe following features required to run Godot projects on the Web are missing:\nCross-Origin Isolation - Check that the web server configuration sends the correct headers.\nSharedArrayBuffer - Check that the web server configuration sends the correct headers.\n",
+      "expected": "does not start"
+    }
+  ]
+}

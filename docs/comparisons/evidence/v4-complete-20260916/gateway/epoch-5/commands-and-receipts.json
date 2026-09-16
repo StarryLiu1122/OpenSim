@@ -1,0 +1,42 @@
+[
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "6aa2fc75-f5ff-47aa-b8a1-acb81e63d6d4",
+      "trace_id": "d713d8c0-323f-4c2b-994b-ee75de5116b8",
+      "world_epoch": "",
+      "origin": "mock-platform",
+      "source_seq": 3,
+      "operation": "GetCapabilities",
+      "expires_at": "2026-09-16T04:45:12.214731+00:00",
+      "payload": {}
+    },
+    "http_status": 401,
+    "receipt": {
+      "error": "UNAUTHORIZED_OR_EXPIRED_SESSION"
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "c9ab3231-5505-4ae8-9658-3a42010a88c2",
+      "trace_id": "d713d8c0-323f-4c2b-994b-ee75de5116b8",
+      "world_epoch": "",
+      "origin": "mock-platform",
+      "source_seq": 4,
+      "operation": "GetCapabilities",
+      "expires_at": "2026-09-16T04:45:12.240257+00:00",
+      "payload": {}
+    },
+    "http_status": 401,
+    "receipt": {
+      "error": "UNAUTHORIZED_OR_EXPIRED_SESSION"
+    }
+  }
+]

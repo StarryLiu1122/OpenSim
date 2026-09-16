@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param([string]$Godot = '', [switch]$Visual)
 . (Join-Path $PSScriptRoot 'Common.ps1')
 $engine = Get-RegionLabEngine $Godot
@@ -72,7 +72,7 @@ $summary = [ordered]@{
     offline_batch_adapter = $true
     terrain_batch_adapter = $true
     environment_behavior_batch_adapter = $true
-    application_version = '0.3.1'
+    application_version = ((Get-Content -LiteralPath (Join-Path $project 'project.godot') | Select-String '^config/version="([^"]+)"$').Matches.Groups[1].Value)
     visual_passed = $visualCount
     visual_requested = [bool]$Visual
 }

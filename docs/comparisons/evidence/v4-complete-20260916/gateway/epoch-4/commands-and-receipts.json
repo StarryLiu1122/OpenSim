@@ -1,0 +1,842 @@
+[
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "c3508fbf-2c59-4870-897a-47371f5e287d",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "",
+      "origin": "mock-platform",
+      "source_seq": 3,
+      "operation": "GetCapabilities",
+      "expires_at": "2026-09-16T04:45:02.409159+00:00",
+      "payload": {}
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "c3508fbf-2c59-4870-897a-47371f5e287d",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "GetCapabilities",
+      "state": "completed",
+      "error": "",
+      "tick": 1,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:32.5852155+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "adapter": "region-lab-fusion/0.4.1",
+        "authority": "OpenSim",
+        "principal": "operator",
+        "role": "operator",
+        "operations": [
+          "GetCapabilities",
+          "WorldStateSubscribe",
+          "SimEventStream",
+          "ActionReceipt",
+          "AvatarSession",
+          "AgentSpawn",
+          "AgentDespawn",
+          "AgentAction",
+          "CancelAction",
+          "WorldMutation",
+          "ExperimentControl",
+          "TelemetryExport"
+        ],
+        "actions": [
+          "MOVE_TO",
+          "TURN",
+          "INSPECT",
+          "INTERACT"
+        ],
+        "event_capacity": 32,
+        "max_commands_per_epoch": 1024,
+        "bot_limit": 1,
+        "max_body_bytes": 65536,
+        "mutation_scope": "owned static boxes and two-part linksets",
+        "subscription": "bounded polling with explicit cursor",
+        "webgpu": false,
+        "unsupported": [
+          "navigation planning",
+          "grabbing",
+          "impulses",
+          "arbitrary scripts",
+          "SSO",
+          "inventory",
+          "real model platform",
+          "whole-scene transaction"
+        ]
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "d17a2a6e-e414-42ad-8b07-d6f3c58d51fb",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 4,
+      "operation": "ActionReceipt",
+      "expires_at": "2026-09-16T04:45:04.594837+00:00",
+      "payload": {
+        "request_id": "8c6c1d76-c0ad-46dd-8a42-1d0a330626f7",
+        "receipt_epoch": "07abd251-5c4c-4551-bd8c-c853a862f86c"
+      }
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "d17a2a6e-e414-42ad-8b07-d6f3c58d51fb",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "ActionReceipt",
+      "state": "completed",
+      "error": "",
+      "tick": 25,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:34.687807+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "07abd251-5c4c-4551-bd8c-c853a862f86c",
+        "request_id": "8c6c1d76-c0ad-46dd-8a42-1d0a330626f7",
+        "trace_id": "3ff598e0-49ed-484e-9849-1d80a6e629c8",
+        "operation": "AgentAction",
+        "state": "result_unknown",
+        "error": "PREVIOUS_EPOCH_INTERRUPTED",
+        "tick": 36,
+        "event_seq": 8,
+        "observed_at": "2026-09-16T04:44:30.5082499+00:00",
+        "data": null
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "060b17f8-6d33-4cb1-8c70-9eb894941f39",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 5,
+      "operation": "WorldStateSubscribe",
+      "expires_at": "2026-09-16T04:45:04.695564+00:00",
+      "payload": {}
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "060b17f8-6d33-4cb1-8c70-9eb894941f39",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "WorldStateSubscribe",
+      "state": "completed",
+      "error": "",
+      "tick": 26,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:34.7795068+00:00",
+      "data": {
+        "snapshot_seq": 3,
+        "coordinate_system": "X-east,Y-north,Z-up;metres",
+        "scope": "non-attachment-region-objects-and-root-avatars",
+        "entities": [
+          {
+            "entity_id": "group/575372ae-230d-4a7f-91ed-615045251b82",
+            "source_id": "575372ae-230d-4a7f-91ed-615045251b82",
+            "kind": "object_group",
+            "root_id": "575372ae-230d-4a7f-91ed-615045251b82",
+            "owner_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+            "position": [
+              103.47364,
+              102.00536,
+              1.5
+            ],
+            "rotation": [
+              0,
+              0,
+              0.7071068,
+              0.7071068
+            ],
+            "members": [
+              {
+                "entity_id": "part/575372ae-230d-4a7f-91ed-615045251b82",
+                "source_id": "575372ae-230d-4a7f-91ed-615045251b82",
+                "name": "FP controlled door",
+                "link_number": 0,
+                "local_position": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0.7071068,
+                  0.7071068
+                ],
+                "size": [
+                  2,
+                  0.2,
+                  3
+                ],
+                "state": "FP_DOOR:open"
+              }
+            ]
+          },
+          {
+            "entity_id": "group/62970c13-1486-419b-b488-6d1883bbbb12",
+            "source_id": "62970c13-1486-419b-b488-6d1883bbbb12",
+            "kind": "object_group",
+            "root_id": "62970c13-1486-419b-b488-6d1883bbbb12",
+            "owner_id": "5f62d27c-7e3d-4947-b35c-cec63c123998",
+            "position": [
+              140,
+              140,
+              1
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "members": [
+              {
+                "entity_id": "part/62970c13-1486-419b-b488-6d1883bbbb12",
+                "source_id": "62970c13-1486-419b-b488-6d1883bbbb12",
+                "name": "Secondary-owned",
+                "link_number": 0,
+                "local_position": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "size": [
+                  1,
+                  1,
+                  1
+                ],
+                "state": ""
+              }
+            ]
+          },
+          {
+            "entity_id": "group/b842717b-0fff-4d30-a554-550de2a90598",
+            "source_id": "b842717b-0fff-4d30-a554-550de2a90598",
+            "kind": "object_group",
+            "root_id": "b842717b-0fff-4d30-a554-550de2a90598",
+            "owner_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+            "position": [
+              121,
+              120,
+              1
+            ],
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ],
+            "members": [
+              {
+                "entity_id": "part/b842717b-0fff-4d30-a554-550de2a90598",
+                "source_id": "b842717b-0fff-4d30-a554-550de2a90598",
+                "name": "Idempotent",
+                "link_number": 0,
+                "local_position": [
+                  0,
+                  0,
+                  0
+                ],
+                "rotation": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "size": [
+                  1,
+                  1,
+                  1
+                ],
+                "state": ""
+              }
+            ]
+          }
+        ],
+        "consistency": "immutable frame observation; not a lock over upstream physics or viewer threads"
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 6,
+      "operation": "AgentSpawn",
+      "expires_at": "2026-09-16T04:45:04.782404+00:00",
+      "payload": {}
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "AgentSpawn",
+      "state": "pending",
+      "error": "PREPARED",
+      "tick": 27,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:34.8732636+00:00",
+      "data": null
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "bba45f35-6201-4d04-b921-f8d3dfcd054f",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 7,
+      "operation": "ActionReceipt",
+      "expires_at": "2026-09-16T04:45:05.037317+00:00",
+      "payload": {
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "receipt_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41"
+      }
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "bba45f35-6201-4d04-b921-f8d3dfcd054f",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "ActionReceipt",
+      "state": "completed",
+      "error": "",
+      "tick": 29,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:35.0466296+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+        "operation": "AgentSpawn",
+        "state": "pending",
+        "error": "PREPARED",
+        "tick": 27,
+        "event_seq": 3,
+        "observed_at": "2026-09-16T04:44:34.8732636+00:00",
+        "data": null
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "c2509093-1040-434f-9c7a-640be75c5ca5",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 8,
+      "operation": "ActionReceipt",
+      "expires_at": "2026-09-16T04:45:05.198606+00:00",
+      "payload": {
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "receipt_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41"
+      }
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "c2509093-1040-434f-9c7a-640be75c5ca5",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "ActionReceipt",
+      "state": "completed",
+      "error": "",
+      "tick": 31,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:35.2372973+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+        "operation": "AgentSpawn",
+        "state": "pending",
+        "error": "PREPARED",
+        "tick": 27,
+        "event_seq": 3,
+        "observed_at": "2026-09-16T04:44:34.8732636+00:00",
+        "data": null
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "fae40c11-7d1e-4050-91e5-505c8cbb1250",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 9,
+      "operation": "ActionReceipt",
+      "expires_at": "2026-09-16T04:45:05.389679+00:00",
+      "payload": {
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "receipt_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41"
+      }
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "fae40c11-7d1e-4050-91e5-505c8cbb1250",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "ActionReceipt",
+      "state": "completed",
+      "error": "",
+      "tick": 33,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:35.4235666+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+        "operation": "AgentSpawn",
+        "state": "pending",
+        "error": "PREPARED",
+        "tick": 27,
+        "event_seq": 3,
+        "observed_at": "2026-09-16T04:44:34.8732636+00:00",
+        "data": null
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "346d79f3-a0a4-4a28-bab4-ce213055a8b5",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 10,
+      "operation": "ActionReceipt",
+      "expires_at": "2026-09-16T04:45:05.575895+00:00",
+      "payload": {
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "receipt_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41"
+      }
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "346d79f3-a0a4-4a28-bab4-ce213055a8b5",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "ActionReceipt",
+      "state": "completed",
+      "error": "",
+      "tick": 36,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:35.6874666+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+        "operation": "AgentSpawn",
+        "state": "pending",
+        "error": "PREPARED",
+        "tick": 27,
+        "event_seq": 3,
+        "observed_at": "2026-09-16T04:44:34.8732636+00:00",
+        "data": null
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "ae6bc8c6-4f22-4c21-8e76-b39b85c2957f",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 11,
+      "operation": "ActionReceipt",
+      "expires_at": "2026-09-16T04:45:05.840006+00:00",
+      "payload": {
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "receipt_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41"
+      }
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "ae6bc8c6-4f22-4c21-8e76-b39b85c2957f",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "ActionReceipt",
+      "state": "completed",
+      "error": "",
+      "tick": 38,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:35.8748056+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+        "operation": "AgentSpawn",
+        "state": "pending",
+        "error": "PREPARED",
+        "tick": 27,
+        "event_seq": 3,
+        "observed_at": "2026-09-16T04:44:34.8732636+00:00",
+        "data": null
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "7697b785-1366-444f-9af0-e9a5c0a43efe",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 12,
+      "operation": "ActionReceipt",
+      "expires_at": "2026-09-16T04:45:06.026951+00:00",
+      "payload": {
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "receipt_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41"
+      }
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "7697b785-1366-444f-9af0-e9a5c0a43efe",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "ActionReceipt",
+      "state": "completed",
+      "error": "",
+      "tick": 41,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:36.1444736+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+        "operation": "AgentSpawn",
+        "state": "pending",
+        "error": "PREPARED",
+        "tick": 27,
+        "event_seq": 3,
+        "observed_at": "2026-09-16T04:44:34.8732636+00:00",
+        "data": null
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "f73e5aa1-a8dc-4122-98e7-08a4c5572032",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 13,
+      "operation": "ActionReceipt",
+      "expires_at": "2026-09-16T04:45:06.296784+00:00",
+      "payload": {
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "receipt_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41"
+      }
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "f73e5aa1-a8dc-4122-98e7-08a4c5572032",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "ActionReceipt",
+      "state": "completed",
+      "error": "",
+      "tick": 44,
+      "event_seq": 3,
+      "observed_at": "2026-09-16T04:44:36.412824+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+        "operation": "AgentSpawn",
+        "state": "pending",
+        "error": "PREPARED",
+        "tick": 27,
+        "event_seq": 3,
+        "observed_at": "2026-09-16T04:44:34.8732636+00:00",
+        "data": null
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "ccdd5b0c-e362-4902-8be3-286420f7721f",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 14,
+      "operation": "ActionReceipt",
+      "expires_at": "2026-09-16T04:45:06.564756+00:00",
+      "payload": {
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "receipt_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41"
+      }
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "ccdd5b0c-e362-4902-8be3-286420f7721f",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "ActionReceipt",
+      "state": "completed",
+      "error": "",
+      "tick": 46,
+      "event_seq": 6,
+      "observed_at": "2026-09-16T04:44:36.6012746+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+        "request_id": "496212bf-5216-4901-97ad-e86f60483037",
+        "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+        "operation": "AgentSpawn",
+        "state": "completed",
+        "error": "",
+        "tick": 45,
+        "event_seq": 4,
+        "observed_at": "2026-09-16T04:44:36.5262905+00:00",
+        "data": {
+          "observed": true,
+          "avatar_present": true,
+          "position": [
+            100,
+            100,
+            1.9521112
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      }
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "09de87c4-4a29-4718-a29c-95e9f9ba71b3",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 15,
+      "operation": "AgentDespawn",
+      "expires_at": "2026-09-16T04:45:06.603818+00:00",
+      "payload": {}
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "09de87c4-4a29-4718-a29c-95e9f9ba71b3",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "AgentDespawn",
+      "state": "pending",
+      "error": "PREPARED",
+      "tick": 47,
+      "event_seq": 7,
+      "observed_at": "2026-09-16T04:44:36.6947003+00:00",
+      "data": null
+    }
+  },
+  {
+    "subject": "operator",
+    "request": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "request_id": "8d51f8a6-f2e5-4819-bde2-6fde15ea8df8",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "origin": "mock-platform",
+      "source_seq": 16,
+      "operation": "ActionReceipt",
+      "expires_at": "2026-09-16T04:45:06.854909+00:00",
+      "payload": {
+        "request_id": "09de87c4-4a29-4718-a29c-95e9f9ba71b3",
+        "receipt_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41"
+      }
+    },
+    "http_status": 200,
+    "receipt": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+      "request_id": "8d51f8a6-f2e5-4819-bde2-6fde15ea8df8",
+      "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+      "operation": "ActionReceipt",
+      "state": "completed",
+      "error": "",
+      "tick": 49,
+      "event_seq": 9,
+      "observed_at": "2026-09-16T04:44:36.8660662+00:00",
+      "data": {
+        "fp_version": "0.2",
+        "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "a72310ea-720c-4c51-803a-f5f8d4c1ea41",
+        "request_id": "09de87c4-4a29-4718-a29c-95e9f9ba71b3",
+        "trace_id": "c3a0a9cb-3eff-4371-8604-d0e2eb93a4f5",
+        "operation": "AgentDespawn",
+        "state": "completed",
+        "error": "",
+        "tick": 48,
+        "event_seq": 8,
+        "observed_at": "2026-09-16T04:44:36.775375+00:00",
+        "data": {
+          "observed": true,
+          "avatar_present": false,
+          "position": null,
+          "rotation": null
+        }
+      }
+    }
+  }
+]

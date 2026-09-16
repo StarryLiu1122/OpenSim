@@ -1,0 +1,850 @@
+{
+  "application_version": "0.4.2",
+  "files": [
+    {
+      "path": "integration/README.md",
+      "bytes": 7800,
+      "sha256": "5e2491cb0721ee922b5ee1ce59f54e41a1ac7e9f441d2459432c550fd0f4ab40"
+    },
+    {
+      "path": "integration/contracts/Test-Contracts.ps1",
+      "bytes": 1024,
+      "sha256": "4cfdbddad95fd79e312aef08eeaa1cc75b9183a4c370d0ee5df967d2e6aefdcf"
+    },
+    {
+      "path": "integration/contracts/Test-FpContracts.ps1",
+      "bytes": 2165,
+      "sha256": "34743952f56d24f1830182280c7adaf300f294fc0fe2c829d7848fa5c6adba3c"
+    },
+    {
+      "path": "integration/contracts/fp-v02-command.schema.json",
+      "bytes": 24326,
+      "sha256": "8a8692bb70562c509eec74a22dee8177bb03551dc3081659fe429438eae4d5da"
+    },
+    {
+      "path": "integration/contracts/fp-v02-event.schema.json",
+      "bytes": 10367,
+      "sha256": "d165ea6af676a7ec66df8b6b364ab2b8158a49cb68f7e5cb5b77506f192c9793"
+    },
+    {
+      "path": "integration/contracts/fp-v02-receipt.schema.json",
+      "bytes": 2086,
+      "sha256": "623155d1a7af0df90260224512c663379ac7f711cb43c84eb8c95aaca2539491"
+    },
+    {
+      "path": "integration/contracts/fp-v02-snapshot.schema.json",
+      "bytes": 5607,
+      "sha256": "f2bbf2447fdc90d9341c3dde84ba35611befbe39fc940cd07f821865c7cf423c"
+    },
+    {
+      "path": "integration/contracts/fp-v02.examples.json",
+      "bytes": 30086,
+      "sha256": "a6e3d6ee65b4e5d49ce3aa0dcfef2c2e29e28174dfbd80bc2b75b8d42fde67c1"
+    },
+    {
+      "path": "integration/contracts/reference-command.examples.json",
+      "bytes": 14122,
+      "sha256": "266e6c80022475537894550df3defa8814a7b1249f1102a7d9c8ed2a73ad3332"
+    },
+    {
+      "path": "integration/contracts/reference-command.schema.json",
+      "bytes": 11904,
+      "sha256": "b6b0530ae6f3163f437058d90f8f854d104c4ba48d06863b6e8d90031e5932e4"
+    },
+    {
+      "path": "integration/opensim/Build-BotClient.ps1",
+      "bytes": 3098,
+      "sha256": "87533be1f4746bd12e3493e699fbd929c71f28127e98121445a8818ce3ee1b3c"
+    },
+    {
+      "path": "integration/opensim/Build-Reference.ps1",
+      "bytes": 2554,
+      "sha256": "cceb79d4473f39ae7083c1406c306764dce4630241a010045abcde751cb8a75d"
+    },
+    {
+      "path": "integration/opensim/Compare-Linksets.ps1",
+      "bytes": 2460,
+      "sha256": "38ad8d74429ba6b7d31873c66a09bee120385462168bbcd2cc6d715ac3dde1e3"
+    },
+    {
+      "path": "integration/opensim/FusionRegionModule/BotProcess.cs",
+      "bytes": 2699,
+      "sha256": "3f1b00159ca91b8f1ee4f0a840e7aad0e2abbcd9f1161d5b6ab2f66e99ae5c59"
+    },
+    {
+      "path": "integration/opensim/FusionRegionModule/FusionProtocol.cs",
+      "bytes": 29756,
+      "sha256": "adbd041b49cdf23e7aeab1b07fbc8fdcf0d90fcef904fe596b2bc7e9b6a8b2f4"
+    },
+    {
+      "path": "integration/opensim/FusionRegionModule/FusionRegionModule.cs",
+      "bytes": 21529,
+      "sha256": "c9f0848e11be342a680e177bfbf4f465892137fa1d49eff03b6f3e96af06daef"
+    },
+    {
+      "path": "integration/opensim/FusionRegionModule/FusionRegionModule.csproj",
+      "bytes": 1883,
+      "sha256": "c80c4b82c5de4dfb4cd22ae69b07e511c72f42b72e2c72bcb44509c2877aa9e3"
+    },
+    {
+      "path": "integration/opensim/Initialize-Reference.ps1",
+      "bytes": 2657,
+      "sha256": "5f307234c8264505cdfa3fd26080e6d90da9ad81a2c1e235641c10a14bcce3ae"
+    },
+    {
+      "path": "integration/opensim/Install-FusionGateway.ps1",
+      "bytes": 2924,
+      "sha256": "fbaf238f7d415b7b29b6db26c761b74d3dd913ccc07c6d08c5a9480b69881aaf"
+    },
+    {
+      "path": "integration/opensim/Install-FusionModule.ps1",
+      "bytes": 1542,
+      "sha256": "d5b0f3a1dcb9546ae5f890ca2a08849da7655450addda03223271b1356a1be48"
+    },
+    {
+      "path": "integration/opensim/ReferenceBot/BotWorker.cs",
+      "bytes": 3916,
+      "sha256": "3bbd87ea2a5bf289d276f0c6ce6c0e8031d72a1b3e1f5b20089ea5bcf1b427cc"
+    },
+    {
+      "path": "integration/opensim/ReferenceBot/Program.cs",
+      "bytes": 5984,
+      "sha256": "69bac50278dbd7cab5ca5c28b05c6c25c3b34c9c32be8658c6fb06fd798b94f6"
+    },
+    {
+      "path": "integration/opensim/ReferenceBot/ReferenceBot.csproj",
+      "bytes": 1202,
+      "sha256": "c4c74a73acf4d3c35d8fed9315d1742bdce442e10b5058fa7738657e1f6dd328"
+    },
+    {
+      "path": "integration/opensim/Start-Reference.ps1",
+      "bytes": 736,
+      "sha256": "104809ae260a10bfe59da3d64a932e44632354e57233a446e2f522ea107b7ebd"
+    },
+    {
+      "path": "integration/opensim/Start-ReferenceBot.ps1",
+      "bytes": 1289,
+      "sha256": "e9d32a204b9d39ba332c29022d07f33e151afac395f475912a972f7d44e85aca"
+    },
+    {
+      "path": "integration/opensim/Test-Fusion.py",
+      "bytes": 15127,
+      "sha256": "343aa9faf94e06d29466f38be8f10047777c45823e1ab3789318705aa246e2b0"
+    },
+    {
+      "path": "integration/opensim/Test-FusionRecovery.py",
+      "bytes": 11703,
+      "sha256": "c6ccaef2d69da55b4847a5178f82b2d211b4b3bac86f459a4ede53ba3c6fb587"
+    },
+    {
+      "path": "integration/opensim/Test-Linkset.ps1",
+      "bytes": 11523,
+      "sha256": "254828a075ac94c2785c5102a303911f096d91acabe2456d906ea6a1da5952ea"
+    },
+    {
+      "path": "integration/opensim/Test-Protocol.ps1",
+      "bytes": 3776,
+      "sha256": "8298307cf794d98a83fd410053c7ce2d944bae866128b7de4da58196f303c036"
+    },
+    {
+      "path": "integration/opensim/client.lock.json",
+      "bytes": 380,
+      "sha256": "77bd95b2329827525438b6af6ff597e407e0326469457d33d1189e4529267c0e"
+    },
+    {
+      "path": "integration/opensim/global.json",
+      "bytes": 54,
+      "sha256": "b8deb5fba619f9d265ab4c38192c36dabd7fbc8cf6029f5523c0926487d27186"
+    },
+    {
+      "path": "integration/opensim/patches/client-cooperative-shutdown.diff",
+      "bytes": 2551,
+      "sha256": "f399668b7178cf678e9bf07946052a0c3cdaee35ffd87f5aa32225d0118543dd"
+    },
+    {
+      "path": "integration/opensim/reference.lock.json",
+      "bytes": 315,
+      "sha256": "ffe886dfba314994dc137299fc3cb20993fc648d4c5c29493938209146e843d7"
+    },
+    {
+      "path": "integration/web/Export-Probe.ps1",
+      "bytes": 4076,
+      "sha256": "2e6bce85acd7caa2cbc99e872726f68278f87d328797839e879100af990120ec"
+    },
+    {
+      "path": "integration/web/Install-Templates.ps1",
+      "bytes": 1074,
+      "sha256": "70196ef5afcf9c667cf70ca30328a320f86c0416e522aad071e454d71c7371cb"
+    },
+    {
+      "path": "integration/web/README.md",
+      "bytes": 3541,
+      "sha256": "39ce561b18eed3e2df6428f5b42bc66ede38c67ed6698903a6ddb4ad727f683e"
+    },
+    {
+      "path": "integration/web/test-probe.cjs",
+      "bytes": 5318,
+      "sha256": "54e9d784b3faff3091c567c29079b9f0ff792d573db4b377d1ef095a2ff12446"
+    },
+    {
+      "path": "integration/web/web.lock.json",
+      "bytes": 520,
+      "sha256": "f8d3b30a1d7e9ba5eaadc187eb23589e9504f04b6aac8d86b3412fa4e0fcb154"
+    },
+    {
+      "path": "prototype/fixtures/README.md",
+      "bytes": 1696,
+      "sha256": "da4e1f365718ad555960d0b501043ab8a2488d4b4dfecd871e8f8e4aaaec36bd"
+    },
+    {
+      "path": "prototype/fixtures/buildings/pioneer-log-cabin/README.md",
+      "bytes": 2427,
+      "sha256": "58e5ae6df5144cf0b365af208d3ecf7d0e0e4e2fc27f97a5998bcc78e41e3883"
+    },
+    {
+      "path": "prototype/fixtures/buildings/pioneer-log-cabin/pioneer-log-cabin.glb",
+      "bytes": 64384,
+      "sha256": "a9b5732dc647fb95aea4e9ec3ea004360b17fee78651439c5cec9a6d28fdb101"
+    },
+    {
+      "path": "prototype/fixtures/buildings/pioneer-log-cabin/provenance.json",
+      "bytes": 2006,
+      "sha256": "cb90619a03b0ab66dcab7e5ed789ae46434eef10402a0595cdac4f1de61e7010"
+    },
+    {
+      "path": "prototype/fixtures/buildings/pioneer-log-cabin/source-habs-wis-18.tif",
+      "bytes": 617824,
+      "sha256": "dd439b12afb0364a7f0202e04136bf5f0c19389cf68d8b07b2ee75df6b7c7272"
+    },
+    {
+      "path": "prototype/fixtures/create-and-save.commands.json",
+      "bytes": 775,
+      "sha256": "5930c1bd3a5388e803de06253e72e3a39874cb4682476c57d25774f6738a0741"
+    },
+    {
+      "path": "prototype/fixtures/environment-and-door.commands.json",
+      "bytes": 1110,
+      "sha256": "0c15032865be87da204e316c0c082751393c5e2184919ca3c57c0d328e2089d5"
+    },
+    {
+      "path": "prototype/fixtures/meshes/README.md",
+      "bytes": 1200,
+      "sha256": "601fe0afe60e7bd776b392799cbf81472103f60a614ebb542b1c60fbd06cc26a"
+    },
+    {
+      "path": "prototype/fixtures/meshes/bench.glb",
+      "bytes": 7292,
+      "sha256": "d1901a6ef758771084363db0d891a40d3905eef16fae4083d55e6f427e6e397a"
+    },
+    {
+      "path": "prototype/fixtures/meshes/pavilion.glb",
+      "bytes": 26636,
+      "sha256": "c157e8609a82d06de080adc7b9302b6963046341f5fdaed37a338e95b9638548"
+    },
+    {
+      "path": "prototype/fixtures/meshes/tree.glb",
+      "bytes": 6464,
+      "sha256": "44e0df77e7e84f47d4b8c88662c58f1d03b56816cda2cb3b0c43c7b6ce486cc3"
+    },
+    {
+      "path": "prototype/fixtures/sculpt-and-save.commands.json",
+      "bytes": 317,
+      "sha256": "16ef3db8269ef1a171b9f1572753d07d33c6140874ce43a155e08f8da77addda"
+    },
+    {
+      "path": "prototype/fixtures/v1-region.snapshot.json",
+      "bytes": 91803,
+      "sha256": "fddcd7e19b4c69d70147a1408368b2f82e1ae7f27f276b8102d728ebbeaed428"
+    },
+    {
+      "path": "prototype/fixtures/v2-region.snapshot.json",
+      "bytes": 91744,
+      "sha256": "39bb821deba2c4bb98acb20e529e924ea678d4f96bbd96cf2daf46a0285f40bd"
+    },
+    {
+      "path": "prototype/fixtures/v3-region.snapshot.json",
+      "bytes": 93222,
+      "sha256": "79d8ed5f29d424612ad82bf43656e211af7dd1ce007e0a96d27bad00b96b5b0d"
+    },
+    {
+      "path": "prototype/godot/adapters/builtin_objects.gd",
+      "bytes": 4532,
+      "sha256": "56103448f5d1271fb380da5c154d528a58e3f93f8ff7fccae3ec15d8a6abf7f7"
+    },
+    {
+      "path": "prototype/godot/adapters/builtin_objects.gd.uid",
+      "bytes": 20,
+      "sha256": "b1ac13b3be20089dc3173e96a81f30a40d6a1300592b0830fe22b6a3a10b7609"
+    },
+    {
+      "path": "prototype/godot/adapters/environment_view.gd",
+      "bytes": 2220,
+      "sha256": "95d55afb5a240180b999d7bfd17a1a178d67ca6d4acc1d436c2715255d4189fa"
+    },
+    {
+      "path": "prototype/godot/adapters/environment_view.gd.uid",
+      "bytes": 20,
+      "sha256": "6adb9023ae29f039c5243b3aa9f197ab4eabfea07fd5ca022222acc505bbbc9c"
+    },
+    {
+      "path": "prototype/godot/adapters/glb_reader.gd",
+      "bytes": 17032,
+      "sha256": "484a01047d3bff41ef707ea715724b5484420ed6c7fc362da1a2f3cea001f5ca"
+    },
+    {
+      "path": "prototype/godot/adapters/glb_reader.gd.uid",
+      "bytes": 20,
+      "sha256": "1f3d8994a1045491263c2e185bdd6a0f094af2517d2e6bef99a8aeff4291c9b3"
+    },
+    {
+      "path": "prototype/godot/adapters/mesh_assets.gd",
+      "bytes": 3905,
+      "sha256": "3060196cd059f810f7c38e6796d2fe279348c83679c0f13586ac977f3113627e"
+    },
+    {
+      "path": "prototype/godot/adapters/mesh_assets.gd.uid",
+      "bytes": 19,
+      "sha256": "9dd8b4ce7a312029d22ebf1ab84f623e6846743a8aa688e772d48c322ff116e7"
+    },
+    {
+      "path": "prototype/godot/adapters/mesh_view.gd",
+      "bytes": 2378,
+      "sha256": "2eff4a615ce0c54b7ed300ad12129e1a6bdfce6ec90b2b1fa2a33fac5081273a"
+    },
+    {
+      "path": "prototype/godot/adapters/mesh_view.gd.uid",
+      "bytes": 20,
+      "sha256": "7636352eed7b0229b7cac4368ec248cf9a6e1cec8c2563c87d345563b6a3b281"
+    },
+    {
+      "path": "prototype/godot/adapters/repository_contract.gd",
+      "bytes": 588,
+      "sha256": "fc4f083a2e13109d5b0dd5f686eb3eb3f63bb2efb9f5dc779d3ed99568582844"
+    },
+    {
+      "path": "prototype/godot/adapters/repository_contract.gd.uid",
+      "bytes": 20,
+      "sha256": "959b8f9829c1bee5e7bd87acec6aa722141ba47091619ca576d31b192243373b"
+    },
+    {
+      "path": "prototype/godot/adapters/snapshot_repository.gd",
+      "bytes": 4400,
+      "sha256": "70a17543f7e573f44314a40b652a327df81eb75fb5bda2d03e4e0095cfd4b0d0"
+    },
+    {
+      "path": "prototype/godot/adapters/snapshot_repository.gd.uid",
+      "bytes": 20,
+      "sha256": "de90234e1dd8d5c22840be4532d672d25f9b6305b7f1a43dc69d2473f57315d3"
+    },
+    {
+      "path": "prototype/godot/adapters/sqlite_repository.gd",
+      "bytes": 4027,
+      "sha256": "636e0678fc2380e27137b6678a16291aa930b72abf311723be7419ff9149799b"
+    },
+    {
+      "path": "prototype/godot/adapters/sqlite_repository.gd.uid",
+      "bytes": 20,
+      "sha256": "91646de52dbabddd7613c2e0c6d80b88bef702fa241719d34312166799dba8c3"
+    },
+    {
+      "path": "prototype/godot/adapters/surface.gdshader.uid",
+      "bytes": 20,
+      "sha256": "62660acb950a8bd0bd723fd50689614d73814abafec2b2492bf8f669d9422eeb"
+    },
+    {
+      "path": "prototype/godot/adapters/terrain.gdshader.uid",
+      "bytes": 19,
+      "sha256": "57a11c44ee33913b036b426fd2834b72750fc0ff5cfbfe101a31ad3c00ea6f9f"
+    },
+    {
+      "path": "prototype/godot/adapters/water.gdshader.uid",
+      "bytes": 20,
+      "sha256": "792c2548519cb59a12e48597170729fe7477b43e2fb51d2d72c3ec1897c84968"
+    },
+    {
+      "path": "prototype/godot/adapters/world_view.gd",
+      "bytes": 9106,
+      "sha256": "84008a1fff39da0692273c6dc76d426ef39a5dbd050d2a93c63f96b2285005cf"
+    },
+    {
+      "path": "prototype/godot/adapters/world_view.gd.uid",
+      "bytes": 19,
+      "sha256": "142f5c7ac968c67a7797d0e189b02a31dd737e62dc10a9b5fc282e19c0b5797a"
+    },
+    {
+      "path": "prototype/godot/client/asset_panel.gd",
+      "bytes": 2877,
+      "sha256": "90f9f76043fb95021ea004987984056e7c49d9acd270525830b6d2d154d71fec"
+    },
+    {
+      "path": "prototype/godot/client/asset_panel.gd.uid",
+      "bytes": 18,
+      "sha256": "08198530fa3dba6e95c1cdc7550248460bfc6ae405a79b1a20898e39d9238a9b"
+    },
+    {
+      "path": "prototype/godot/client/avatar.gd",
+      "bytes": 1856,
+      "sha256": "1fbe499f3ab587d2c3f679c290529291df376ff41a48239cfa5fac81c963f51b"
+    },
+    {
+      "path": "prototype/godot/client/avatar.gd.uid",
+      "bytes": 20,
+      "sha256": "cb0ac0e50ad3b8597f32b7d8b5f5fe474e6566a1f0069139750f7d607b81f8ab"
+    },
+    {
+      "path": "prototype/godot/client/editor_ui.gd",
+      "bytes": 17819,
+      "sha256": "4ac098bc623a945c3f59a0de75c24ebaa72d89f661b5c6e7bc1c08a35663c262"
+    },
+    {
+      "path": "prototype/godot/client/editor_ui.gd.uid",
+      "bytes": 20,
+      "sha256": "df5d79ea99960e7d9f2860e240274a2e64ec60fa494b80f5b0561c3afe67763a"
+    },
+    {
+      "path": "prototype/godot/client/environment_panel.gd",
+      "bytes": 1993,
+      "sha256": "e9fe75e8ffecef22caefd66803e660454ed6aa69bbbfb206f7204a9088f8152e"
+    },
+    {
+      "path": "prototype/godot/client/environment_panel.gd.uid",
+      "bytes": 20,
+      "sha256": "0e7f70056bd229e945c970ba5c7362dde29983bf63e6c5c53fb140202ef8366d"
+    },
+    {
+      "path": "prototype/godot/client/group_panel.gd",
+      "bytes": 4432,
+      "sha256": "3c157d672b95d739f865d33cb3d3565150de037c810f4d77e2714b3a988e143c"
+    },
+    {
+      "path": "prototype/godot/client/group_panel.gd.uid",
+      "bytes": 20,
+      "sha256": "51af43aaf1f7f58a0e7e6d78873e669945817b17e705f562462a53c4f9f7cbd1"
+    },
+    {
+      "path": "prototype/godot/client/terrain_panel.gd",
+      "bytes": 3248,
+      "sha256": "fb50538b0419d9fc9b16f77a648993a1bb043a6fb443d218f58471870f905d37"
+    },
+    {
+      "path": "prototype/godot/client/terrain_panel.gd.uid",
+      "bytes": 20,
+      "sha256": "4d3edc9ae6dd40420686ca4bd6a976f80bb3ec37686e775e706a60f106287639"
+    },
+    {
+      "path": "prototype/godot/domain/demo_region.gd",
+      "bytes": 3700,
+      "sha256": "0c38c8c867273b34c0834ad4da10b58f0bd642574836314c4fecfd8f611c3359"
+    },
+    {
+      "path": "prototype/godot/domain/demo_region.gd.uid",
+      "bytes": 20,
+      "sha256": "ae9c92a6a63a856955cf8bcc517d25777b415380fde24dff93414235f28704eb"
+    },
+    {
+      "path": "prototype/godot/domain/group_commands.gd",
+      "bytes": 3580,
+      "sha256": "a88566040b6e6ae18b666d6d11e9c3aa32118f10389ca945eff916bbb4f6bfe6"
+    },
+    {
+      "path": "prototype/godot/domain/group_commands.gd.uid",
+      "bytes": 20,
+      "sha256": "2fc6a497c1150d41d16f7b6d7ca45d486bc119ebdd55f58a3ae5e6ad8a72f3a4"
+    },
+    {
+      "path": "prototype/godot/domain/legacy_world_schema.gd",
+      "bytes": 5896,
+      "sha256": "11425312b694f795d5b68adade6f444f36cc6996e6fa5c981610acb9f44faef3"
+    },
+    {
+      "path": "prototype/godot/domain/legacy_world_schema.gd.uid",
+      "bytes": 20,
+      "sha256": "e713336ff6b7d7e9a1df735085454ee35ca16c318052ca0b5ebf4aa6629e1c80"
+    },
+    {
+      "path": "prototype/godot/domain/schema_v2.gd",
+      "bytes": 10421,
+      "sha256": "02e8c1c93f371137c9229ea2bd202c93022d6dd9c0e172616e07ba5de61e4c15"
+    },
+    {
+      "path": "prototype/godot/domain/schema_v2.gd.uid",
+      "bytes": 19,
+      "sha256": "68172a89fcc7d949fd6fbf0c7310fca20f495c2c81deef0d9fcf85a40b4482c2"
+    },
+    {
+      "path": "prototype/godot/domain/terrain_brush.gd",
+      "bytes": 2226,
+      "sha256": "b1b3aa315a83233a004bf65c99f97def981d199f41f2db673ac9c3e24b7bcb66"
+    },
+    {
+      "path": "prototype/godot/domain/terrain_brush.gd.uid",
+      "bytes": 20,
+      "sha256": "581ac20cdd56a84cdfe96c51287c734a3a046c7a80ec5193718bb21a581fb56c"
+    },
+    {
+      "path": "prototype/godot/domain/world_model.gd",
+      "bytes": 6025,
+      "sha256": "2461bd174538dae38f84c21cabda8280f039c6d31ef232b31f390c3b67022ae3"
+    },
+    {
+      "path": "prototype/godot/domain/world_model.gd.uid",
+      "bytes": 19,
+      "sha256": "deb1beb4500a1417a8d1907d194c0902242e5b83e8215f132bc1580f5b4a8e9a"
+    },
+    {
+      "path": "prototype/godot/domain/world_schema.gd",
+      "bytes": 13418,
+      "sha256": "12c5196c688847a0ce4513ed3384a2518be780fdc6d4925c5b2e573fb23ab4b7"
+    },
+    {
+      "path": "prototype/godot/domain/world_schema.gd.uid",
+      "bytes": 20,
+      "sha256": "2edb73848ec72286096128316196f6577353df2d18be065d41bfbec37ebc798a"
+    },
+    {
+      "path": "prototype/godot/domain/world_service.gd",
+      "bytes": 6180,
+      "sha256": "43fd6abc72dcbb3260eb91819231688517516d0030aa133bf730a61342288b10"
+    },
+    {
+      "path": "prototype/godot/domain/world_service.gd.uid",
+      "bytes": 19,
+      "sha256": "9d3a4b6e4e222276085ca6e7a3324325fd7b04ca2cae6a61788e47286740fb6b"
+    },
+    {
+      "path": "prototype/godot/domain/world_transforms.gd",
+      "bytes": 1617,
+      "sha256": "643c49759e303907154ced62030d972a13359e403f8c8013dc5e77413253a8ca"
+    },
+    {
+      "path": "prototype/godot/domain/world_transforms.gd.uid",
+      "bytes": 20,
+      "sha256": "07c9c7d975bdb69149c7ef59c8138f1705dc9e7bac61218ccc0651d59a068981"
+    },
+    {
+      "path": "prototype/godot/main.gd",
+      "bytes": 16291,
+      "sha256": "c24dca8a24a52663692e42ee7ff894d34555f61ad04230c9e34b391b648a62eb"
+    },
+    {
+      "path": "prototype/godot/main.gd.uid",
+      "bytes": 19,
+      "sha256": "aaaeb094c6b5080aa2720b21fa84318c262c9b5493c1e466254ef4b68697b41b"
+    },
+    {
+      "path": "prototype/godot/main.tscn",
+      "bytes": 156,
+      "sha256": "94112215fcb85b0e6ff0d1f45dd40ccad797cb0a657f451718982a662c0bd878"
+    },
+    {
+      "path": "prototype/godot/project.godot",
+      "bytes": 949,
+      "sha256": "6148c4db6331c4a4cc4fc245d04d5f5bc7d5023d2fdecb17c6c353c31f98f215"
+    },
+    {
+      "path": "prototype/godot/tests/documented_building.gd",
+      "bytes": 5153,
+      "sha256": "6866b5619a4785eb7039bb985ce2242c33825342e293cb0c5d3fe76f2db1785c"
+    },
+    {
+      "path": "prototype/godot/tests/documented_building.gd.uid",
+      "bytes": 20,
+      "sha256": "7731edc597e371fadf1c5bb3c362a56a5c88978e45bef1182b29d8ec9a72f471"
+    },
+    {
+      "path": "prototype/godot/tests/process_assets.gd",
+      "bytes": 2339,
+      "sha256": "bb2c3171345a02144b23880bf31330d9ed3b3b115d7c59c774d71d581a7ff77f"
+    },
+    {
+      "path": "prototype/godot/tests/process_assets.gd.uid",
+      "bytes": 20,
+      "sha256": "48fba5704c46267ff966cbed780b7d8e452a98723f21d112f9a8a4c98bab2627"
+    },
+    {
+      "path": "prototype/godot/tests/process_persistence.gd",
+      "bytes": 1965,
+      "sha256": "dc35256af885e9627a1b274da22f6aa79d5932e9862c836a99ddfa2f91cd7458"
+    },
+    {
+      "path": "prototype/godot/tests/process_persistence.gd.uid",
+      "bytes": 20,
+      "sha256": "49bd9c2876c42676a36699c48ca1ddc435dfb2e940a794cc6bd46639923646c0"
+    },
+    {
+      "path": "prototype/godot/tests/reference_linkset.gd",
+      "bytes": 5998,
+      "sha256": "0b01dfbc2632a5a1fe04caffed3ec196e5282da0196b22c472143bd40a79aa22"
+    },
+    {
+      "path": "prototype/godot/tests/reference_linkset.gd.uid",
+      "bytes": 20,
+      "sha256": "27f5d02240e186d45311cb57e8dd2c31c761e6075f6558ba33e5d91b9f4ab44f"
+    },
+    {
+      "path": "prototype/godot/tests/run_tests.gd",
+      "bytes": 12002,
+      "sha256": "67db71f68440f1182cd92b56ce32dd53a986f3448f0dda93b872d13eb4a81bd9"
+    },
+    {
+      "path": "prototype/godot/tests/run_tests.gd.uid",
+      "bytes": 20,
+      "sha256": "8743a4f7bc0d7ae8d4bcdf67d89a4b7b0c57354fb86d81c78f0513c6701ef756"
+    },
+    {
+      "path": "prototype/godot/tests/sqlite_adapter.gd",
+      "bytes": 3082,
+      "sha256": "80fa624c5af8ccb8c586eac587f45fcc8107f7c602eb88ee34dd7d77a447a9af"
+    },
+    {
+      "path": "prototype/godot/tests/sqlite_adapter.gd.uid",
+      "bytes": 20,
+      "sha256": "d824805c8a80112972f298b6e566cd7aa732c771ebd300db046f8c826d11e43e"
+    },
+    {
+      "path": "prototype/godot/tests/storage_fixture.gd",
+      "bytes": 1301,
+      "sha256": "d60f06b1a833d2c4163db979449f4f9a1004e1f3908ec8a6f320abdc67d2cb5b"
+    },
+    {
+      "path": "prototype/godot/tests/storage_fixture.gd.uid",
+      "bytes": 19,
+      "sha256": "e3a7be8a8014c397e6e293455d83532725fabc6e67ef1aca1616b46fc6f02e8e"
+    },
+    {
+      "path": "prototype/godot/tests/test_terrain.gd",
+      "bytes": 9094,
+      "sha256": "554bef6927d7a05e6f5b4b55a3ce82904735f2e2b53fdead69c7a9efcba549cf"
+    },
+    {
+      "path": "prototype/godot/tests/test_terrain.gd.uid",
+      "bytes": 19,
+      "sha256": "af3724833c618626c47bbf3c02aa74bc996f1c94ee5440876017c9b3d1beaaa4"
+    },
+    {
+      "path": "prototype/godot/tests/test_v3.gd",
+      "bytes": 9883,
+      "sha256": "071bae42c458d9037f9e97b57df363bb916d4206d073807bf3b83f2acf95bab7"
+    },
+    {
+      "path": "prototype/godot/tests/test_v3.gd.uid",
+      "bytes": 20,
+      "sha256": "b26f013c423650261692aa75671d762207c9b87982bfa6a51cf525d545a7255c"
+    },
+    {
+      "path": "prototype/godot/tests/test_v31.gd",
+      "bytes": 13216,
+      "sha256": "a4c83588a7d1d0caf90146e81914791b9ee1810d4c5495202be3454549d7eb8e"
+    },
+    {
+      "path": "prototype/godot/tests/test_v31.gd.uid",
+      "bytes": 20,
+      "sha256": "94d4984070ca59bfd6f47939bdf61339af4032bcc47256a853a71a5d63be2c3d"
+    },
+    {
+      "path": "prototype/godot/tests/verify_ui.gd",
+      "bytes": 10405,
+      "sha256": "dbb99daaec72fb4fda478fd9250d6b56d1185b7245346cf5126c524185fa94dc"
+    },
+    {
+      "path": "prototype/godot/tests/verify_ui.gd.uid",
+      "bytes": 20,
+      "sha256": "bd69c8526f574efe8123cc2af318c4089c8aa73d5e9b964efdfa0921aa523415"
+    },
+    {
+      "path": "prototype/godot/tests/verify_v31_ui.gd",
+      "bytes": 4699,
+      "sha256": "6157f457f156447810b067ee072d32756244cca9cd1d0ec2df88f364db33cca1"
+    },
+    {
+      "path": "prototype/godot/tests/verify_v31_ui.gd.uid",
+      "bytes": 20,
+      "sha256": "0f9c5b20c7b866e997b10e2468a37aab56293e768a83397381ef64c64f82f6c0"
+    },
+    {
+      "path": "prototype/godot/tests/verify_v3_ui.gd",
+      "bytes": 4652,
+      "sha256": "db2b7cf42764064c8003efce797161fbec172a830aeda56bec9d7bd36be1d2ae"
+    },
+    {
+      "path": "prototype/godot/tests/verify_v3_ui.gd.uid",
+      "bytes": 19,
+      "sha256": "714da2ade6ed04df1ce7fd7c6d10df34dadd497af743b6b362d6c9822a9c0f44"
+    },
+    {
+      "path": "prototype/godot/tests/web_probe.gd",
+      "bytes": 5490,
+      "sha256": "5b3e51d27e3de5eca3fc8bb1f25a6f25295486dc3eeb65fd5254d902addef0bd"
+    },
+    {
+      "path": "prototype/godot/tests/web_probe.gd.uid",
+      "bytes": 20,
+      "sha256": "92ea9405a3397e061259d5ab044ca84f4f8238fb84a03ff04aa439b7c271717f"
+    },
+    {
+      "path": "prototype/godot/tests/web_probe.tscn",
+      "bytes": 166,
+      "sha256": "ec176092ba69064fcfcbec3b53469301a396b5fd31a98bd6896c4d5092aed8ff"
+    },
+    {
+      "path": "prototype/godot/tools/benchmark.gd",
+      "bytes": 5671,
+      "sha256": "10980b721951ad5c93cc2598cffb9900ba06f4c9702460d2302a0a70d679ed5f"
+    },
+    {
+      "path": "prototype/godot/tools/benchmark.gd.uid",
+      "bytes": 20,
+      "sha256": "089f1d7aab245bf9f1ede221779eb0f80769f99d581887407adf5eab8a6ca205"
+    },
+    {
+      "path": "prototype/godot/tools/validate_world.gd",
+      "bytes": 1364,
+      "sha256": "94aa9817af33a6afbe7d73bd6adc9e0468945878185eaba6276b587887cd787d"
+    },
+    {
+      "path": "prototype/godot/tools/validate_world.gd.uid",
+      "bytes": 19,
+      "sha256": "1a142f9cb9b938abcab86bc7f7204183b8fa29ac2db7674d3d58f0af99fa40c0"
+    },
+    {
+      "path": "prototype/godot/tools/world_cli.gd",
+      "bytes": 3354,
+      "sha256": "ca5fd4e1658e5e775f9e82c07658b4ca92fbf888bd5de2fc9f591f996b789a5e"
+    },
+    {
+      "path": "prototype/godot/tools/world_cli.gd.uid",
+      "bytes": 20,
+      "sha256": "a2c4c153cfc78a8c8c80f7effb09a3a641dcd193c683090a1fa302855e6eabbe"
+    },
+    {
+      "path": "prototype/tools/Common.ps1",
+      "bytes": 2312,
+      "sha256": "991fa748f496fd2291e088c69c987efb3cfc206fa18782a83c729292dddd2b1c"
+    },
+    {
+      "path": "prototype/tools/Generate-DocumentedBuilding.py",
+      "bytes": 7012,
+      "sha256": "b6dd222ef7d6fa20e0ce844f9e121faf3cd7277f65e4cd08749446c3b843c456"
+    },
+    {
+      "path": "prototype/tools/Generate-SampleAssets.py",
+      "bytes": 5005,
+      "sha256": "0dfd77a7cb74e10e324cc13481dc6fe6390833f48bd90de3dfcf7a81d694a4b4"
+    },
+    {
+      "path": "prototype/tools/Install-Godot.ps1",
+      "bytes": 3851,
+      "sha256": "ea3449b3aadba4a054742de8d512bab1dcb9623b1d011e9854429e8b909ac685"
+    },
+    {
+      "path": "prototype/tools/Measure-RegionLab.ps1",
+      "bytes": 1003,
+      "sha256": "88e7349379f2e8735ae0acb2a635fddd44c2cf344fe855b143da1d72bff56e02"
+    },
+    {
+      "path": "prototype/tools/Start-RegionLab.ps1",
+      "bytes": 1477,
+      "sha256": "2e7688a3aabeb63ff2b25ce19f9b940925ddbe8e018ebf4088858c3a6ed1e582"
+    },
+    {
+      "path": "prototype/tools/Test-DocumentedBuilding.ps1",
+      "bytes": 1216,
+      "sha256": "b0d44a4fcc7127c2d4b6dd1f840eb32a4ca443446426c282d46eda84e3a76c2c"
+    },
+    {
+      "path": "prototype/tools/Test-ReferenceLinkset.ps1",
+      "bytes": 937,
+      "sha256": "59c302417f6540299f83e6be66f11dc31305f83774140093e29762e6e2af7f95"
+    },
+    {
+      "path": "prototype/tools/Test-RegionLab.ps1",
+      "bytes": 6868,
+      "sha256": "3e255316078331ef5f62a53838906b1db01448f727895bbe8c3f195f88c3e20d"
+    },
+    {
+      "path": "services/Build-Store.ps1",
+      "bytes": 1959,
+      "sha256": "972e7d812644eee460ab8705c5459d0969a05075a6d2f0f75084cb5c57692d85"
+    },
+    {
+      "path": "services/Install-Offline.ps1",
+      "bytes": 1059,
+      "sha256": "57ab00bb870b2dcac129feb4a5a9d2164a66db6a0121c282fa42247070ed297a"
+    },
+    {
+      "path": "services/Invoke-Store.ps1",
+      "bytes": 1980,
+      "sha256": "c6b70d9db781cca11c8e5f150242328e0b7919fb64a24714594fdd3d883c08f8"
+    },
+    {
+      "path": "services/New-OfflinePackage.ps1",
+      "bytes": 3423,
+      "sha256": "eb98d19e33a1b8e6439943e5d5191b0e9be31bbe2afc43fa295388fd8e16862d"
+    },
+    {
+      "path": "services/README.md",
+      "bytes": 7565,
+      "sha256": "a7212c37b910f8cc929b9b820a4479d3cccc2b519a842a9c80c751db84a44a2f"
+    },
+    {
+      "path": "services/RegionStore/Program.cs",
+      "bytes": 1464,
+      "sha256": "fca00a927b4c6a68a3f3f05916c4b9db9c7eaac0df7dd2252513617ed74ee92f"
+    },
+    {
+      "path": "services/RegionStore/RegionStore.csproj",
+      "bytes": 415,
+      "sha256": "436785f23c0ad33c3e648efb635ab2146f122521e921e418ca4249173c2d4c3d"
+    },
+    {
+      "path": "services/RegionStore/Store.cs",
+      "bytes": 27428,
+      "sha256": "8184e91a2ac4b8a2bf72de67484c52928f9264bd838a7e9848cccb9a0c0da2dc"
+    },
+    {
+      "path": "services/RegionStore/packages.lock.json",
+      "bytes": 2233,
+      "sha256": "dfba9e93502d6dfb9d34df369be669052d52937faa2671a298600c28ae5ac091"
+    },
+    {
+      "path": "services/THIRD-PARTY-NOTICES.md",
+      "bytes": 1641,
+      "sha256": "79f6d190cd67c5951b378c9abc1164ea4c971084df9b470f5a06d996f483c6f7"
+    },
+    {
+      "path": "services/Test-DesktopStore.ps1",
+      "bytes": 2561,
+      "sha256": "adb0399fd3c0fa391b3d78d7ab1c80f8e64ade3a133ac6a3655eee3d1bbc35b3"
+    },
+    {
+      "path": "services/Test-Store.py",
+      "bytes": 15407,
+      "sha256": "32b94cada384daa849b3b29e41da9f7be46a697100ad0f6b6db17c7f2ba21695"
+    },
+    {
+      "path": "services/global.json",
+      "bytes": 54,
+      "sha256": "b8deb5fba619f9d265ab4c38192c36dabd7fbc8cf6029f5523c0926487d27186"
+    },
+    {
+      "path": "services/licenses/Godot.txt",
+      "bytes": 1149,
+      "sha256": "b0435e3b3e4e55238f05f4b306f30524a1b2e20147810d436eaa554fa6855c80"
+    },
+    {
+      "path": "services/licenses/Microsoft.Data.Sqlite.txt",
+      "bytes": 1115,
+      "sha256": "ae48df11a335dc1a615f4f938b69cba73bcf4485c4f97af49b38efb0f216353b"
+    },
+    {
+      "path": "services/licenses/SQLitePCLRaw.txt",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "services/licenses/System.Memory.txt",
+      "bytes": 1139,
+      "sha256": "d7a68596ab69b06f51ca278a6545148e4269a9381c26d597c13df5d88e08cf5b"
+    }
+  ]
+}

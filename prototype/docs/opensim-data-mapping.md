@@ -1,6 +1,6 @@
 # OpenSim 数据模型对应说明
 
-适用版本：Region Lab 0.3.1。参考源码：OpenSimulator 提交 `1f4a6dd1d3ff653ecc2748a7764106c30ac4ef9d`。
+适用版本：Region Lab 0.4.2。参考源码：OpenSimulator 提交 `1f4a6dd1d3ff653ecc2748a7764106c30ac4ef9d`。
 
 本文件定义当前原型与 OpenSim 概念的对应关系，标明已实现的数据范围及后续扩展边界。现阶段尚未提供旧数据库、OAR 或 Viewer 协议迁移能力。
 
@@ -18,7 +18,7 @@
 | [AssetBase](../../OpenSim/Framework/AssetBase.cs) | `assets[]` | 六项内置目录及内嵌静态 GLB，通过 asset_id 复用；不兼容 OpenSim mesh asset 编码 |
 | [InventoryItemBase](../../OpenSim/Framework/InventoryItemBase.cs)、[TaskInventoryItem](../../OpenSim/Framework/TaskInventoryItem.cs) | 后续库存实体 | 当前不包含库存记录、父对象关系和权限位 |
 | [PhysicsScene](../../OpenSim/Region/PhysicsModules/SharedBase/PhysicsScene.cs) | WorldView、Avatar、Jolt | 静态对象、门状态碰撞、三角网格地形和角色；未实现车辆、约束和动态物体编辑 |
-| [ISimulationDataStore](../../OpenSim/Region/Framework/Interfaces/ISimulationDataStore.cs) | SnapshotRepository | 完整区域快照及备份；未实现原数据库适配 |
+| [ISimulationDataStore](../../OpenSim/Region/Framework/Interfaces/ISimulationDataStore.cs) | RepositoryContract / JSON / SQLite | 现代区域事务和备份；不复用或兼容原版数据库表 |
 | [SceneObjectPartInventory](../../OpenSim/Region/Framework/Scenes/SceneObjectPartInventory.cs)、[ScriptEngine](../../OpenSim/Region/ScriptEngine/) | 内置 door/lamp 状态 | 开关状态可存档，不包含脚本条目、LSL/OSSL 或任意事件处理程序 |
 
 ## 2. 实体和标识
@@ -107,7 +107,7 @@ V3.1 的示例展馆采用 15 个部件构成的组，地板为根，组记录�
 | AssetBase 的资源内容 | GLB 字节、完整 SHA256、许可与作者 | 使用 glTF 静态子集，不读取原版 mesh、纹理编码或库存 |
 | 可交互建筑 | GLB 建筑实例与独立 door 成员可组合 | GLB 内部节点不可自动转为脚本对象，也不自动识别门 |
 
-格式 3 迁移不会根据名称自动将旧物体合组。资产引用与库存条目仍分离：同一资产可以被多个对象实例引用，未来库存还需要独立身份、权限和转移规则。OAR、数据库与 Viewer 协议继续作为单独的兼容任务。
+格式 3 迁移不会根据名称自动将旧物体合组。资产引用与库存条目仍分离：同一资产可以被多个对象实例引用，未来库存还需要独立身份、权限和转移规则。现代 SQLite 已按独立合同实现；OAR、原版数据库迁移与完整 Viewer 协议仍是单独兼容任务。
 
 ## 8. V4 首批运行证据
 
@@ -115,4 +115,10 @@ V3.1 的示例展馆采用 15 个部件构成的组，地板为根，组记录�
 
 原版组 UUID 等于根部件 UUID；本原型组 UUID 独立。原版根 RotationOffset 保存组世界旋转，原型根局部旋转为单位四元数。原版统一缩放直接改写子偏移和尺寸，原型保留局部记录与组倍率。应先解析各自记录，再合成和比较世界变换，不能按字段名称直接复制。
 
-完整步骤、原始 JSON 与尚未验证的 Viewer、跨归属权限、脚本及真实资产语义见 [两部件运行对照](../../docs/comparisons/v4-reference-linkset.md)。
+初次步骤及原始 JSON 见 [两部件运行对照](../../docs/comparisons/v4-reference-linkset.md)。本轮补充 Viewer 根/子部件显示、跨归属拒绝和受控 Bot/FP 实验，见 [V4 综合验收](../../docs/comparisons/v4-completion.md)。任意脚本、完整库存和原版 mesh asset 编码仍未复刻。
+
+## 9. V4 仓储与融合边界
+
+现代数据库保存独立区域、组、成员、资产元数据和内容引用。组 ID 仍独立，记录保留原世界格式 3；外置 GLB 是存储封装变化，不改变实例或资产语义。世界 revision、存储 commit_revision、存储 epoch 与 FP 运行 world_epoch 分别管理。JSON 世界转 SQLite 时先复用生产校验，迁移只写新目标；恢复包产生新存储世代。
+
+原版 FP 使用原始 SceneObjectGroup/Part/ScenePresence 身份，坐标为 X 东、Y 北、Z 高；转换到现代实例需明确原/目标 ID 映射，不能假定一个 UUID 同时表示组和根。快照及 upsert/delete 是帧观察结果，不代表所有原版物理/脚本活动的全局事务。原版与现代世界各自保持一个状态权威。详见 [FP 合同](../../docs/contracts/fp-v02.md) 与 [存储合同](../../docs/contracts/storage-v4.md)。

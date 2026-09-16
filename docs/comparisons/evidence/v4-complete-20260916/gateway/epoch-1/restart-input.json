@@ -1,0 +1,50 @@
+{
+  "old_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+  "request": {
+    "fp_version": "0.2",
+    "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+    "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+    "request_id": "6db595cc-ab65-43b1-83da-71a01ac9cc43",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "origin": "mock-platform",
+    "source_seq": 40,
+    "operation": "WorldMutation",
+    "expires_at": "2026-09-16T04:44:12.012303+00:00",
+    "payload": {
+      "expected_seq": 33,
+      "operation": "CreateBox",
+      "payload": {
+        "name": "Idempotent",
+        "position": [
+          120,
+          120,
+          1
+        ],
+        "size": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  },
+  "receipt": {
+    "fp_version": "0.2",
+    "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+    "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+    "source_runtime": "opensim-0.9.3.0",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "request_id": "6db595cc-ab65-43b1-83da-71a01ac9cc43",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "operation": "WorldMutation",
+    "state": "completed",
+    "error": "",
+    "tick": 79,
+    "event_seq": 34,
+    "observed_at": "2026-09-16T04:43:42.1050768+00:00",
+    "data": {
+      "entity_id": "group/b842717b-0fff-4d30-a554-550de2a90598"
+    }
+  }
+}

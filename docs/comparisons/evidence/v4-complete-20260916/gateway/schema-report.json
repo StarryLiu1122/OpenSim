@@ -1,0 +1,1981 @@
+{
+  "scope": "FP 0.2 structural fixtures and supplied real runtime records; runtime semantic checks remain separate",
+  "failed": 0,
+  "checks": [
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "GetCapabilities",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldStateSubscribe",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "AvatarSession",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "AgentSpawn",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "AgentDespawn",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "TelemetryExport",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "SimEventStream",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "ActionReceipt",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "CancelAction",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "ExperimentControl",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "MOVE_TO",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "TURN",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "INSPECT",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "INTERACT",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldMutation CreateBox",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldMutation CreateDoor",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldMutation Link",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldMutation Move",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldMutation Rotate",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldMutation MoveMember",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldMutation Scale",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldMutation Duplicate",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldMutation Unlink",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "WorldMutation Delete",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "unknown version",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "spoofed subject",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "unknown operation",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "echo origin",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "bad UUID",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "fractional sequence",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "deadline without timezone",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "unknown action",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "invalid turn fields",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "event limit overflow",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "receipt pending",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "receipt completed",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "receipt rejected",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "receipt failed",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "receipt cancelled",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "receipt result_unknown",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": false,
+      "expected": false,
+      "name": "invalid receipt state",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 1",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 1",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 2",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 2",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 3",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 3",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 4",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 4",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 5",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 5",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 6",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 6",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 7",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 7",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 8",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 8",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 9",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 9",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 10",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 10",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 11",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 11",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 12",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 12",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 13",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 13",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 14",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 14",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 15",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 15",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 16",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 16",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 17",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 17",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 18",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 18",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 19",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 19",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 20",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 20",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 21",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 21",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 22",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 22",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 23",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 23",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 24",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 24",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 25",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 25",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 26",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 26",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 27",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 27",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 28",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 28",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 29",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 29",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 30",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 30",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 31",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 31",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 32",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 32",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 33",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 34",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 34",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 35",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 35",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 36",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 36",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 37",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 37",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 38",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 38",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 39",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 39",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 40",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 41",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 42",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 43",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 43",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 44",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 44",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 45",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 45",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 46",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 47",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 47",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 48",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 48",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 49",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 50",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 51",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 52",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 53",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 57",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 57",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 58",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 58",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 59",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 59",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 60",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 60",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 61",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 61",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 62",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 62",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 63",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 63",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 64",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 64",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 65",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 65",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 66",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 66",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 67",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 67",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 68",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 68",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 69",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 69",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 70",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 70",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 71",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 71",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 72",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 72",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 73",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 73",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 74",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 74",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 75",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 75",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 76",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 76",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 77",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 77",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 78",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 78",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 79",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 79",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 80",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 80",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 81",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 81",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 82",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 82",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 83",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 83",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 84",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 84",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 85",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 85",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 86",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 86",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 87",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 87",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 88",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 88",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 89",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 89",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 90",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 90",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 91",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 91",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 92",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 92",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 93",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 93",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 94",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 94",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 95",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 95",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 96",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 96",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime request 97",
+      "schema": "command"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime receipt 97",
+      "schema": "receipt"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime initial state",
+      "schema": "snapshot"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 1",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 2",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 3",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 4",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 5",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 6",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 7",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 8",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 9",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 10",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 11",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 12",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 13",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 14",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 15",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 16",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 17",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 18",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 19",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 20",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 21",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 22",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 23",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 24",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 25",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 26",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 27",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 28",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 29",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 30",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 31",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 32",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 33",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 34",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 35",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 36",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 37",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 38",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 39",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 40",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 41",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 42",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 43",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 44",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 45",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 46",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 47",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 48",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 49",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 50",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 51",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 52",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 53",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 54",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 55",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 56",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 57",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 58",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 59",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 60",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 61",
+      "schema": "event"
+    },
+    {
+      "passed": true,
+      "actual": true,
+      "expected": true,
+      "name": "runtime event 62",
+      "schema": "event"
+    }
+  ],
+  "passed": 282
+}

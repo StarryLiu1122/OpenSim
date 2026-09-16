@@ -1,6 +1,6 @@
 # V4 原版融合与持久化实施计划
 
-更新日期：2026-09-16。状态：实施中，首批原版运行对照增量已交付，整阶段尚未验收。前置版本：Region Lab V3.1 / 0.3.1。依据：[总体报告 A、客户端方案 B](../references/teacher/2026-09-15/README.md)、[目标对齐说明](platform-integration-alignment.md) 和 [总体路线](stage-one-rebuild-plan.md)。逐项状态与下一批顺序见 [V4 执行记录](v4-progress.md)。
+更新日期：2026-09-16。状态：V4.0～V4.2 已实现，逐项验证结果以 [执行记录](v4-progress.md) 与 [验收报告](../comparisons/v4-completion.md) 为准。前置版本：Region Lab V3.1 / 0.3.1。依据：[总体报告 A、客户端方案 B](../references/teacher/2026-09-15/README.md)、[目标对齐说明](platform-integration-alignment.md) 和 [总体路线](stage-one-rebuild-plan.md)。逐项状态与下一批顺序见 [V4 执行记录](v4-progress.md)。
 
 V4 要解决三个具体问题：原版行为尚未实际对照，现有命令不能对接外部平台，文件快照尚不具备数据库事务和独立资产仓储。采用 V4.0 基线与契约、V4.1 原版最小网关、V4.2 数据库存储的顺序，完成后为 V5 权威区域服务提供可验证输入。
 
@@ -28,7 +28,7 @@ V4 要解决三个具体问题：原版行为尚未实际对照，现有命令�
 
 **V4.0 完成门槛**：7 项均有交付证据。引擎不支持 WebGPU 可作为确定的能力结论；不能把原版未启动、真实建筑未获得或浏览器未验证写成“完成前置工作”。
 
-4.0-01 的版本整理已实施：`prototype/godot/project.godot` 原有两条冲突的应用版本声明已合并为唯一的 `config/version="0.3.1"`，现有原生和跨进程回归通过。V4 参考适配器独立标记 0.4.0-dev，未提前提升桌面应用版本或世界格式。
+4.0-01 的版本整理已实施：`prototype/godot/project.godot` 原有两条冲突的应用版本声明已合并为唯一的 `config/version="0.3.1"`，现有原生和跨进程回归通过。首批参考适配器当时标记 0.4.0-dev；后续完成本轮实现后，桌面应用已提升为 0.4.2、FP 网关组件为 0.4.1，世界格式保持 3。
 
 ## 3. 两部件对象组的最小行为案例
 
@@ -123,15 +123,15 @@ V4 要解决三个具体问题：原版行为尚未实际对照，现有命令�
 
 ## 8. 目录与交付组织
 
-以下目录为计划，实施到相应任务时再创建；原版源码入口保留。
+以下为当前交付组织；原版源码入口保留。
 
 ```text
 docs/comparisons/              原版运行与行为对照
 docs/contracts/                FP、仓储、资产与导出合同
 docs/adr/                      版本、服务、数据库和浏览器决策
 integration/opensim/           原版模块、Bot、隔离配置与启动工具
-integration/fixtures/          FP 合法/非法样例与模拟平台输入
-services/                     ADR 确定后的仓储/区域服务组件
+integration/contracts/         FP schema、合法/非法样例与校验工具
+services/                     SQLite 仓储、构建、迁移与独立部署工具
 prototype/                    当前本地客户端与兼容路径
 ```
 

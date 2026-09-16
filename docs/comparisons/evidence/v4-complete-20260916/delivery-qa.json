@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "powershell_files_parsed": 26,
+  "python_files_parsed": 4,
+  "json_files_parsed_before_final_package_reports": 49,
+  "javascript_syntax": "passed",
+  "relative_markdown_links": "no missing targets",
+  "exact_test_credentials_in_changed_files": "none",
+  "teacher_original_hashes": "unchanged",
+  "source_inputs_verified": 169,
+  "dependency_lock_and_client_patch_hashes": "match tested build reports",
+  "whitespace_check": "passed with Windows CRLF accepted; unified patch context excluded to preserve the tested patch bytes"
+}

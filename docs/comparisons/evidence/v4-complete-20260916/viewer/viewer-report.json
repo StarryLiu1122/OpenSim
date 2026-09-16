@@ -1,0 +1,98 @@
+{
+  "test": "manual-firestorm-linkset-observation",
+  "passed": true,
+  "viewer_version": "7.2.3.80036",
+  "account_scope": "isolated local V4 Owner test account",
+  "coordinate_system": "X-east,Y-north,Z-up; metres",
+  "observation_method": "Actual Windows window capture and edit-panel inspection; no synthetic images",
+  "observations": [
+    "Viewer displays both linked cubes; the general panel names Viewer root and counts one object with two parts.",
+    "The root object panel displays [103,108,1], unit size and zero Euler rotation.",
+    "Edit linked parts selects link number 2 at [105,108,1], unit size and zero Euler rotation.",
+    "The gizmo group centre [104,108,1] is not the root position; authoritative snapshot is checked separately."
+  ],
+  "authoritative_group": {
+    "group_id": "c7d82bd2-d029-41e7-8e10-bc316cc70f35",
+    "root_id": "c7d82bd2-d029-41e7-8e10-bc316cc70f35",
+    "position": [
+      103,
+      108,
+      1
+    ],
+    "rotation": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "parts": [
+      {
+        "id": "c7d82bd2-d029-41e7-8e10-bc316cc70f35",
+        "name": "Viewer root",
+        "owner_id": "3251f98d-ed5a-4793-92b5-b044590ab61c",
+        "link_number": 1,
+        "local_position": [
+          0,
+          0,
+          0
+        ],
+        "stored_rotation_offset": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "world_position": [
+          103,
+          108,
+          1
+        ],
+        "world_rotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "size": [
+          1,
+          1,
+          1
+        ]
+      },
+      {
+        "id": "8cfeed43-18e3-43ad-85b6-c36fee8d50c8",
+        "name": "Viewer child",
+        "owner_id": "3251f98d-ed5a-4793-92b5-b044590ab61c",
+        "link_number": 2,
+        "local_position": [
+          2,
+          0,
+          0
+        ],
+        "stored_rotation_offset": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "world_position": [
+          105,
+          108,
+          1
+        ],
+        "world_rotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "size": [
+          1,
+          1,
+          1
+        ]
+      }
+    ]
+  },
+  "limitations": "Supplementary visibility/selection case. C01-C09 transformation comparison remains the earlier machine-readable experiment; no script, inventory or arbitrary mesh compatibility claim."
+}

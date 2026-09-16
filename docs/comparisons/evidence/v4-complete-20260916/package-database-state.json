@@ -1,0 +1,13 @@
+{
+  "dirty": false,
+  "groups": 1,
+  "mesh_asset_ids": [
+    "a9b5732d-c647-fb95-aea4-e9ec3ea00436"
+  ],
+  "objects": 44,
+  "ok": true,
+  "operation": "render",
+  "path": "<WORK>\\V4 packaged database launch final\\restored-desktop.png",
+  "repository_path": "<WORK>\\V4 deployment operations final\\rollback restored database/worlds.sqlite3",
+  "world_revision": 3.0
+}

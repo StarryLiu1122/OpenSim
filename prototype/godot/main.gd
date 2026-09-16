@@ -26,10 +26,17 @@ func _ready() -> void:
 	_install_input()
 	get_tree().auto_accept_quit = false
 	var world_file := "user://worlds/default.json"
+	var database_directory := ""
+	var store_executable := ""
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--world-file="):
 			world_file = argument.trim_prefix("--world-file=")
-	service = Service.new(world_file)
+		if argument.begins_with("--database="): database_directory = argument.trim_prefix("--database=")
+		if argument.begins_with("--store-exe="): store_executable = argument.trim_prefix("--store-exe=")
+	var repository: RefCounted = null
+	if not database_directory.is_empty():
+		repository = preload("res://adapters/sqlite_repository.gd").new(database_directory, store_executable)
+	service = Service.new(world_file, repository)
 	if not service.repository.exists():
 		var error: String = service.model.replace(Demo.create())
 		if not error.is_empty():
@@ -240,7 +247,7 @@ func _feedback(result: Dictionary) -> void:
 	elif not result.warnings.is_empty():
 		ui.set_status("●  已恢复备份，请检查并保存", true)
 	elif result.operation == "LoadRegion" and result.payload.get("migrated", false):
-		ui.set_status("●  旧存档已升级，请保存为 V3.1 格式", true)
+		ui.set_status("●  旧存档已迁移至世界格式 3，请保存", true)
 	elif result.operation == "SaveRegion":
 		ui.set_status("●  保存成功 · " + Time.get_time_string_from_system())
 	elif result.operation == "SculptTerrain":
@@ -350,8 +357,20 @@ func _verify_render() -> void:
 		if argument.begins_with("--screenshot="):
 			output = argument.trim_prefix("--screenshot=")
 	var error := get_viewport().get_texture().get_image().save_png(output)
-	print(JSON.stringify({"operation": "render", "ok": error == OK, "path": output, "objects": service.model.snapshot().objects.size()}))
-	get_tree().quit(0 if error == OK else 1)
+	var world: Dictionary = service.model.snapshot()
+	var mesh_ids: Array = []
+	for asset in world.assets:
+		if asset.get("kind", "") == "mesh": mesh_ids.append(asset.id)
+	var report := {"operation": "render", "ok": error == OK, "path": output,
+		"objects": world.objects.size(), "groups": world.groups.size(), "mesh_asset_ids": mesh_ids,
+		"world_revision": world.revision, "dirty": service.dirty, "repository_path": service.repository.path}
+	var report_file := FileAccess.open(output + ".json", FileAccess.WRITE)
+	if report_file == null: report.ok = false
+	else:
+		report_file.store_string(JSON.stringify(report, "\t"))
+		report_file.close()
+	print(JSON.stringify(report))
+	get_tree().quit(0 if report.ok else 1)
 
 func _extended_command(operation: String, payload: Dictionary) -> void:
 	var result: Dictionary = service.request(operation, payload)

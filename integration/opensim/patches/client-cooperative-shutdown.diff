@@ -1,0 +1,58 @@
+diff --git a/OpenMetaverse/TexturePipeline.cs b/OpenMetaverse/TexturePipeline.cs
+index 62d68a33..0a248b89 100644
+--- a/OpenMetaverse/TexturePipeline.cs
++++ b/OpenMetaverse/TexturePipeline.cs
+@@ -1,4 +1,4 @@
+-﻿/*
++/*
+  * Copyright (c) 2006-2016, openmetaverse.co
+  * All rights reserved.
+  *
+@@ -132,9 +132,10 @@ namespace OpenMetaverse
+         /// <summary>The primary thread which manages the requests.</summary>
+         private Thread downloadMaster;
+         /// <summary>true if the TexturePipeline is currently running</summary>
+-        bool _Running;
++        volatile bool _Running;
+         /// <summary>A synchronization object used by the primary thread</summary>
+         private object lockerObject = new object();
++        private readonly ManualResetEvent shutdown = new ManualResetEvent(false);
+         /// <summary>A refresh timer used to increase the priority of stalled requests</summary>
+         private System.Timers.Timer RefreshDownloadsTimer;
+ 
+@@ -190,6 +191,7 @@ namespace OpenMetaverse
+                 downloadMaster.IsBackground = true;
+             }
+ 
++            shutdown.Reset();
+             _Running = true;
+ 
+             _Client.Network.RegisterCallback(PacketType.ImageData, ImageDataHandler);
+@@ -215,12 +217,17 @@ namespace OpenMetaverse
+             Logger.Log(String.Format("Combined Execution Time: {0}, Network Execution Time {1}, Network {2}K/sec, Image Size {3}",
+                         TotalTime, NetworkTime, Math.Round(TotalBytes / NetworkTime.TotalSeconds / 60, 2), TotalBytes), Helpers.LogLevel.Debug);
+ #endif
++            _Running = false;
++            shutdown.Set();
++            for (int i = 0; i < resetEvents.Length; i++) resetEvents[i].Set();
++
+             if(null != RefreshDownloadsTimer) RefreshDownloadsTimer.Dispose();
+             RefreshDownloadsTimer = null;
+             
+             if (downloadMaster != null && downloadMaster.IsAlive)
+             {
+-                downloadMaster.Abort();
++                if (downloadMaster != Thread.CurrentThread && !downloadMaster.Join(2000))
++                    throw new InvalidOperationException("Texture pipeline shutdown timed out");
+             }
+             downloadMaster = null;
+ 
+@@ -521,7 +528,7 @@ namespace OpenMetaverse
+                 }
+ 
+                 // Queue was empty or all download slots are inuse, let's give up some CPU time
+-                Thread.Sleep(500);
++                shutdown.WaitOne(500);
+             }
+ 
+             Logger.Log("Texture pipeline shutting down", Helpers.LogLevel.Info);

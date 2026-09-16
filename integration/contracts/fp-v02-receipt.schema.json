@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Region Lab FP 0.2 receipt",
+  "type": "object",
+  "properties": {
+    "fp_version": {
+      "const": "0.2"
+    },
+    "world_id": {
+      "type": "string",
+      "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "region_id": {
+      "type": "string",
+      "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "source_runtime": {
+      "const": "opensim-0.9.3.0"
+    },
+    "world_epoch": {
+      "type": "string",
+      "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "request_id": {
+      "type": "string",
+      "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "operation": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "pending",
+        "completed",
+        "rejected",
+        "failed",
+        "cancelled",
+        "result_unknown"
+      ]
+    },
+    "error": {
+      "type": "string"
+    },
+    "tick": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "event_seq": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "data": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "fp_version",
+    "world_id",
+    "region_id",
+    "source_runtime",
+    "world_epoch",
+    "request_id",
+    "trace_id",
+    "operation",
+    "state",
+    "error",
+    "tick",
+    "event_seq",
+    "observed_at",
+    "data"
+  ],
+  "additionalProperties": false
+}

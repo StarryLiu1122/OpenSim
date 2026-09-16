@@ -14,14 +14,14 @@ using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 
-[assembly: Addin("RegionLab.Fusion", "0.4.0")]
+[assembly: Addin("RegionLab.Fusion", "0.4.1")]
 [assembly: AddinDependency("OpenSim.Region.Framework", "0.9.3.0")]
 
 namespace RegionLab.Fusion;
 
 /// <summary>Experimental, local operator adapter for one isolated reference region.</summary>
 [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "FusionRegionModule")]
-public sealed class FusionRegionModule : INonSharedRegionModule
+public sealed partial class FusionRegionModule : INonSharedRegionModule
 {
     private const int MaxBody = 65536, MaxReceipts = 1024, MaxParts = 128;
     private static readonly string[] Operations = { "GetCapabilities", "GetSnapshot", "GetReceipt", "CreateBox", "Link", "Move", "Rotate", "MoveMember", "Scale", "Duplicate", "Unlink", "Delete", "Backup" };
@@ -54,6 +54,7 @@ public sealed class FusionRegionModule : INonSharedRegionModule
         token = Encoding.UTF8.GetBytes("Bearer " + secret);
         journalDirectory = Path.GetFullPath(config.GetString("DataDirectory", "fusion-data"));
         Directory.CreateDirectory(journalDirectory);
+        ConfigureFp(config);
     }
 
     public void PostInitialise() { }
@@ -64,12 +65,14 @@ public sealed class FusionRegionModule : INonSharedRegionModule
         path = "/fusion/v0/regions/" + scene.RegionInfo.RegionID + "/commands";
         scene.EventManager.OnFrame += OnFrame;
         MainServer.Instance.AddSimpleStreamHandler(new SimpleStreamHandler(path, Handle));
+        StartFp();
         Console.WriteLine("[FUSION]: Local reference endpoint ready; epoch=" + epoch);
     }
     public void RemoveRegion(Scene value) => Close();
     public void Close()
     {
         closing = true;
+        CloseFp();
         if (path != null)
         {
             MainServer.Instance.RemoveSimpleStreamHandler(path);
@@ -91,7 +94,7 @@ public sealed class FusionRegionModule : INonSharedRegionModule
         try
         {
             var supplied = Encoding.UTF8.GetBytes(request.Headers["Authorization"] ?? "");
-            if (!IPAddress.IsLoopback(request.RemoteIPEndPoint.Address) || !CryptographicOperations.FixedTimeEquals(supplied, token))
+            if (!IPAddress.IsLoopback(request.RemoteIPEndPoint.Address) || !CryptographicOperations.FixedTimeEquals(supplied, token) || principals[0].Expires <= DateTimeOffset.UtcNow)
             { response.StatusCode = 401; result = new { error = "UNAUTHORIZED" }; }
             else if (request.HttpMethod != "POST")
             { response.StatusCode = 405; result = new { error = "METHOD_NOT_ALLOWED" }; }
@@ -209,6 +212,7 @@ public sealed class FusionRegionModule : INonSharedRegionModule
     private void OnFrame()
     {
         tick++;
+        FpFrame();
         for (int i = 0; i < 8 && queue.TryDequeue(out var work); i++)
         {
             Interlocked.Decrement(ref pending);
@@ -270,7 +274,7 @@ public sealed class FusionRegionModule : INonSharedRegionModule
     {
         var part = scene.GetSceneObjectPart(Id(p, key));
         if (part == null) throw new Rejected("NOT_FOUND");
-        if (part.ParentGroup.OwnerID != owner) throw new Rejected("FORBIDDEN");
+        if (part.ParentGroup.OwnerID != (operationOwner ?? owner)) throw new Rejected("FORBIDDEN");
         if (part != part.ParentGroup.RootPart) throw new Rejected("ROOT_REQUIRED");
         return part.ParentGroup;
     }
@@ -318,7 +322,7 @@ public sealed class FusionRegionModule : INonSharedRegionModule
             if (name.Length == 0 || name.Length > 64) throw new Rejected("INVALID_NAME");
             if (PartCount() >= MaxParts) throw new Rejected("PART_LIMIT");
             var shape = PrimitiveBaseShape.CreateBox(); shape.Scale = size;
-            var group = new SceneObjectGroup(owner, position, Quaternion.Identity, shape);
+            var group = new SceneObjectGroup(operationOwner ?? owner, position, Quaternion.Identity, shape);
             group.RootPart.Name = name;
             if (!scene.AddNewSceneObject(group, true)) throw new InvalidOperationException();
             return new { group_id = group.UUID.ToString(), root_id = group.RootPart.UUID.ToString() };
@@ -328,7 +332,7 @@ public sealed class FusionRegionModule : INonSharedRegionModule
             Keys(p, "root_id", "child_id");
             var root = Group(p, "root_id"); var child = Group(p, "child_id");
             if (root == child || root.PrimCount != 1 || child.PrimCount != 1) throw new Rejected("TWO_DISTINCT_SINGLE_PARTS_REQUIRED");
-            scene.LinkObjects(owner, root.LocalId, new List<uint> { child.LocalId });
+            scene.LinkObjects(operationOwner ?? owner, root.LocalId, new List<uint> { child.LocalId });
             if (root.PrimCount != 2) throw new InvalidOperationException();
             return Snapshot();
         }
@@ -358,9 +362,10 @@ public sealed class FusionRegionModule : INonSharedRegionModule
                 Keys(p, "group_id", "offset"); var offset = Vector(p, "offset");
                 foreach (var part in target.Parts) Bounds(part.GetWorldPosition() + offset);
                 if (PartCount() + target.PrimCount > MaxParts) throw new Rejected("PART_LIMIT");
-                if (scene.GetScenePresence(owner) == null) throw new Rejected("OPERATOR_OFFLINE");
-                if (!scene.Permissions.CanDuplicateObject(target, owner)) throw new Rejected("FORBIDDEN");
-                var copy = scene.SceneGraph.DuplicateObject(target.LocalId, offset, owner, UUID.Zero, Quaternion.Identity, false);
+                var actor = operationOwner ?? owner;
+                if (scene.GetScenePresence(actor) == null) throw new Rejected("OPERATOR_OFFLINE");
+                if (!scene.Permissions.CanDuplicateObject(target, actor)) throw new Rejected("FORBIDDEN");
+                var copy = scene.SceneGraph.DuplicateObject(target.LocalId, offset, actor, UUID.Zero, Quaternion.Identity, false);
                 if (copy == null) throw new InvalidOperationException();
                 return new { group_id = copy.UUID.ToString(), snapshot = Snapshot() };
             case "Unlink":

@@ -1,0 +1,925 @@
+{
+  "note": "Structural fixtures; example future deadlines are not runtime-valid commands. Obtain current epoch and fresh UTC deadline before execution.",
+  "cases": [
+    {
+      "name": "GetCapabilities",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "GetCapabilities",
+        "payload": {}
+      }
+    },
+    {
+      "name": "WorldStateSubscribe",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldStateSubscribe",
+        "payload": {}
+      }
+    },
+    {
+      "name": "AvatarSession",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "AvatarSession",
+        "payload": {}
+      }
+    },
+    {
+      "name": "AgentSpawn",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "AgentSpawn",
+        "payload": {}
+      }
+    },
+    {
+      "name": "AgentDespawn",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "AgentDespawn",
+        "payload": {}
+      }
+    },
+    {
+      "name": "TelemetryExport",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "TelemetryExport",
+        "payload": {}
+      }
+    },
+    {
+      "name": "SimEventStream",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "SimEventStream",
+        "payload": {
+          "after_seq": 0,
+          "limit": 128
+        }
+      }
+    },
+    {
+      "name": "ActionReceipt",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "ActionReceipt",
+        "payload": {
+          "request_id": "22222222-2222-4222-8222-222222222222",
+          "receipt_epoch": "33333333-3333-4333-8333-333333333333"
+        }
+      }
+    },
+    {
+      "name": "CancelAction",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "CancelAction",
+        "payload": {
+          "request_id": "22222222-2222-4222-8222-222222222222"
+        }
+      }
+    },
+    {
+      "name": "ExperimentControl",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "ExperimentControl",
+        "payload": {
+          "action": "start",
+          "experiment_id": "33333333-3333-4333-8333-333333333333"
+        }
+      }
+    },
+    {
+      "name": "MOVE_TO",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "AgentAction",
+        "payload": {
+          "action": "MOVE_TO",
+          "position": [
+            100,
+            100,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "name": "TURN",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "AgentAction",
+        "payload": {
+          "action": "TURN",
+          "yaw": 1.57
+        }
+      }
+    },
+    {
+      "name": "INSPECT",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "AgentAction",
+        "payload": {
+          "action": "INSPECT"
+        }
+      }
+    },
+    {
+      "name": "INTERACT",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "AgentAction",
+        "payload": {
+          "action": "INTERACT",
+          "group_id": "22222222-2222-4222-8222-222222222222"
+        }
+      }
+    },
+    {
+      "name": "WorldMutation CreateBox",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldMutation",
+        "payload": {
+          "expected_seq": 0,
+          "operation": "CreateBox",
+          "payload": {
+            "name": "Example",
+            "position": [
+              120,
+              128,
+              2
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "WorldMutation CreateDoor",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldMutation",
+        "payload": {
+          "expected_seq": 0,
+          "operation": "CreateDoor",
+          "payload": {
+            "name": "Example",
+            "position": [
+              120,
+              128,
+              2
+            ],
+            "size": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "WorldMutation Link",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldMutation",
+        "payload": {
+          "expected_seq": 0,
+          "operation": "Link",
+          "payload": {
+            "root_id": "22222222-2222-4222-8222-222222222222",
+            "child_id": "33333333-3333-4333-8333-333333333333"
+          }
+        }
+      }
+    },
+    {
+      "name": "WorldMutation Move",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldMutation",
+        "payload": {
+          "expected_seq": 0,
+          "operation": "Move",
+          "payload": {
+            "group_id": "22222222-2222-4222-8222-222222222222",
+            "position": [
+              120,
+              128,
+              2
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "WorldMutation Rotate",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldMutation",
+        "payload": {
+          "expected_seq": 0,
+          "operation": "Rotate",
+          "payload": {
+            "group_id": "22222222-2222-4222-8222-222222222222",
+            "rotation": [
+              0,
+              0,
+              0,
+              1
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "WorldMutation MoveMember",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldMutation",
+        "payload": {
+          "expected_seq": 0,
+          "operation": "MoveMember",
+          "payload": {
+            "group_id": "22222222-2222-4222-8222-222222222222",
+            "member_id": "33333333-3333-4333-8333-333333333333",
+            "local_position": [
+              2,
+              0,
+              0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "WorldMutation Scale",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldMutation",
+        "payload": {
+          "expected_seq": 0,
+          "operation": "Scale",
+          "payload": {
+            "group_id": "22222222-2222-4222-8222-222222222222",
+            "factor": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "WorldMutation Duplicate",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldMutation",
+        "payload": {
+          "expected_seq": 0,
+          "operation": "Duplicate",
+          "payload": {
+            "group_id": "22222222-2222-4222-8222-222222222222",
+            "offset": [
+              10,
+              0,
+              0
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "WorldMutation Unlink",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldMutation",
+        "payload": {
+          "expected_seq": 0,
+          "operation": "Unlink",
+          "payload": {
+            "group_id": "22222222-2222-4222-8222-222222222222"
+          }
+        }
+      }
+    },
+    {
+      "name": "WorldMutation Delete",
+      "schema": "command",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "WorldMutation",
+        "payload": {
+          "expected_seq": 0,
+          "operation": "Delete",
+          "payload": {
+            "group_id": "22222222-2222-4222-8222-222222222222"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown version",
+      "schema": "command",
+      "valid": false,
+      "value": {
+        "fp_version": "1",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "GetCapabilities",
+        "payload": {}
+      }
+    },
+    {
+      "name": "spoofed subject",
+      "schema": "command",
+      "valid": false,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "GetCapabilities",
+        "payload": {},
+        "subject": "operator"
+      }
+    },
+    {
+      "name": "unknown operation",
+      "schema": "command",
+      "valid": false,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "RunScript",
+        "payload": {}
+      }
+    },
+    {
+      "name": "echo origin",
+      "schema": "command",
+      "valid": false,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "opensim",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "GetCapabilities",
+        "payload": {}
+      }
+    },
+    {
+      "name": "bad UUID",
+      "schema": "command",
+      "valid": false,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "id",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "GetCapabilities",
+        "payload": {}
+      }
+    },
+    {
+      "name": "fractional sequence",
+      "schema": "command",
+      "valid": false,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 0.5,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "GetCapabilities",
+        "payload": {}
+      }
+    },
+    {
+      "name": "deadline without timezone",
+      "schema": "command",
+      "valid": false,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00",
+        "operation": "GetCapabilities",
+        "payload": {}
+      }
+    },
+    {
+      "name": "unknown action",
+      "schema": "command",
+      "valid": false,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "AgentAction",
+        "payload": {
+          "action": "FLY"
+        }
+      }
+    },
+    {
+      "name": "invalid turn fields",
+      "schema": "command",
+      "valid": false,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "AgentAction",
+        "payload": {
+          "action": "TURN",
+          "yaw": 1,
+          "script": "text"
+        }
+      }
+    },
+    {
+      "name": "event limit overflow",
+      "schema": "command",
+      "valid": false,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "origin": "mock-platform",
+        "source_seq": 1,
+        "expires_at": "2099-01-01T00:00:00Z",
+        "operation": "SimEventStream",
+        "payload": {
+          "after_seq": 0,
+          "limit": 129
+        }
+      }
+    },
+    {
+      "name": "receipt pending",
+      "schema": "receipt",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "operation": "AgentSpawn",
+        "state": "pending",
+        "error": "",
+        "tick": 10,
+        "event_seq": 2,
+        "observed_at": "2026-09-16T00:00:00Z",
+        "data": {
+          "observed": true,
+          "avatar_present": true
+        }
+      }
+    },
+    {
+      "name": "receipt completed",
+      "schema": "receipt",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "operation": "AgentSpawn",
+        "state": "completed",
+        "error": "",
+        "tick": 10,
+        "event_seq": 2,
+        "observed_at": "2026-09-16T00:00:00Z",
+        "data": {
+          "observed": true,
+          "avatar_present": true
+        }
+      }
+    },
+    {
+      "name": "receipt rejected",
+      "schema": "receipt",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "operation": "AgentSpawn",
+        "state": "rejected",
+        "error": "",
+        "tick": 10,
+        "event_seq": 2,
+        "observed_at": "2026-09-16T00:00:00Z",
+        "data": {
+          "observed": true,
+          "avatar_present": true
+        }
+      }
+    },
+    {
+      "name": "receipt failed",
+      "schema": "receipt",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "operation": "AgentSpawn",
+        "state": "failed",
+        "error": "",
+        "tick": 10,
+        "event_seq": 2,
+        "observed_at": "2026-09-16T00:00:00Z",
+        "data": {
+          "observed": true,
+          "avatar_present": true
+        }
+      }
+    },
+    {
+      "name": "receipt cancelled",
+      "schema": "receipt",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "operation": "AgentSpawn",
+        "state": "cancelled",
+        "error": "",
+        "tick": 10,
+        "event_seq": 2,
+        "observed_at": "2026-09-16T00:00:00Z",
+        "data": {
+          "observed": true,
+          "avatar_present": true
+        }
+      }
+    },
+    {
+      "name": "receipt result_unknown",
+      "schema": "receipt",
+      "valid": true,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "operation": "AgentSpawn",
+        "state": "result_unknown",
+        "error": "",
+        "tick": 10,
+        "event_seq": 2,
+        "observed_at": "2026-09-16T00:00:00Z",
+        "data": {
+          "observed": true,
+          "avatar_present": true
+        }
+      }
+    },
+    {
+      "name": "invalid receipt state",
+      "schema": "receipt",
+      "valid": false,
+      "value": {
+        "fp_version": "0.2",
+        "world_id": "11111111-1111-4111-8111-111111111111",
+        "region_id": "11111111-1111-4111-8111-111111111111",
+        "source_runtime": "opensim-0.9.3.0",
+        "world_epoch": "33333333-3333-4333-8333-333333333333",
+        "request_id": "22222222-2222-4222-8222-222222222222",
+        "trace_id": "33333333-3333-4333-8333-333333333333",
+        "operation": "AgentSpawn",
+        "state": "accepted-and-finished",
+        "error": "",
+        "tick": 10,
+        "event_seq": 2,
+        "observed_at": "2026-09-16T00:00:00Z",
+        "data": {
+          "observed": true,
+          "avatar_present": true
+        }
+      }
+    }
+  ]
+}

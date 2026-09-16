@@ -4,11 +4,24 @@
 
 项目以 **OpenSimulator 0.9.3.0** 为数据与行为参考，以 **Godot** 逐步重建现代客户端和区域能力。仓库保留原版 C# 源码，在 `prototype/` 中独立开发 **Region Lab**。总体目标依据老师提供的两份 [项目指导文档](docs/references/teacher/2026-09-15/README.md)，实施顺序及技术约束见 [目标对齐说明](docs/plans/platform-integration-alignment.md) 和 [版本路线](docs/plans/stage-one-rebuild-plan.md)。
 
-**当前桌面交付版本为 Region Lab V3.1 / 0.3.1：Windows 本机单用户、256×256 米单区域编辑原型。V4 已开始实施，首批原版运行对照与实验适配器为 0.4.0-dev。** 当前桌面采用 Godot 4.5.1 标准版、Jolt 和 GDScript；现代数据库、多人客户端、完整 FP 网关和在线模型尚未交付。
+**当前交付版本为 Region Lab V4.2 / 0.4.2。** Windows 本机单区域编辑原型新增可选 SQLite 事务仓储、外置资产和可搬移备份；独立 OpenSim 网关提供 FP 0.2 的状态、事件、受控 Bot 动作及持久回执。桌面继续采用 Godot 4.5.1 标准版、Jolt 和 GDScript，默认 JSON 模式保持可用。现代权威网络服务、多客户端同步、完整身份库存和在线模型属于后续版本。
 
-V4 已在独立目录构建并运行固定 OpenSim，接入受控 Bot，完成两部件静态变换与正常重启的核心对照。启动与复现见 [V4 集成工具](integration/README.md)，实际结果及未完成项见 [运行对照](docs/comparisons/v4-reference-linkset.md) 和 [21 项任务执行记录](docs/plans/v4-progress.md)。
+V4 交付分为 [原版与 FP 网关](integration/README.md)、[SQLite 运行与迁移](services/README.md)、[WebGL2 能力验证](integration/web/README.md) 和 [真实建筑样例](prototype/fixtures/buildings/pioneer-log-cabin/README.md)。阶段结果、适用范围及证据见 [V4 验收报告](docs/comparisons/v4-completion.md) 与 [21 项任务记录](docs/plans/v4-progress.md)。浏览器部分是双内核能力实验，尚不是正式浏览器编辑器。
 
 ![Region Lab 区域场景](prototype/docs/images/overview.png)
+
+## 从已运行的 V3.1 启动 V4
+
+在已有仓库根目录更新本次发布分支，然后使用原来的启动入口：
+
+```powershell
+git fetch origin
+git switch codex/region-lab-v4
+git pull --ff-only origin codex/region-lab-v4
+.\prototype\Start.cmd
+```
+
+V3.1 已安装的 Godot 4.5.1 可以复用。先备份自己的 JSON 世界；默认启动不会自动切换为数据库。SQLite 模式需额外 .NET 8 运行时，先按 [构建与迁移指南](services/README.md) 准备 RegionStore，再使用 `Start.cmd -Database <数据目录> -StoreExecutable <RegionStore.exe>`。OpenSim 网关是另一条独立测试路径，不是打开桌面编辑器的前置条件。
 
 ## 平台目标与职责
 
@@ -39,25 +52,27 @@ flowchart LR
 
 ## 当前已实现能力
 
-| 模块 | V3.1 范围 |
+| 模块 | 当前桌面基础能力 |
 | --- | --- |
 | 区域与角色 | 高度场、区域边界、行走、跳跃、角色与场景碰撞 |
 | 对象与组合 | 六类内置对象；创建、编辑、复制、删除；单层组合及整体变换；展馆包含 15 个部件 |
 | 静态资产 | 受限 GLB 导入、资产复用、碰撞代理和内嵌 PNG；模型内容随快照保存 |
 | 地形与环境 | 抬升、降低、设高、平滑；水面、固定太阳时刻、雾、程序材质 |
 | 交互与历史 | 门灯开关、漫游交互；对象、组合、资产、地形与环境共用撤销重做 |
-| 持久化 | 完整世界快照、校验和、有效备份、重启恢复；世界格式 3，可迁移格式 1/2 |
+| 持久化 | JSON 快照及可选 SQLite 事务仓储、外置资产、自包含备份恢复；世界格式 3，可迁移格式 1/2 |
+| 原版融合 | 独立 OpenSim Region 模块、FP 0.2、受控 Bot、事件、权限及持久回执 |
+| V4 验证输入 | 双浏览器 WebGL2 实验、真实测绘建筑、进程中断与迁移恢复测试 |
 | 命令与验证 | WorldService 命令入口、离线 JSON 批处理、原生物理与界面测试 |
 
-已保存的 V3.1 报告记录 **188 项原生检查、66 项界面检查**通过，其中界面检查包含 7 项截图生成检查；跨进程恢复、删除 GLB 源文件后的可搬移恢复和独立目录安装通过。43 对象日景与 243 对象夜景的性能结果是同机短时基线。详见 [验证记录](prototype/docs/verification.md) 与 [性能说明](prototype/docs/performance.md)。
+V4.2 最终回归 **188 项原生检查、66 项界面检查**通过，其中界面检查包含 7 项截图生成检查；跨进程恢复、删除 GLB 源文件后的可搬移恢复和独立目录安装通过。43 对象日景与 243 对象夜景的性能结果是同机短时基线。详见 [验证记录](prototype/docs/verification.md) 与 [性能说明](prototype/docs/performance.md)。
 
-当前 GLB 限定静态三角网格、不透明材质及内嵌 PNG，单文件 ≤2 MiB、三角形 ≤20,000，最多 16 个导入资产；完整快照 ≤8 MiB。三个 CC0 样本用于功能验证，真实授权建筑验收列入 V4。
+当前 GLB 限定静态三角网格、不透明材质及内嵌 PNG，单文件 ≤2 MiB、三角形 ≤20,000，最多 16 个导入资产；完整快照 ≤8 MiB。原有三个 CC0 样本用于功能验证；V4 新增具有原始测绘来源和许可记录的 [Pioneer Log Cabin](prototype/fixtures/buildings/pioneer-log-cabin/README.md)，完成真实碰撞与搬移恢复验收。
 
 ## 后续版本与实现目标
 
 | 版本 | 核心交付 | 进入下一阶段的依据 |
 | --- | --- | --- |
-| V4 | 原版运行对照、FP 契约与最小网关、存储抽象和数据库 | 两部件行为可对照；原版状态—动作—回执贯通；数据事务与恢复通过 |
+| V4（本次完成） | 原版运行对照、FP 契约与最小网关、存储抽象和数据库 | 两部件行为可对照；原版状态—动作—回执贯通；数据事务与恢复通过 |
 | V5 | 现代区域权威服务、双客户端同步、Web 轻客户端 | 桌面与浏览器观察同一状态，冲突、断线与重启后收敛 |
 | V6 | 身份库存、受控智能体、平台联调与实验回放 | 人类与 Bot 完成任务；推演回注、专家反馈和遥测形成闭环 |
 | V7 | 真实场景资产、OAR 子集迁移、分块加载与画质分档 | 可追溯场景可迁移、可通行、可按需加载；达到明确的客户端预算 |
@@ -70,25 +85,25 @@ flowchart LR
 
 近期 Web 路线采用 **GDScript + Compatibility / WebGL2 + WebSocket**，先完成导出与网络验证。固定 Godot 4.5 系列的官方 Web 能力不包含 WebGPU 和 C# Web 导出；WebGPU 保留为后续引擎能力验证专题，升级须重新锁定版本并通过回归。[Godot 4.5 Web 导出说明](https://docs.godotengine.org/en/4.5/tutorials/export/exporting_for_web.html)
 
-当前桌面版本继续使用 Jolt。浏览器导出、物理行为和线程要求在 V4.0 单独验证。服务端语言、数据库、WebTransport、消息总线及 GPU 仿真方案均需通过相应设计决策，不能由目标架构中的候选名称推定为已集成依赖。
+桌面继续使用 Jolt；V4 已完成双内核 WebGL2 和线程部署实验。当前本机仓储选择 C#/.NET 8 与 SQLite，依据见 [ADR](docs/adr/0001-v4-storage.md)。现代网络服务、WebTransport、消息总线及 GPU 仿真仍按后续版本独立决策。
 
 ## 安装与启动当前原型
 
 Windows x64 环境需要 PowerShell 5.1、支持 OpenGL 3.3 的显卡及正常驱动。
 
 ```powershell
-git clone --branch main https://github.com/StarryLiu1122/OpenSim.git
+git clone --branch codex/region-lab-v4 https://github.com/StarryLiu1122/OpenSim.git
 cd OpenSim\prototype
 .\Install.cmd
 .\Start.cmd
 ```
 
-安装脚本下载并校验固定 Godot 官方归档。当前原型运行不依赖 .NET、Python、数据库或 API Key；后续原版对照、服务端与模型接入会分别说明新增依赖。离线安装、独立存档和操作方法见 [原型使用说明](prototype/README.md)。
+安装脚本下载并校验固定 Godot 官方归档。默认 JSON 桌面模式不依赖 .NET、Python、数据库或 API Key；可选 SQLite 模式另需 .NET 8 运行时，原版网关与各测试工具的依赖分别记录。离线安装、独立存档和操作方法见 [原型使用说明](prototype/README.md)。
 
 体验新建展馆组合可指定独立路径：
 
 ```powershell
-.\Start.cmd -WorldFile "$PWD\runtime\v31-demo.json"
+.\Start.cmd -WorldFile "$PWD\runtime\v4-demo.json"
 ```
 
 ## 文档库
@@ -100,7 +115,7 @@ cd OpenSim\prototype
 | [目标与技术路线对齐](docs/plans/platform-integration-alignment.md) | 原文要求、当前差距、FP 映射及技术核实 |
 | [版本路线](docs/plans/stage-one-rebuild-plan.md) | V4～V8 子版本、依赖与发布条件 |
 | [V4 实施计划](docs/plans/v4-implementation-plan.md) | 首轮任务、输入、交付物、验收案例与决策点 |
-| [V4 执行记录](docs/plans/v4-progress.md) | 已实现增量、21 项任务状态、缺口和下一批顺序 |
+| [V4 执行记录](docs/plans/v4-progress.md) | 21 项完成情况、验收证据和下一阶段输入 |
 | [原版集成工具](integration/README.md) | 固定构建、区域模块、Bot、接口和跨实现测试 |
 | [原型架构与接口](prototype/docs/architecture-and-api.md) | 已实现的领域模型、命令与快照协议 |
 | [数据对应](prototype/docs/opensim-data-mapping.md) | 原版源码入口、语义映射与差异 |
@@ -141,7 +156,7 @@ docs/
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Test-RegionLab.ps1 -Visual
 ```
 
-原版构建参考 [BUILDING.md](BUILDING.md)，固定基线见 [源码来源](docs/UPSTREAM.md)。V4 首批已完成固定原版独立运行及核心静态对象对照，详见 [证据记录](docs/comparisons/v4-reference-linkset.md)。Bot 库退出兼容性、完整权限、Web 与真实建筑验收仍待完成；新增数据库和实验能力须各自补充故障、事务、恢复及回放验证。
+原版构建参考 [BUILDING.md](BUILDING.md)，固定基线见 [源码来源](docs/UPSTREAM.md)。V4 对照使用独立原版实例、BulletSim 和 YEngine；现代桌面使用 Jolt，两者的组身份与缩放表达保留显式映射。已完成的测试不构成断电、跨平台、大规模场景或长期稳定性保证。完整 Viewer 权限、库存、SSO、LSL/OSSL、OAR、CAD/BIM、真实平台联调和在线模型仍未交付。
 
 ## 上游与许可证
 

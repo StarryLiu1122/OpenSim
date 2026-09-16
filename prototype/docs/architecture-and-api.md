@@ -1,6 +1,6 @@
 # 架构与接口规范
 
-适用版本：Region Lab 0.3.1。世界格式版本：3；命令协议版本：1。
+适用版本：Region Lab 0.4.2。世界格式版本：3；命令协议版本：1。
 
 ## 1. 模块职责
 
@@ -10,8 +10,11 @@ flowchart LR
     CLI[离线 JSON 命令] --> S
     S --> M[WorldModel]
     M --> V[WorldSchema / TerrainBrush]
-    S --> R[SnapshotRepository]
-    R --> F[快照与备份]
+    S --> R[RepositoryContract]
+    R --> J[SnapshotRepository / JSON]
+    R --> D[SqliteRepository / RegionStore]
+    J --> F[快照与备份]
+    D --> Q[SQLite + SHA256 内容仓储]
     M --> W[WorldView]
     W --> G[显示网格与 Jolt 碰撞]
 ```
@@ -216,3 +219,9 @@ EnvironmentView 根据持久化参数设置天空、太阳、雾及 256×256 米
 WorldView 先解析组变换再投影到引擎坐标，未改变的对象保留其 StaticBody3D。导入器产出数据数组，不实例化文件中的节点；MeshView 生成 ArrayMesh、StandardMaterial3D 与静态三角碰撞。快照的 GLB 内容按摘要缓存解析结果，但缓存不是存档的必要依赖。
 
 应用层数据记录仍不含 Godot Node 引用。当前实现使用 GDScript 数学类型进行运行时计算，并在世界校验时调用格式适配器；这不是已经可直接替换为任意语言的服务端库。后续服务拆分应先固定契约与测试，再迁移执行实现。
+
+## V4 仓储扩展
+
+WorldService 构造函数可注入实现 repository_contract.gd 的仓储，默认仍为 SnapshotRepository。SQLite 适配器维护独立的 commit_revision 和待确认 request_id，通过本机受控 CLI 校验并提交完整候选；失败不清除 dirty。数据库存在但缺少该区域时可新建，损坏或不可读数据库必须进入明确错误路径，不能悄悄变成新世界。
+
+世界内部 revision、数据库 commit_revision、恢复 epoch 和 FP event_seq 各自独立。命令封装 1 的进程内幂等缓存没有变成远程持久去重；后者由 RegionStore/FP 各自合同承担。具体 SQL、文件发布顺序、包限额、迁移与错误语义见 [存储合同](../../docs/contracts/storage-v4.md)，原版网络接口见 [FP 0.2](../../docs/contracts/fp-v02.md)。

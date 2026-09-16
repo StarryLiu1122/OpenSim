@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/opensim/libopenmetaverse.git",
+  "commit": "f3ee229dc2a17e0dfd7256f8f634afe8e7610487",
+  "assembly_version": "0.9.4.0",
+  "sdk": "8.0.424",
+  "patch": "patches/client-cooperative-shutdown.diff",
+  "scope": "Bot-only client library; original OpenSim binaries remain unchanged",
+  "unsupported": ["voice", "appearance baking", "GUI clients"]
+}

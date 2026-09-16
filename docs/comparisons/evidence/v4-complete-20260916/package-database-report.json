@@ -1,0 +1,30 @@
+{
+  "checks": [
+    {
+      "name": "public launcher renders a database-backed world",
+      "passed": true
+    },
+    {
+      "name": "database path survives PowerShell argument boundaries",
+      "passed": true
+    },
+    {
+      "name": "restored world is marked saved",
+      "passed": true
+    },
+    {
+      "name": "restored objects and groups match the fixture",
+      "passed": true
+    },
+    {
+      "name": "restored world revision matches the fixture",
+      "passed": true
+    },
+    {
+      "name": "restored mesh IDs match the fixture",
+      "passed": true
+    }
+  ],
+  "test": "database-desktop-public-launcher",
+  "passed": true
+}

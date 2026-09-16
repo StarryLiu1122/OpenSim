@@ -1,0 +1,176 @@
+{
+  "test": "fp-mock-platform",
+  "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+  "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+  "passed": true,
+  "checks": [
+    {
+      "name": "FP capabilities discovered",
+      "passed": true
+    },
+    {
+      "name": "isolated region is empty",
+      "passed": true
+    },
+    {
+      "name": "experiment started",
+      "passed": true
+    },
+    {
+      "name": "FP spawn confirmed by original region",
+      "passed": true
+    },
+    {
+      "name": "MOVE_TO reached observed target",
+      "passed": true
+    },
+    {
+      "name": "TURN confirmed by region quaternion",
+      "passed": true
+    },
+    {
+      "name": "INSPECT reads authoritative avatar",
+      "passed": true
+    },
+    {
+      "name": "owned interactive door created",
+      "passed": true
+    },
+    {
+      "name": "nearby visible door opens with observed rotation",
+      "passed": true
+    },
+    {
+      "name": "occlusion fixture created",
+      "passed": true
+    },
+    {
+      "name": "interaction cannot pass through a wall",
+      "passed": true
+    },
+    {
+      "name": "occlusion fixture removed",
+      "passed": true
+    },
+    {
+      "name": "identical mutation retry returns original receipt",
+      "passed": true
+    },
+    {
+      "name": "duplicate delivery creates exactly one object",
+      "passed": true
+    },
+    {
+      "name": "changed payload cannot reuse request identity",
+      "passed": true
+    },
+    {
+      "name": "out-of-order source message rejected",
+      "passed": true
+    },
+    {
+      "name": "stale observation cannot mutate world",
+      "passed": true
+    },
+    {
+      "name": "second authenticated writer owns independent object",
+      "passed": true
+    },
+    {
+      "name": "cross-owner mutation rejected in original region",
+      "passed": true
+    },
+    {
+      "name": "cross-owner rejection preserves original position",
+      "passed": true
+    },
+    {
+      "name": "observer snapshot hides ownership fields",
+      "passed": true
+    },
+    {
+      "name": "observer cannot mutate",
+      "passed": true
+    },
+    {
+      "name": "receipts remain scoped to authenticated subject",
+      "passed": true
+    },
+    {
+      "name": "unsupported action explicitly rejected",
+      "passed": true
+    },
+    {
+      "name": "expired command rejected",
+      "passed": true
+    },
+    {
+      "name": "old epoch cannot repeat side effects",
+      "passed": true
+    },
+    {
+      "name": "event echo cannot be injected as a command",
+      "passed": true
+    },
+    {
+      "name": "payload cannot forge authenticated subject",
+      "passed": true
+    },
+    {
+      "name": "invalid token rejected",
+      "passed": true
+    },
+    {
+      "name": "long action has a pending receipt",
+      "passed": true
+    },
+    {
+      "name": "pending action accepts explicit cancellation",
+      "passed": true
+    },
+    {
+      "name": "cancelled action reaches queryable terminal state",
+      "passed": true
+    },
+    {
+      "name": "unreachable-target barrier created",
+      "passed": true
+    },
+    {
+      "name": "blocked physical movement times out without success",
+      "passed": true
+    },
+    {
+      "name": "BulletSim prevented crossing the barrier",
+      "passed": true
+    },
+    {
+      "name": "barrier cleaned up",
+      "passed": true
+    },
+    {
+      "name": "cursor-based reconnect reads retained events",
+      "passed": true
+    },
+    {
+      "name": "event sequence has no duplicates or gaps",
+      "passed": true
+    },
+    {
+      "name": "interaction event retains experiment trace",
+      "passed": true
+    },
+    {
+      "name": "FP despawn confirms Avatar absence and clean child exit",
+      "passed": true
+    },
+    {
+      "name": "experiment stopped",
+      "passed": true
+    },
+    {
+      "name": "FP telemetry export produced offline-readable data",
+      "passed": true
+    }
+  ]
+}

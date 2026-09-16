@@ -1,0 +1,761 @@
+{
+  "cases": [
+    {
+      "name": "seed satisfies portable schema",
+      "ok": true
+    },
+    {
+      "name": "future schema rejected",
+      "ok": true
+    },
+    {
+      "name": "duplicate persistent ID rejected",
+      "ok": true
+    },
+    {
+      "name": "negative dimensions rejected",
+      "ok": true
+    },
+    {
+      "name": "full object footprint checked at region edge",
+      "ok": true
+    },
+    {
+      "name": "unnormalized quaternion rejected",
+      "ok": true
+    },
+    {
+      "name": "non-finite terrain rejected",
+      "ok": true
+    },
+    {
+      "name": "terrain sample count checked",
+      "ok": true
+    },
+    {
+      "name": "missing asset reference rejected",
+      "ok": true
+    },
+    {
+      "name": "external executable asset paths rejected",
+      "ok": true
+    },
+    {
+      "name": "unknown world fields rejected",
+      "ok": true
+    },
+    {
+      "name": "coordinate conversion round trip",
+      "ok": true
+    },
+    {
+      "name": "east rotated toward north remains correct in engine",
+      "ok": true
+    },
+    {
+      "name": "command creates an object with stable ID",
+      "ok": true
+    },
+    {
+      "name": "duplicate request does not create twice",
+      "ok": true
+    },
+    {
+      "name": "input dictionary cannot mutate world after dispatch",
+      "ok": true
+    },
+    {
+      "name": "reused request ID with altered payload rejected",
+      "ok": true
+    },
+    {
+      "name": "stale revision rejected",
+      "ok": true
+    },
+    {
+      "name": "snapshot returns an isolated copy",
+      "ok": true
+    },
+    {
+      "name": "transform and color update validated together",
+      "ok": true
+    },
+    {
+      "name": "owner cannot be changed through a field patch",
+      "ok": true
+    },
+    {
+      "name": "invalid edit rejected",
+      "ok": true
+    },
+    {
+      "name": "rejected edit leaves revision and state unchanged",
+      "ok": true
+    },
+    {
+      "name": "different local actor cannot delete owned object",
+      "ok": true
+    },
+    {
+      "name": "delete removes object",
+      "ok": true
+    },
+    {
+      "name": "undo restores same object identity",
+      "ok": true
+    },
+    {
+      "name": "malformed envelope rejected",
+      "ok": true
+    },
+    {
+      "name": "unknown operation rejected",
+      "ok": true
+    },
+    {
+      "name": "first save returns success after read-back verification",
+      "ok": true
+    },
+    {
+      "name": "second save replaces primary and keeps backup",
+      "ok": true
+    },
+    {
+      "name": "new service restores stable IDs and attributes within 1e-6",
+      "ok": true
+    },
+    {
+      "name": "corrupt primary restores previous valid backup with warning",
+      "ok": true
+    },
+    {
+      "name": "recovered backup can be saved without losing valid data",
+      "ok": true
+    },
+    {
+      "name": "checksum detects valid JSON with altered content",
+      "ok": true
+    },
+    {
+      "name": "both invalid snapshots leave current world untouched",
+      "ok": true
+    },
+    {
+      "name": "failed publish never marks world saved",
+      "ok": true
+    },
+    {
+      "name": "external file modification is detected before overwrite",
+      "ok": true
+    },
+    {
+      "name": "project selects native Jolt physics",
+      "ok": true
+    },
+    {
+      "name": "capsule lands on real terrain mesh collision",
+      "ok": true
+    },
+    {
+      "name": "rendered height samples align with collision height",
+      "ok": true
+    },
+    {
+      "name": "hill collision agrees with north-up data mapping",
+      "ok": true
+    },
+    {
+      "name": "jump input lifts avatar through native physics",
+      "ok": true
+    },
+    {
+      "name": "avatar lands again after jumping",
+      "ok": true
+    },
+    {
+      "name": "movement input advances avatar through physics",
+      "ok": true
+    },
+    {
+      "name": "avatar cannot walk through editable box collider",
+      "ok": true
+    },
+    {
+      "name": "physics ray resolves persistent object identity",
+      "ok": true
+    },
+    {
+      "name": "terrain raise uses bounded metric displacement",
+      "ok": true
+    },
+    {
+      "name": "terrain brush has a radial falloff",
+      "ok": true
+    },
+    {
+      "name": "samples outside brush radius remain unchanged",
+      "ok": true
+    },
+    {
+      "name": "terrain edits preserve object transforms and region identity",
+      "ok": true
+    },
+    {
+      "name": "terrain request replay does not stamp twice",
+      "ok": true
+    },
+    {
+      "name": "terrain rejects invalid mode",
+      "ok": true
+    },
+    {
+      "name": "terrain rejects invalid radius",
+      "ok": true
+    },
+    {
+      "name": "terrain rejects invalid strength",
+      "ok": true
+    },
+    {
+      "name": "terrain rejects invalid center",
+      "ok": true
+    },
+    {
+      "name": "terrain rejects invalid target_height",
+      "ok": true
+    },
+    {
+      "name": "terrain rejects invalid extra",
+      "ok": true
+    },
+    {
+      "name": "rejected terrain edits preserve state and history",
+      "ok": true
+    },
+    {
+      "name": "terrain editing requires region ownership",
+      "ok": true
+    },
+    {
+      "name": "undo restores entire terrain stamp",
+      "ok": true
+    },
+    {
+      "name": "redo restores terrain with a new revision",
+      "ok": true
+    },
+    {
+      "name": "new terrain edit invalidates redo history",
+      "ok": true
+    },
+    {
+      "name": "flatten reaches target elevation at full-strength center",
+      "ok": true
+    },
+    {
+      "name": "smooth reads the pre-stamp 3 by 3 neighborhood",
+      "ok": true
+    },
+    {
+      "name": "smoothing is independent of iteration direction",
+      "ok": true
+    },
+    {
+      "name": "brush safely clips at northeast region boundary",
+      "ok": true
+    },
+    {
+      "name": "clamped no-op preserves saved state and revision",
+      "ok": true
+    },
+    {
+      "name": "no-op terrain edit retains redo history",
+      "ok": true
+    },
+    {
+      "name": "edited terrain snapshot saves successfully",
+      "ok": true
+    },
+    {
+      "name": "terrain samples round trip through snapshot within 1e-6",
+      "ok": true
+    },
+    {
+      "name": "loading a snapshot clears both history stacks",
+      "ok": true
+    },
+    {
+      "name": "terrain and object history remains bounded",
+      "ok": true
+    },
+    {
+      "name": "revision limit rejects terrain edit atomically",
+      "ok": true
+    },
+    {
+      "name": "revision limit preserves history after rejected undo",
+      "ok": true
+    },
+    {
+      "name": "V1 snapshot fixture preserves stable object identity and attributes",
+      "ok": true
+    },
+    {
+      "name": "V1 snapshot supports terrain edit and resave after schema upgrade",
+      "ok": true
+    },
+    {
+      "name": "terrain synchronization preserves existing object bodies",
+      "ok": true
+    },
+    {
+      "name": "terrain edit updates native Jolt collision elevation",
+      "ok": true
+    },
+    {
+      "name": "terrain edit updates rendered mesh elevation",
+      "ok": true
+    },
+    {
+      "name": "undo updates Jolt terrain collision",
+      "ok": true
+    },
+    {
+      "name": "mesh triangle and Jolt agree within nonplanar cell (81.0, 81.0)",
+      "ok": true
+    },
+    {
+      "name": "mesh triangle and Jolt agree within nonplanar cell (83.0, 83.0)",
+      "ok": true
+    },
+    {
+      "name": "mesh triangle and Jolt agree within nonplanar cell (81.0, 83.0)",
+      "ok": true
+    },
+    {
+      "name": "mesh triangle and Jolt agree within nonplanar cell (83.0, 81.0)",
+      "ok": true
+    },
+    {
+      "name": "height query includes exact northeast boundary sample",
+      "ok": true
+    },
+    {
+      "name": "avatar lands on edited terrain through native physics",
+      "ok": true
+    },
+    {
+      "name": "V3 demonstration satisfies the complete portable schema",
+      "ok": true
+    },
+    {
+      "name": "environment command changes validated persistent settings",
+      "ok": true
+    },
+    {
+      "name": "environment changes preserve terrain and objects",
+      "ok": true
+    },
+    {
+      "name": "identical environment state creates no history entry",
+      "ok": true
+    },
+    {
+      "name": "invalid environment patch rejected atomically: sun_hour:25",
+      "ok": true
+    },
+    {
+      "name": "invalid environment patch rejected atomically: sun_hour:nan",
+      "ok": true
+    },
+    {
+      "name": "invalid environment patch rejected atomically: water_height:-41",
+      "ok": true
+    },
+    {
+      "name": "invalid environment patch rejected atomically: water_enabled:1",
+      "ok": true
+    },
+    {
+      "name": "invalid environment patch rejected atomically: terrain_grid:0",
+      "ok": true
+    },
+    {
+      "name": "invalid environment patch rejected atomically: fog_density:-1",
+      "ok": true
+    },
+    {
+      "name": "invalid environment patch rejected atomically: terrain_grid:yes",
+      "ok": true
+    },
+    {
+      "name": "invalid environment patch rejected atomically: script:anything",
+      "ok": true
+    },
+    {
+      "name": "environment command requires region ownership",
+      "ok": true
+    },
+    {
+      "name": "environment undo restores all settings",
+      "ok": true
+    },
+    {
+      "name": "environment redo restores all settings",
+      "ok": true
+    },
+    {
+      "name": "built-in asset accepts valid geometry: box",
+      "ok": true
+    },
+    {
+      "name": "built-in asset accepts valid geometry: cylinder",
+      "ok": true
+    },
+    {
+      "name": "built-in asset accepts valid geometry: sphere",
+      "ok": true
+    },
+    {
+      "name": "built-in asset accepts valid geometry: door",
+      "ok": true
+    },
+    {
+      "name": "built-in asset accepts valid geometry: tree",
+      "ok": true
+    },
+    {
+      "name": "built-in asset accepts valid geometry: lamp",
+      "ok": true
+    },
+    {
+      "name": "door state and request replay are deterministic",
+      "ok": true
+    },
+    {
+      "name": "repeated target door state is a no-op",
+      "ok": true
+    },
+    {
+      "name": "invalid object behavior request preserves state: { \"id\": \"36b23076-637d-4795-96d2-9731016570d9\", \"active\": 1 }",
+      "ok": true
+    },
+    {
+      "name": "invalid object behavior request preserves state: { \"id\": \"36b23076-637d-4795-96d2-9731016570d9\", \"active\": true, \"script\": \"x\" }",
+      "ok": true
+    },
+    {
+      "name": "invalid object behavior request preserves state: { \"id\": \"653a4734-006c-4199-97b0-0d27353d69e6\", \"active\": true }",
+      "ok": true
+    },
+    {
+      "name": "object behavior requires local ownership",
+      "ok": true
+    },
+    {
+      "name": "ordinary attribute patches cannot bypass the behavior command",
+      "ok": true
+    },
+    {
+      "name": "material registry rejects external resources",
+      "ok": true
+    },
+    {
+      "name": "V3 environment and behavior state save successfully",
+      "ok": true
+    },
+    {
+      "name": "V3 state restores with stable IDs and numeric precision",
+      "ok": true
+    },
+    {
+      "name": "persistent water height reaches rendered surface",
+      "ok": true
+    },
+    {
+      "name": "night setting removes direct sunlight",
+      "ok": true
+    },
+    {
+      "name": "closed door blocks a native physics ray",
+      "ok": true
+    },
+    {
+      "name": "closed door blocks the actual avatar capsule",
+      "ok": true
+    },
+    {
+      "name": "opened door removes collision from its central passage",
+      "ok": true
+    },
+    {
+      "name": "avatar can pass through the opened door",
+      "ok": true
+    },
+    {
+      "name": "active lamp creates a native local light",
+      "ok": true
+    },
+    {
+      "name": "inactive lamp removes local illumination",
+      "ok": true
+    },
+    {
+      "name": "ellipsoid collider bakes nonuniform metric dimensions",
+      "ok": true
+    },
+    {
+      "name": "ellipsoid collider does not behave like its bounding box",
+      "ok": true
+    },
+    {
+      "name": "legacy snapshot upgrade is explicit and requires a save",
+      "ok": true
+    },
+    {
+      "name": "loading an older snapshot never rewrites its original bytes",
+      "ok": true
+    },
+    {
+      "name": "migration preserves terrain, revision and object identity",
+      "ok": true
+    },
+    {
+      "name": "saving upgraded data retains the original version as backup",
+      "ok": true
+    },
+    {
+      "name": "actual V2 snapshot preserves sculpted elevation during upgrade",
+      "ok": true
+    },
+    {
+      "name": "upgraded V2 terrain survives resave and reload",
+      "ok": true
+    },
+    {
+      "name": "legacy migration validates old records before adding defaults",
+      "ok": true
+    },
+    {
+      "name": "malformed legacy snapshots cannot be migrated",
+      "ok": true
+    },
+    {
+      "name": "future snapshot versions cannot be coerced to V3",
+      "ok": true
+    },
+    {
+      "name": "group command links two existing objects",
+      "ok": true
+    },
+    {
+      "name": "link preserves world transform and places root at local origin",
+      "ok": true
+    },
+    {
+      "name": "invalid group mutation is atomic: GroupObjects",
+      "ok": true
+    },
+    {
+      "name": "invalid group mutation is atomic: DeleteObject",
+      "ok": true
+    },
+    {
+      "name": "invalid group mutation is atomic: UpdateObject{ \"position\": [5, 5, 5] }",
+      "ok": true
+    },
+    {
+      "name": "invalid group mutation is atomic: UpdateGroup{ \"scale\": 0 }",
+      "ok": true
+    },
+    {
+      "name": "invalid group mutation is atomic: UpdateGroup{ \"position\": [0, 0, 0] }",
+      "ok": true
+    },
+    {
+      "name": "invalid group mutation is atomic: UpdateGroup{ \"rotation\": [0, 0, 0, 0] }",
+      "ok": true
+    },
+    {
+      "name": "group mutation enforces ownership",
+      "ok": true
+    },
+    {
+      "name": "group accepts translation rotation and uniform scale",
+      "ok": true
+    },
+    {
+      "name": "child world transform composes group frame in portable axes",
+      "ok": true
+    },
+    {
+      "name": "group transform participates in undo and redo",
+      "ok": true
+    },
+    {
+      "name": "child editor uses world coordinates while storing local coordinates",
+      "ok": true
+    },
+    {
+      "name": "duplicate group creates independent group and member identities",
+      "ok": true
+    },
+    {
+      "name": "ungroup preserves member world pose",
+      "ok": true
+    },
+    {
+      "name": "delete group removes exactly its members",
+      "ok": true
+    },
+    {
+      "name": "duplicate member IDs are rejected",
+      "ok": true
+    },
+    {
+      "name": "missing group references are rejected",
+      "ok": true
+    },
+    {
+      "name": "original static GLB imports: pavilion[]",
+      "ok": true
+    },
+    {
+      "name": "original static GLB imports: bench[]",
+      "ok": true
+    },
+    {
+      "name": "original static GLB imports: tree[]",
+      "ok": true
+    },
+    {
+      "name": "pavilion uses separate visible and doorway-preserving collision surfaces",
+      "ok": true
+    },
+    {
+      "name": "bench imports embedded PNG base color texture",
+      "ok": true
+    },
+    {
+      "name": "identical GLB content reuses the immutable asset without revision change",
+      "ok": true
+    },
+    {
+      "name": "embedded file checksum detects altered asset bytes",
+      "ok": true
+    },
+    {
+      "name": "stored asset bounds must agree with parsed content",
+      "ok": true
+    },
+    {
+      "name": "snapshot mesh assets cannot substitute external paths",
+      "ok": true
+    },
+    {
+      "name": "registered mesh asset creates a normal persistent scene object",
+      "ok": true
+    },
+    {
+      "name": "in-use mesh asset cannot be removed",
+      "ok": true
+    },
+    {
+      "name": "restored world poses can be linked again",
+      "ok": true
+    },
+    {
+      "name": "group-capable world with embedded meshes saves",
+      "ok": true
+    },
+    {
+      "name": "relocated snapshot restores geometry from embedded bytes with empty cache",
+      "ok": true
+    },
+    {
+      "name": "unused asset removal can be undone",
+      "ok": true
+    },
+    {
+      "name": "unsupported or malformed GLB rejected 0",
+      "ok": true
+    },
+    {
+      "name": "unsupported or malformed GLB rejected 1",
+      "ok": true
+    },
+    {
+      "name": "unsupported or malformed GLB rejected 2",
+      "ok": true
+    },
+    {
+      "name": "unsupported or malformed GLB rejected 3",
+      "ok": true
+    },
+    {
+      "name": "unsupported or malformed GLB rejected 4",
+      "ok": true
+    },
+    {
+      "name": "unsupported or malformed GLB rejected 5",
+      "ok": true
+    },
+    {
+      "name": "unsupported or malformed GLB rejected 6",
+      "ok": true
+    },
+    {
+      "name": "unsupported or malformed GLB rejected 7",
+      "ok": true
+    },
+    {
+      "name": "unsupported or malformed GLB rejected 8",
+      "ok": true
+    },
+    {
+      "name": "unsupported or malformed GLB rejected 9",
+      "ok": true
+    },
+    {
+      "name": "GLB declared length must match file",
+      "ok": true
+    },
+    {
+      "name": "GLB non-finite vertex data rejected",
+      "ok": true
+    },
+    {
+      "name": "imported collision proxies preserve an open building entrance",
+      "ok": true
+    },
+    {
+      "name": "imported building walls block native Jolt rays",
+      "ok": true
+    },
+    {
+      "name": "actual avatar enters GLB interior and stands on imported floor",
+      "ok": true
+    },
+    {
+      "name": "rotated and scaled group projects the closed door collider at its composed pose",
+      "ok": true
+    },
+    {
+      "name": "grouped door retains independent behavior and opens transformed collision passage",
+      "ok": true
+    },
+    {
+      "name": "group duplicate preserves independent door state with a new member ID",
+      "ok": true
+    },
+    {
+      "name": "V3 format-2 snapshot migrates without changing environment or identities",
+      "ok": true
+    }
+  ],
+  "engine": "4.5.1-stable (official)",
+  "failed": 0,
+  "passed": 188,
+  "physics": "Jolt Physics",
+  "suite": "native-domain-persistence-physics"
+}

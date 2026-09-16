@@ -13,8 +13,8 @@ var _requests: Dictionary = {}
 var _history: Array[Dictionary] = []
 var _redo: Array[Dictionary] = []
 
-func _init(file_path: String = "user://worlds/default.json") -> void:
-	repository = Repository.new(file_path)
+func _init(file_path: String = "user://worlds/default.json", adapter: RefCounted = null) -> void:
+	repository = adapter if adapter != null else Repository.new(file_path)
 
 func request(operation: String, payload: Dictionary = {}) -> Dictionary:
 	return dispatch({"api_version": 1, "request_id": Schema.uuid(), "operation": operation, "expected_revision": model.revision(), "payload": payload})

@@ -1,8 +1,7 @@
-extends RefCounted
+extends "res://adapters/repository_contract.gd"
 ## Validated, checksummed snapshots. Single writer; bounded reads; previous valid backup.
 const Schema = preload("res://domain/world_schema.gd")
 
-var path: String
 var _fingerprint := ""
 
 func _init(file_path: String) -> void:

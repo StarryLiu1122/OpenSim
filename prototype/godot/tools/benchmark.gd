@@ -31,7 +31,7 @@ func _run() -> void:
 			quit(1)
 			return
 		results.append(result)
-	var report := {"benchmark_version": 1, "application_version": "0.3.1", "engine": Engine.get_version_info().string, "os": OS.get_name() + " " + OS.get_version(), "cpu": OS.get_processor_name(), "gpu": RenderingServer.get_video_adapter_name(), "renderer": RenderingServer.get_current_rendering_method(), "resolution": [1280, 720], "vsync_requested": "disabled", "fps_cap": 0, "warmup_min_frames": 90, "warmup_min_seconds": 2, "sample_min_frames": 180, "sample_min_seconds": 3, "camera_position": [95, 44, -82], "camera_target": [135, 2, -140], "cases": results}
+	var report := {"benchmark_version": 1, "application_version": ProjectSettings.get_setting("application/config/version"), "engine": Engine.get_version_info().string, "os": OS.get_name() + " " + OS.get_version(), "cpu": OS.get_processor_name(), "gpu": RenderingServer.get_video_adapter_name(), "renderer": RenderingServer.get_current_rendering_method(), "resolution": [1280, 720], "vsync_requested": "disabled", "fps_cap": 0, "warmup_min_frames": 90, "warmup_min_seconds": 2, "sample_min_frames": 180, "sample_min_seconds": 3, "camera_position": [95, 44, -82], "camera_target": [135, 2, -140], "cases": results}
 	var file := FileAccess.open(output + "/benchmark.json", FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "\t", true, true) + "\n")
 	file.close()

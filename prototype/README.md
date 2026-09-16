@@ -1,12 +1,12 @@
-# Region Lab V3.1 使用说明
+# Region Lab V4.2 使用说明
 
-版本：0.3.1。本文适用于 Windows x64 源码运行方式。
+版本：0.4.2。本文适用于 Windows x64 源码运行方式。世界格式仍为 3，本地命令版本仍为 1。
 
-V4 首批原版运行对照与实验接口位于独立的 [integration](../integration/README.md) 目录；此处桌面原型继续保持 0.3.1。当前进度见 [V4 执行记录](../docs/plans/v4-progress.md)。
+V4 新增可选 SQLite 仓储，支持提交冲突检查、独立资产、备份导出和恢复；默认 JSON 保存路径保持兼容。原版网关位于 [integration](../integration/README.md)，数据库部署见 [services](../services/README.md)，阶段证据见 [V4 验收](../docs/comparisons/v4-completion.md)。
 
 Region Lab 是基于 Godot 的单区域编辑原型。V3.1 支持对象组合、静态 GLB 导入、六类内置对象、程序材质、地形编辑、区域环境、门灯交互、角色漫游和统一保存恢复。新世界提供庭院、湖岸及可进入的展馆。区域尺寸为 256×256 米，当前采用本机单用户模式。
 
-Region Lab 是世界模型与智能体协作平台的区域基础，后续将通过 Fusion Protocol 接入原版网关、权威区域服务和现代客户端。总体定位见 [项目 README](../README.md)，原始目标与技术核实见 [对齐说明](../docs/plans/platform-integration-alignment.md)。本文只描述当前可运行版本；浏览器、数据库、多人与在线智能体能力按 [版本路线](../docs/plans/stage-one-rebuild-plan.md) 分阶段交付。
+Region Lab 是世界模型与智能体协作平台的区域基础，后续将通过 Fusion Protocol 接入原版网关、权威区域服务和现代客户端。总体定位见 [项目 README](../README.md)，原始目标与技术核实见 [对齐说明](../docs/plans/platform-integration-alignment.md)。本文描述当前桌面版本；SQLite 已可选使用，正式浏览器客户端、多人与在线智能体按 [版本路线](../docs/plans/stage-one-rebuild-plan.md) 分阶段交付。
 
 ## 1. 环境要求
 
@@ -20,18 +20,18 @@ Region Lab 是世界模型与智能体协作平台的区域基础，后续将通
 | 网络 | 在线安装时下载官方引擎包，约 77 MB；安装后可离线运行 |
 | 可选工具 | Git，用于克隆和更新代码 |
 
-版本及 SHA512 固定在 [engine.lock.json](engine.lock.json)。运行不需要 .NET SDK、Python、C++ 编译器、数据库、模型权重或 API Key。当前直接运行工程，不需要导出模板。
+版本及 SHA512 固定在 [engine.lock.json](engine.lock.json)。默认 JSON 模式不需要 .NET SDK、Python、C++ 编译器、数据库服务、模型权重或 API Key。SQLite 模式另需 .NET 8 运行时和已构建的 RegionStore；从源码构建该工具需要 SDK 8.0.424。当前桌面直接运行工程，不需要导出模板。
 
 ## 2. 安装
 
 ### 2.1 获取代码
 
 ```powershell
-git clone --branch main https://github.com/StarryLiu1122/OpenSim.git
+git clone --branch codex/region-lab-v4 https://github.com/StarryLiu1122/OpenSim.git
 cd OpenSim\prototype
 ```
 
-也可在 GitHub 下载 `main` 分支 ZIP 并解压。已有仓库可在保存本地修改后更新 `main`。V3.1 固定实现提交为 `1af88966496561787e79bb387083de998dae4a81`；需要复现该版时使用独立目录检出此提交。
+也可在 GitHub 下载 `codex/region-lab-v4` 分支 ZIP 并解压。已有仓库先保存本地修改，再更新该分支。V3.1 固定实现提交为 `1af88966496561787e79bb387083de998dae4a81`；需要复现该版时使用独立目录检出此提交。
 
 ### 2.2 安装引擎
 
@@ -70,6 +70,16 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Godot.ps
 ```powershell
 .\Start.cmd -WorldFile "$PWD\runtime\launch-check.json" -Screenshot "$PWD\test-results\launch.png"
 ```
+
+### 3.1 可选数据库模式
+
+完成 [RegionStore 构建](../services/README.md) 后，在此目录启动：
+
+```powershell
+.\Start.cmd -Database "D:\RegionLabData\v4-world" -StoreExecutable "D:\RegionStore\RegionStore.exe"
+```
+
+首次为空库时显示演示区域，保存后建立持久记录。再次传入相同目录恢复；不能同时指定 `-WorldFile` 和 `-Database`。已有 V3.1 存档请通过管理工具导入到新数据库，原文件保留。保存冲突会保留未保存标记；先备份编辑，再恢复存档处理冲突。使用指南包含迁移、备份、恢复和回滚步骤。
 
 ## 4. 物体与角色操作
 
@@ -169,7 +179,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Install-Godot.ps
 
 保存流程包括数据校验、临时写入、回读验证、有效备份更新和主文件替换。主存档无效时尝试备份；恢复备份后界面提示检查并保存。两份文件均无效时保留当前内存世界并报告错误。
 
-V3.1 使用世界格式版本 3，可读取 V1/V2 的格式 1 和 V3 的格式 2。先验证旧数据，再在内存中补齐组与资产相关字段，标记为待保存；读取时不改写原文件。首次保存升级结果时，原格式保留在 .bak。旧版程序不能读取格式 3；返回旧版应使用升级前副本。不要让两个程序实例写入同一世界文件，当前文件存储不提供跨进程事务。
+V4.2 继续使用世界格式版本 3，可读取 V1/V2 的格式 1 和 V3 的格式 2。先验证旧数据，再在内存中补齐组与资产相关字段，标记为待保存；读取时不改写原文件。首次保存升级结果时，原格式保留在 .bak。旧版程序不能读取格式 3；返回旧版应使用升级前副本。不要让两个程序实例写入同一世界文件，当前文件存储不提供跨进程事务。
 
 保存内容包括区域、地形、环境、组合、资产目录及 GLB 内容、物体材质和门灯状态。编辑相机、角色实时位置、选择状态和撤销历史不持久化；角色重新启动时位于区域起点。撤销或重做后的世界按已修改状态处理，保存后清除标记。
 

@@ -1,0 +1,22 @@
+{
+  "test": "documented-backup-and-rollback",
+  "passed": true,
+  "checks": [
+    {
+      "name": "public CLI save, backup, second commit, import and load all succeed",
+      "passed": true
+    },
+    {
+      "name": "rollback restores the complete pre-upgrade world by deep equality",
+      "passed": true
+    },
+    {
+      "name": "rollback excludes the later commit and creates a new storage epoch",
+      "passed": true
+    }
+  ],
+  "source_commit": 0,
+  "later_commit": 1,
+  "restored_commit": 0,
+  "objects": 44
+}

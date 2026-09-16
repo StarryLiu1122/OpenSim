@@ -1,0 +1,126 @@
+{
+  "test": "fp-cold-restart-and-faults",
+  "passed": true,
+  "checks": [
+    {
+      "name": "complete real-region experiment passes in a newly built directory",
+      "passed": true
+    },
+    {
+      "name": "repeated telemetry export does not recursively embed older exports",
+      "passed": true
+    },
+    {
+      "name": "cold module restart generates a new world epoch",
+      "passed": true
+    },
+    {
+      "name": "completed receipt survives restart with its original outcome",
+      "passed": true
+    },
+    {
+      "name": "old-epoch command is never executed again",
+      "passed": true
+    },
+    {
+      "name": "restart preserves exactly one object from the repeated mutation",
+      "passed": true
+    },
+    {
+      "name": "overflowed event cursor explicitly requires a new snapshot",
+      "passed": true
+    },
+    {
+      "name": "snapshot boundary resumes without duplicate module subscriptions",
+      "passed": true
+    },
+    {
+      "name": "repeated Bot login 1",
+      "passed": true
+    },
+    {
+      "name": "repeated Bot actual turn 1",
+      "passed": true
+    },
+    {
+      "name": "repeated Bot clean logout 1",
+      "passed": true
+    },
+    {
+      "name": "repeated Bot login 2",
+      "passed": true
+    },
+    {
+      "name": "repeated Bot actual turn 2",
+      "passed": true
+    },
+    {
+      "name": "repeated Bot clean logout 2",
+      "passed": true
+    },
+    {
+      "name": "repeated Bot login 3",
+      "passed": true
+    },
+    {
+      "name": "repeated Bot actual turn 3",
+      "passed": true
+    },
+    {
+      "name": "repeated Bot clean logout 3",
+      "passed": true
+    },
+    {
+      "name": "Bot available for child-loss test",
+      "passed": true
+    },
+    {
+      "name": "action pending before actual Bot process loss",
+      "passed": true
+    },
+    {
+      "name": "killed Bot produces failed receipt rather than fabricated success",
+      "passed": true
+    },
+    {
+      "name": "restart clears disconnected test Avatar presence",
+      "passed": true
+    },
+    {
+      "name": "Bot reconnects after server restart",
+      "passed": true
+    },
+    {
+      "name": "prepared movement exists before server termination",
+      "passed": true
+    },
+    {
+      "name": "interrupted prepared receipt remains result_unknown after server death",
+      "passed": true
+    },
+    {
+      "name": "interrupted action is not replayed and does not spawn a new Bot",
+      "passed": true
+    },
+    {
+      "name": "explicit spawn reconnects after crash-stale original presence is cleared",
+      "passed": true
+    },
+    {
+      "name": "reconnected Bot exits cleanly after crash recovery",
+      "passed": true
+    },
+    {
+      "name": "expired authenticated session is rejected on a real HTTP request",
+      "passed": true
+    },
+    {
+      "name": "legacy reference endpoint cannot bypass session expiry",
+      "passed": true
+    },
+    {
+      "name": "normal and interrupted Bot runs contain no unsupported Thread.Abort exception",
+      "passed": true
+    }
+  ]
+}

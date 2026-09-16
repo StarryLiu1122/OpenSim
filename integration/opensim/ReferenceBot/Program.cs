@@ -1,6 +1,8 @@
 using System.Text.Json;
 using OpenMetaverse;
 
+if (args.Length == 2 && args[0] == "--worker") return await BotWorker.Run(args[1]);
+
 // This is a bounded protocol smoke test, not an autonomous agent or a teleport-based move test.
 if (args.Length != 3 || !int.TryParse(args[2], out int holdSeconds) || holdSeconds < 0 || holdSeconds > 600)
     throw new ArgumentException("Usage: ReferenceBot private-config.json new-report.json hold-seconds(0..600)");
@@ -19,6 +21,7 @@ client.Settings.SEND_PINGS = true;
 client.Settings.OBJECT_TRACKING = false;
 client.Settings.AVATAR_TRACKING = false;
 client.Settings.STORE_LAND_PATCHES = false;
+client.Settings.SEND_AGENT_APPEARANCE = false; // This bounded Bot does not bake or manage an outfit.
 var samples = new List<object>();
 using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
 http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Setting("token"));

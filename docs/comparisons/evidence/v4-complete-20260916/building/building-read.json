@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "name": "relocated snapshot loaded in a new engine process",
+      "passed": true
+    },
+    {
+      "name": "source GLB absent in destination",
+      "passed": true
+    },
+    {
+      "name": "independent COL_ proxy parsed",
+      "passed": true
+    },
+    {
+      "name": "building identity preserved",
+      "passed": true
+    },
+    {
+      "name": "entrance center clear",
+      "passed": true
+    },
+    {
+      "name": "front wall blocks ray",
+      "passed": true
+    },
+    {
+      "name": "lintel blocks over-height path",
+      "passed": true
+    },
+    {
+      "name": "1.8m avatar passes 0.84m by 1.90m doorway",
+      "passed": true
+    },
+    {
+      "name": "avatar stands on imported floor",
+      "passed": true
+    },
+    {
+      "name": "actual capsule cannot walk through front wall",
+      "passed": true
+    },
+    {
+      "name": "rendered building screenshot saved",
+      "passed": true
+    }
+  ],
+  "engine": "4.5.1-stable (official)",
+  "mode": "read",
+  "passed": true,
+  "test": "documented-building"
+}

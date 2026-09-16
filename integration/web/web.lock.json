@@ -1,0 +1,10 @@
+{
+  "godot": "4.5.1.stable.official.f62fdbde1",
+  "archive": "Godot_v4.5.1-stable_export_templates.tpz",
+  "url": "https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/Godot_v4.5.1-stable_export_templates.tpz",
+  "bytes": 1355592535,
+  "sha256": "1998af37f1387684e2c211cdb483daf492fc64dc6b12096bddcdca25b6910c86",
+  "templates": ["web_debug.zip", "web_nothreads_debug.zip"],
+  "renderer": "WebGL 2 Compatibility; no WebGPU",
+  "tested_browsers": {"chromium": "151.0.7922.34", "firefox": "153.0"}
+}

@@ -1,0 +1,164 @@
+{
+  "offline": true,
+  "lock_sha256": "dfba9e93502d6dfb9d34df369be669052d52937faa2671a298600c28ae5ac091",
+  "files": [
+    {
+      "sha256": "b98d957462be432895b00dccca012d3c127e118d3d4262418014b92c7bbd66cf",
+      "path": "Microsoft.Data.Sqlite.dll",
+      "bytes": 177464
+    },
+    {
+      "sha256": "bfcbd92570d3044adb03a7734a2e6f8f21913517920d47570d4576baa13af12e",
+      "path": "RegionStore.deps.json",
+      "bytes": 8678
+    },
+    {
+      "sha256": "3f21dcfa7f6cf0d124027ddb6282349859db0fe80545436b76daf3e8ba662c3d",
+      "path": "RegionStore.dll",
+      "bytes": 49152
+    },
+    {
+      "sha256": "037b5ab1736cc3bd6efc5106d2dc2ace84e45c2bc729c79b3da1d26664b0be7d",
+      "path": "RegionStore.exe",
+      "bytes": 151552
+    },
+    {
+      "sha256": "ae8f8900f746f9407c5925fa1236906dc7daf18d37403937376611c71772a2b8",
+      "path": "RegionStore.pdb",
+      "bytes": 17672
+    },
+    {
+      "sha256": "28329cf08f6505e73806b17558b187c02f0c1c516fe47ebfb7a013d082aaa306",
+      "path": "RegionStore.runtimeconfig.json",
+      "bytes": 340
+    },
+    {
+      "sha256": "528790d8ebb1fde0e43383beb015e8084dbcd0d963e09e1b690244205f52dadf",
+      "path": "runtimes/browser-wasm/nativeassets/net8.0/e_sqlite3.a",
+      "bytes": 1316048
+    },
+    {
+      "sha256": "43556c2f5075857bf57be1136d556733bdc27195884fbdde127cd976d1c25ad5",
+      "path": "runtimes/linux-arm/native/libe_sqlite3.so",
+      "bytes": 982224
+    },
+    {
+      "sha256": "707fff6b18c1f083158e7a543c8d2545d5485f547ffd96db29679a95f52878d5",
+      "path": "runtimes/linux-arm64/native/libe_sqlite3.so",
+      "bytes": 1534296
+    },
+    {
+      "sha256": "3f4d9b9ca49bb3f100882e78ba85807398cee19b481bfd4c301a8f5f58d48540",
+      "path": "runtimes/linux-armel/native/libe_sqlite3.so",
+      "bytes": 1375344
+    },
+    {
+      "sha256": "985884523e512414f3e50aa359f08dad3ce635e99405e7823de9b26a7db38d09",
+      "path": "runtimes/linux-mips64/native/libe_sqlite3.so",
+      "bytes": 1756544
+    },
+    {
+      "sha256": "7fec7057d16e8b5ae54fed0c42a0e6b85e40df0d57092ef20cd647a4e1c1e0ed",
+      "path": "runtimes/linux-musl-arm/native/libe_sqlite3.so",
+      "bytes": 1322584
+    },
+    {
+      "sha256": "530e2f74f259fe04faa4b595336e671fab5eedbb6f4e94dad59494efb7b00c2a",
+      "path": "runtimes/linux-musl-arm64/native/libe_sqlite3.so",
+      "bytes": 1450704
+    },
+    {
+      "sha256": "d8e54eb7dc52ea0a7df9b78ac6feb85af429e7264613099df478825dea5805d4",
+      "path": "runtimes/linux-musl-riscv64/native/libe_sqlite3.so",
+      "bytes": 1015888
+    },
+    {
+      "sha256": "64260c0460ad6efa7dce9263bff7a4b64ad66172ccc580cb09181c845e1a3407",
+      "path": "runtimes/linux-musl-s390x/native/libe_sqlite3.so",
+      "bytes": 1685752
+    },
+    {
+      "sha256": "647b7b5886526691aed58e0fcbb56dc1e6dea8b1f9f5390782f0c95269250db1",
+      "path": "runtimes/linux-musl-x64/native/libe_sqlite3.so",
+      "bytes": 1445336
+    },
+    {
+      "sha256": "1ef00b5e3ac63e491f59ecf587680fc52ad844cea62e0a879a1315ef6bd10fc6",
+      "path": "runtimes/linux-ppc64le/native/libe_sqlite3.so",
+      "bytes": 1937408
+    },
+    {
+      "sha256": "6b390eecbc6f55c44d9ab8a774f1fe4283dfb33a72e6f29f4e0b173065e7e105",
+      "path": "runtimes/linux-riscv64/native/libe_sqlite3.so",
+      "bytes": 1291896
+    },
+    {
+      "sha256": "dfd5ab35f6d61155a3c629d0bceff4d6e0f0f190983f3fb8f681fb34ec08c67e",
+      "path": "runtimes/linux-s390x/native/libe_sqlite3.so",
+      "bytes": 1655776
+    },
+    {
+      "sha256": "b0f5c48026fedcf9f05cf31c6fadf9e1e001ca59cd85aa68b8b6814e52c18a07",
+      "path": "runtimes/linux-x64/native/libe_sqlite3.so",
+      "bytes": 1470784
+    },
+    {
+      "sha256": "fe8229e5baeaf21e721cf65626a6b07ec22d9b17d07bd624e7a77927174277f1",
+      "path": "runtimes/linux-x86/native/libe_sqlite3.so",
+      "bytes": 1547984
+    },
+    {
+      "sha256": "8d63d80bc6caa754679d6fc89fd741a32c156f136c34759cc8fff8cd51468a93",
+      "path": "runtimes/maccatalyst-arm64/native/libe_sqlite3.dylib",
+      "bytes": 1695264
+    },
+    {
+      "sha256": "43d27adbc5ba40850bac42a12aea08314a22a43d3ce77cdc7a6cc47ecffb5746",
+      "path": "runtimes/maccatalyst-x64/native/libe_sqlite3.dylib",
+      "bytes": 1724352
+    },
+    {
+      "sha256": "09fe20a6c050912a7944b2f2f2981debe31679f7919f523c87251ae8cf0f2daa",
+      "path": "runtimes/osx-arm64/native/libe_sqlite3.dylib",
+      "bytes": 1696624
+    },
+    {
+      "sha256": "02344e1d0bcb5ed447ad9b79ed19e37a590fb1ece3eba1e63efbc35e36e47bdf",
+      "path": "runtimes/osx-x64/native/libe_sqlite3.dylib",
+      "bytes": 1724472
+    },
+    {
+      "sha256": "4177542756bd94f75b55fb74367e0cf34e66a88ffaf95755489af14c6ca2f792",
+      "path": "runtimes/win-arm64/native/e_sqlite3.dll",
+      "bytes": 1814528
+    },
+    {
+      "sha256": "b7385d722c83fb52142a00477a726723745916d22a555711ee89834c1111fb2e",
+      "path": "runtimes/win-x64/native/e_sqlite3.dll",
+      "bytes": 1978880
+    },
+    {
+      "sha256": "d13eb819d1353d98c684c88672868bbfcc6a52eb5987bdf2557ec02fabce4ea7",
+      "path": "runtimes/win-x86/native/e_sqlite3.dll",
+      "bytes": 1533952
+    },
+    {
+      "sha256": "815ce410c9eab531dd219318e3ba16c5e38e83d361cfbbdbb4bbca222c497b0b",
+      "path": "SQLitePCLRaw.batteries_v2.dll",
+      "bytes": 5120
+    },
+    {
+      "sha256": "af340ac9eb9195795660d7fc1114f486b6ab63998f33176e2f24c8e0acb9aa84",
+      "path": "SQLitePCLRaw.core.dll",
+      "bytes": 51200
+    },
+    {
+      "sha256": "df996bcae63c2cabcfe8d4b9c5110eb39a2a4706178b07d875665391c6eb3995",
+      "path": "SQLitePCLRaw.provider.e_sqlite3.dll",
+      "bytes": 36864
+    }
+  ],
+  "application_version": "0.4.2",
+  "sdk": "8.0.424",
+  "ok": true
+}

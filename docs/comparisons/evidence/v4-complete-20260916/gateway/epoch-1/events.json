@@ -1,0 +1,1851 @@
+[
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 1,
+    "tick": 29,
+    "observed_at": "2026-09-16T04:43:37.5725366+00:00",
+    "kind": "experiment_start",
+    "entity_id": "0ad3ae2b-cef9-46d3-b916-21528dc29ae1",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": null
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 2,
+    "tick": 37,
+    "observed_at": "2026-09-16T04:43:38.318143+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        100,
+        100,
+        1.9618906
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 3,
+    "tick": 37,
+    "observed_at": "2026-09-16T04:43:38.3198767+00:00",
+    "kind": "action_receipt",
+    "entity_id": "request/fbb541bf-e082-43b2-9b0f-628aa2cb0ce4",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+      "request_id": "fbb541bf-e082-43b2-9b0f-628aa2cb0ce4",
+      "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+      "operation": "AgentSpawn",
+      "state": "completed",
+      "error": "",
+      "tick": 37,
+      "event_seq": 2,
+      "observed_at": "2026-09-16T04:43:38.3198758+00:00",
+      "data": {
+        "observed": true,
+        "avatar_present": true,
+        "position": [
+          100,
+          100,
+          1.9618906
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 4,
+    "tick": 38,
+    "observed_at": "2026-09-16T04:43:38.3699004+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        100,
+        100,
+        1.8426256
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 5,
+    "tick": 39,
+    "observed_at": "2026-09-16T04:43:38.4603071+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        100,
+        100,
+        1.6423415
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 6,
+    "tick": 40,
+    "observed_at": "2026-09-16T04:43:38.5512857+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        100,
+        100,
+        1.3611524
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 7,
+    "tick": 41,
+    "observed_at": "2026-09-16T04:43:38.6579326+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        100.08318,
+        100,
+        1.0530812
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 8,
+    "tick": 42,
+    "observed_at": "2026-09-16T04:43:38.7363206+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        100.23048,
+        100,
+        1.0780673
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 9,
+    "tick": 43,
+    "observed_at": "2026-09-16T04:43:38.8284286+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        100.390686,
+        100,
+        1.1076978
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 10,
+    "tick": 44,
+    "observed_at": "2026-09-16T04:43:38.9202508+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        100.60732,
+        100,
+        1.0833135
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 11,
+    "tick": 45,
+    "observed_at": "2026-09-16T04:43:39.0123891+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        100.82755,
+        100,
+        1.0880095
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 12,
+    "tick": 46,
+    "observed_at": "2026-09-16T04:43:39.1059776+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        101.04796,
+        100,
+        1.0894121
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 13,
+    "tick": 47,
+    "observed_at": "2026-09-16T04:43:39.2008039+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        101.26845,
+        100,
+        1.089825
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 14,
+    "tick": 48,
+    "observed_at": "2026-09-16T04:43:39.2793894+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        101.48891,
+        100,
+        1.0899479
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 15,
+    "tick": 49,
+    "observed_at": "2026-09-16T04:43:39.3732169+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        101.70483,
+        100.00456,
+        1.0890362
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 16,
+    "tick": 50,
+    "observed_at": "2026-09-16T04:43:39.4663919+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        101.924416,
+        100.00536,
+        1.0897145
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 17,
+    "tick": 51,
+    "observed_at": "2026-09-16T04:43:39.5609571+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        102.14495,
+        100.00536,
+        1.0899171
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 18,
+    "tick": 52,
+    "observed_at": "2026-09-16T04:43:39.6558632+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        102.36538,
+        100.00536,
+        1.0899749
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 19,
+    "tick": 53,
+    "observed_at": "2026-09-16T04:43:39.734347+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        102.585945,
+        100.00536,
+        1.0899937
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 20,
+    "tick": 54,
+    "observed_at": "2026-09-16T04:43:39.828399+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        102.80636,
+        100.00536,
+        1.0899986
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 21,
+    "tick": 55,
+    "observed_at": "2026-09-16T04:43:39.9224836+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        103.02693,
+        100.00536,
+        1.0900003
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 22,
+    "tick": 56,
+    "observed_at": "2026-09-16T04:43:40.0137974+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        103.2475,
+        100.00536,
+        1.0889792
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 23,
+    "tick": 57,
+    "observed_at": "2026-09-16T04:43:40.1070339+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        103.37436,
+        100.00536,
+        1.0899386
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 24,
+    "tick": 58,
+    "observed_at": "2026-09-16T04:43:40.1991677+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        103.43757,
+        100.00536,
+        1.0899818
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 25,
+    "tick": 59,
+    "observed_at": "2026-09-16T04:43:40.2926184+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        103.47364,
+        100.00536,
+        1.0899947
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 26,
+    "tick": 60,
+    "observed_at": "2026-09-16T04:43:40.3714546+00:00",
+    "kind": "action_receipt",
+    "entity_id": "request/41e4871d-46f0-47e3-a710-3e4260f59b1a",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+      "request_id": "41e4871d-46f0-47e3-a710-3e4260f59b1a",
+      "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+      "operation": "AgentAction",
+      "state": "completed",
+      "error": "",
+      "tick": 60,
+      "event_seq": 25,
+      "observed_at": "2026-09-16T04:43:40.3714542+00:00",
+      "data": {
+        "observed": true,
+        "avatar_present": true,
+        "position": [
+          103.47364,
+          100.00536,
+          1.0899947
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 27,
+    "tick": 66,
+    "observed_at": "2026-09-16T04:43:40.9199325+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        103.47364,
+        100.00536,
+        1.0899947
+      ],
+      "rotation": [
+        0,
+        0,
+        0.7071068,
+        0.7071067
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 28,
+    "tick": 66,
+    "observed_at": "2026-09-16T04:43:40.9200991+00:00",
+    "kind": "action_receipt",
+    "entity_id": "request/a7d9792c-4c2f-4c70-9358-0f85e127b9e8",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+      "request_id": "a7d9792c-4c2f-4c70-9358-0f85e127b9e8",
+      "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+      "operation": "AgentAction",
+      "state": "completed",
+      "error": "",
+      "tick": 66,
+      "event_seq": 27,
+      "observed_at": "2026-09-16T04:43:40.9200987+00:00",
+      "data": {
+        "observed": true,
+        "avatar_present": true,
+        "position": [
+          103.47364,
+          100.00536,
+          1.0899947
+        ],
+        "rotation": [
+          0,
+          0,
+          0.7071068,
+          0.7071067
+        ]
+      }
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 29,
+    "tick": 71,
+    "observed_at": "2026-09-16T04:43:41.4127841+00:00",
+    "kind": "upsert",
+    "entity_id": "group/575372ae-230d-4a7f-91ed-615045251b82",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "entity_id": "group/575372ae-230d-4a7f-91ed-615045251b82",
+      "source_id": "575372ae-230d-4a7f-91ed-615045251b82",
+      "kind": "object_group",
+      "root_id": "575372ae-230d-4a7f-91ed-615045251b82",
+      "owner_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "position": [
+        103.47364,
+        102.00536,
+        1.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "members": [
+        {
+          "entity_id": "part/575372ae-230d-4a7f-91ed-615045251b82",
+          "source_id": "575372ae-230d-4a7f-91ed-615045251b82",
+          "name": "FP controlled door",
+          "link_number": 0,
+          "local_position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "size": [
+            2,
+            0.2,
+            3
+          ],
+          "state": "FP_DOOR:closed"
+        }
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 30,
+    "tick": 72,
+    "observed_at": "2026-09-16T04:43:41.4757782+00:00",
+    "kind": "interaction",
+    "entity_id": "group/575372ae-230d-4a7f-91ed-615045251b82",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "active": true,
+      "actor": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318"
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 31,
+    "tick": 72,
+    "observed_at": "2026-09-16T04:43:41.4774658+00:00",
+    "kind": "upsert",
+    "entity_id": "group/575372ae-230d-4a7f-91ed-615045251b82",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "entity_id": "group/575372ae-230d-4a7f-91ed-615045251b82",
+      "source_id": "575372ae-230d-4a7f-91ed-615045251b82",
+      "kind": "object_group",
+      "root_id": "575372ae-230d-4a7f-91ed-615045251b82",
+      "owner_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "position": [
+        103.47364,
+        102.00536,
+        1.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0.70710677,
+        0.70710677
+      ],
+      "members": [
+        {
+          "entity_id": "part/575372ae-230d-4a7f-91ed-615045251b82",
+          "source_id": "575372ae-230d-4a7f-91ed-615045251b82",
+          "name": "FP controlled door",
+          "link_number": 0,
+          "local_position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0.70710677,
+            0.70710677
+          ],
+          "size": [
+            2,
+            0.2,
+            3
+          ],
+          "state": "FP_DOOR:open"
+        }
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 32,
+    "tick": 74,
+    "observed_at": "2026-09-16T04:43:41.6536891+00:00",
+    "kind": "upsert",
+    "entity_id": "group/82adbd4f-990f-4cb2-b8f3-5d9da87109f3",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "entity_id": "group/82adbd4f-990f-4cb2-b8f3-5d9da87109f3",
+      "source_id": "82adbd4f-990f-4cb2-b8f3-5d9da87109f3",
+      "kind": "object_group",
+      "root_id": "82adbd4f-990f-4cb2-b8f3-5d9da87109f3",
+      "owner_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "position": [
+        103.47364,
+        101.00536,
+        1.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "members": [
+        {
+          "entity_id": "part/82adbd4f-990f-4cb2-b8f3-5d9da87109f3",
+          "source_id": "82adbd4f-990f-4cb2-b8f3-5d9da87109f3",
+          "name": "Occluder",
+          "link_number": 0,
+          "local_position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "size": [
+            2,
+            0.2,
+            3
+          ],
+          "state": ""
+        }
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 33,
+    "tick": 77,
+    "observed_at": "2026-09-16T04:43:41.9356268+00:00",
+    "kind": "delete",
+    "entity_id": "group/82adbd4f-990f-4cb2-b8f3-5d9da87109f3",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": null
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 34,
+    "tick": 79,
+    "observed_at": "2026-09-16T04:43:42.1050575+00:00",
+    "kind": "upsert",
+    "entity_id": "group/b842717b-0fff-4d30-a554-550de2a90598",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "entity_id": "group/b842717b-0fff-4d30-a554-550de2a90598",
+      "source_id": "b842717b-0fff-4d30-a554-550de2a90598",
+      "kind": "object_group",
+      "root_id": "b842717b-0fff-4d30-a554-550de2a90598",
+      "owner_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "position": [
+        120,
+        120,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "members": [
+        {
+          "entity_id": "part/b842717b-0fff-4d30-a554-550de2a90598",
+          "source_id": "b842717b-0fff-4d30-a554-550de2a90598",
+          "name": "Idempotent",
+          "link_number": 0,
+          "local_position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ],
+          "state": ""
+        }
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 35,
+    "tick": 86,
+    "observed_at": "2026-09-16T04:43:42.73879+00:00",
+    "kind": "upsert",
+    "entity_id": "group/62970c13-1486-419b-b488-6d1883bbbb12",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "entity_id": "group/62970c13-1486-419b-b488-6d1883bbbb12",
+      "source_id": "62970c13-1486-419b-b488-6d1883bbbb12",
+      "kind": "object_group",
+      "root_id": "62970c13-1486-419b-b488-6d1883bbbb12",
+      "owner_id": "5f62d27c-7e3d-4947-b35c-cec63c123998",
+      "position": [
+        140,
+        140,
+        1
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "members": [
+        {
+          "entity_id": "part/62970c13-1486-419b-b488-6d1883bbbb12",
+          "source_id": "62970c13-1486-419b-b488-6d1883bbbb12",
+          "name": "Secondary-owned",
+          "link_number": 0,
+          "local_position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ],
+          "state": ""
+        }
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 36,
+    "tick": 98,
+    "observed_at": "2026-09-16T04:43:43.8308011+00:00",
+    "kind": "action_receipt",
+    "entity_id": "request/f7719c6a-3d4f-4bfa-9516-300119b07828",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+      "request_id": "f7719c6a-3d4f-4bfa-9516-300119b07828",
+      "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+      "operation": "AgentAction",
+      "state": "cancelled",
+      "error": "CANCELLED_BY_CALLER",
+      "tick": 98,
+      "event_seq": 35,
+      "observed_at": "2026-09-16T04:43:43.8308006+00:00",
+      "data": {
+        "observed": true,
+        "avatar_present": true,
+        "position": [
+          103.47364,
+          100.00536,
+          1.0899947
+        ],
+        "rotation": [
+          0,
+          0,
+          0.7071068,
+          0.7071067
+        ]
+      }
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 37,
+    "tick": 104,
+    "observed_at": "2026-09-16T04:43:44.377788+00:00",
+    "kind": "upsert",
+    "entity_id": "group/bc9e982e-e222-4998-8aa9-3eee2836f5f7",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "entity_id": "group/bc9e982e-e222-4998-8aa9-3eee2836f5f7",
+      "source_id": "bc9e982e-e222-4998-8aa9-3eee2836f5f7",
+      "kind": "object_group",
+      "root_id": "bc9e982e-e222-4998-8aa9-3eee2836f5f7",
+      "owner_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "position": [
+        105.47364,
+        100.00536,
+        1.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "members": [
+        {
+          "entity_id": "part/bc9e982e-e222-4998-8aa9-3eee2836f5f7",
+          "source_id": "bc9e982e-e222-4998-8aa9-3eee2836f5f7",
+          "name": "Movement barrier",
+          "link_number": 0,
+          "local_position": [
+            0,
+            0,
+            0
+          ],
+          "rotation": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "size": [
+            0.5,
+            8,
+            3
+          ],
+          "state": ""
+        }
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 38,
+    "tick": 106,
+    "observed_at": "2026-09-16T04:43:44.5558052+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        103.56646,
+        100.00536,
+        1.0899982
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 39,
+    "tick": 107,
+    "observed_at": "2026-09-16T04:43:44.6467884+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        103.71152,
+        100.00536,
+        1.0899998
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 40,
+    "tick": 108,
+    "observed_at": "2026-09-16T04:43:44.7392248+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        103.893555,
+        100.00536,
+        1.0888909
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 41,
+    "tick": 109,
+    "observed_at": "2026-09-16T04:43:44.8322304+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.08881,
+        100.00536,
+        1.0896698
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 42,
+    "tick": 110,
+    "observed_at": "2026-09-16T04:43:44.9222733+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.30723,
+        100.00536,
+        1.0899022
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 43,
+    "tick": 111,
+    "observed_at": "2026-09-16T04:43:45.0143739+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.52773,
+        100.00536,
+        1.0899706
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 44,
+    "tick": 112,
+    "observed_at": "2026-09-16T04:43:45.1060411+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.74821,
+        100.00536,
+        1.0899912
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 45,
+    "tick": 113,
+    "observed_at": "2026-09-16T04:43:45.1978201+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.96873,
+        100.00536,
+        1.089998
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 46,
+    "tick": 114,
+    "observed_at": "2026-09-16T04:43:45.2918907+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        105.00915,
+        100.00536,
+        1.0899996
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 47,
+    "tick": 115,
+    "observed_at": "2026-09-16T04:43:45.3710972+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        105.00008,
+        100.00536,
+        1.0899997
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 48,
+    "tick": 116,
+    "observed_at": "2026-09-16T04:43:45.4635497+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.99889,
+        100.00536,
+        1.0899997
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 49,
+    "tick": 117,
+    "observed_at": "2026-09-16T04:43:45.5569966+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.99872,
+        100.005356,
+        1.0899997
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 50,
+    "tick": 118,
+    "observed_at": "2026-09-16T04:43:45.6498483+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.99869,
+        100.00538,
+        1.0899997
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 51,
+    "tick": 121,
+    "observed_at": "2026-09-16T04:43:45.9145748+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        105.00354,
+        100.00538,
+        1.0899647
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 52,
+    "tick": 122,
+    "observed_at": "2026-09-16T04:43:46.0061875+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        105.00003,
+        100.00538,
+        1.0899868
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 53,
+    "tick": 123,
+    "observed_at": "2026-09-16T04:43:46.099914+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.999054,
+        100.00538,
+        1.089992
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 54,
+    "tick": 124,
+    "observed_at": "2026-09-16T04:43:46.1923703+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.99877,
+        100.00538,
+        1.089992
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 55,
+    "tick": 125,
+    "observed_at": "2026-09-16T04:43:46.2870752+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.99869,
+        100.00536,
+        1.0899955
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 56,
+    "tick": 128,
+    "observed_at": "2026-09-16T04:43:46.5655617+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        105.00576,
+        100.00531,
+        1.0899997
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 57,
+    "tick": 129,
+    "observed_at": "2026-09-16T04:43:46.6424545+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.99924,
+        100.00531,
+        1.0899997
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 58,
+    "tick": 130,
+    "observed_at": "2026-09-16T04:43:46.7355375+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.99882,
+        100.00531,
+        1.0899997
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 59,
+    "tick": 131,
+    "observed_at": "2026-09-16T04:43:46.8281806+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.99871,
+        100.0053,
+        1.0899997
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 60,
+    "tick": 132,
+    "observed_at": "2026-09-16T04:43:46.9203313+00:00",
+    "kind": "upsert",
+    "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+    "origin": "opensim",
+    "trace_id": "",
+    "data": {
+      "entity_id": "avatar/97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "source_id": "97af97dc-6bb3-4145-aeaf-f17cecd24318",
+      "kind": "avatar",
+      "position": [
+        104.99868,
+        100.0053,
+        1.0899997
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 61,
+    "tick": 149,
+    "observed_at": "2026-09-16T04:43:48.465079+00:00",
+    "kind": "action_receipt",
+    "entity_id": "request/28d30906-e67d-4088-8094-214fdaa82b51",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": {
+      "fp_version": "0.2",
+      "world_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "region_id": "093e33cc-a504-4a1f-bd56-e2836218c1d7",
+      "source_runtime": "opensim-0.9.3.0",
+      "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+      "request_id": "28d30906-e67d-4088-8094-214fdaa82b51",
+      "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+      "operation": "AgentAction",
+      "state": "failed",
+      "error": "ACTION_TIMEOUT",
+      "tick": 149,
+      "event_seq": 60,
+      "observed_at": "2026-09-16T04:43:48.4650787+00:00",
+      "data": {
+        "observed": true,
+        "avatar_present": true,
+        "position": [
+          104.99868,
+          100.0053,
+          1.0899997
+        ],
+        "rotation": [
+          0,
+          0,
+          0,
+          1
+        ]
+      }
+    }
+  },
+  {
+    "fp_version": "0.2",
+    "world_epoch": "23c99a30-6b89-4816-8823-737c879e2a2a",
+    "seq": 62,
+    "tick": 154,
+    "observed_at": "2026-09-16T04:43:48.9238879+00:00",
+    "kind": "delete",
+    "entity_id": "group/bc9e982e-e222-4998-8aa9-3eee2836f5f7",
+    "origin": "mock-platform",
+    "trace_id": "3056232e-b772-47d7-ae86-3d6cd9423022",
+    "data": null
+  }
+]

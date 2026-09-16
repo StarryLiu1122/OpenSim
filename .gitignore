@@ -137,3 +137,6 @@ services/**/bin/
 services/runtime/
 !integration/**/*.csproj
 !services/**/*.csproj
+prototype/tools/__pycache__/
+integration/**/__pycache__/
+services/**/__pycache__/

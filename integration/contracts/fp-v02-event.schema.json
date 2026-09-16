@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Region Lab FP 0.2 event",
+  "type": "object",
+  "properties": {
+    "fp_version": {
+      "const": "0.2"
+    },
+    "world_epoch": {
+      "type": "string",
+      "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "tick": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9223372036854775807
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "kind": {
+      "enum": [
+        "upsert",
+        "delete",
+        "interaction",
+        "action_receipt",
+        "experiment_start",
+        "experiment_stop"
+      ]
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "origin": {
+      "enum": [
+        "mock-platform",
+        "manual-test",
+        "opensim"
+      ]
+    },
+    "trace_id": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        {
+          "const": ""
+        }
+      ]
+    },
+    "data": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "fp_version",
+    "world_epoch",
+    "seq",
+    "tick",
+    "observed_at",
+    "kind",
+    "entity_id",
+    "origin",
+    "trace_id",
+    "data"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "upsert"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "entity_id": {
+                    "type": "string",
+                    "pattern": "^group/"
+                  },
+                  "source_id": {
+                    "type": "string",
+                    "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                  },
+                  "kind": {
+                    "const": "object_group"
+                  },
+                  "root_id": {
+                    "type": "string",
+                    "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                  },
+                  "owner_id": {
+                    "type": "string",
+                    "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                  },
+                  "position": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "rotation": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 4,
+                    "maxItems": 4
+                  },
+                  "members": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "entity_id": {
+                          "type": "string",
+                          "pattern": "^part/"
+                        },
+                        "source_id": {
+                          "type": "string",
+                          "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "link_number": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "local_position": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 3,
+                          "maxItems": 3
+                        },
+                        "rotation": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 4,
+                          "maxItems": 4
+                        },
+                        "size": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 3,
+                          "maxItems": 3
+                        },
+                        "state": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "entity_id",
+                        "source_id",
+                        "name",
+                        "link_number",
+                        "local_position",
+                        "rotation",
+                        "size",
+                        "state"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1
+                  }
+                },
+                "required": [
+                  "entity_id",
+                  "source_id",
+                  "kind",
+                  "root_id",
+                  "position",
+                  "rotation",
+                  "members"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "entity_id": {
+                    "type": "string",
+                    "pattern": "^avatar/"
+                  },
+                  "source_id": {
+                    "type": "string",
+                    "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+                  },
+                  "kind": {
+                    "const": "avatar"
+                  },
+                  "position": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "rotation": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 4,
+                    "maxItems": 4
+                  }
+                },
+                "required": [
+                  "entity_id",
+                  "source_id",
+                  "kind",
+                  "position",
+                  "rotation"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "action_receipt"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "fp_version": {
+                "const": "0.2"
+              },
+              "world_id": {
+                "type": "string",
+                "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "region_id": {
+                "type": "string",
+                "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "source_runtime": {
+                "const": "opensim-0.9.3.0"
+              },
+              "world_epoch": {
+                "type": "string",
+                "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "request_id": {
+                "type": "string",
+                "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "trace_id": {
+                "type": "string",
+                "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "operation": {
+                "type": "string"
+              },
+              "state": {
+                "enum": [
+                  "pending",
+                  "completed",
+                  "rejected",
+                  "failed",
+                  "cancelled",
+                  "result_unknown"
+                ]
+              },
+              "error": {
+                "type": "string"
+              },
+              "tick": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9223372036854775807
+              },
+              "event_seq": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9223372036854775807
+              },
+              "observed_at": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "(Z|[+-][0-9]{2}:[0-9]{2})$"
+              },
+              "data": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "fp_version",
+              "world_id",
+              "region_id",
+              "source_runtime",
+              "world_epoch",
+              "request_id",
+              "trace_id",
+              "operation",
+              "state",
+              "error",
+              "tick",
+              "event_seq",
+              "observed_at",
+              "data"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  ]
+}

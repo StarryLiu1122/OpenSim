@@ -1,0 +1,251 @@
+{
+  "engine": "chromium",
+  "browser_version": "151.0.7922.34",
+  "profile": "jolt-single",
+  "initial": {
+    "probe": {
+      "avatar_position": [
+        80,
+        0.200898855924606,
+        -82.0346527099609
+      ],
+      "checks": [
+        {
+          "name": "production GLB importer",
+          "passed": true
+        },
+        {
+          "name": "mesh instance command",
+          "passed": true
+        },
+        {
+          "name": "door command",
+          "passed": true
+        },
+        {
+          "name": "terrain collision",
+          "passed": true
+        },
+        {
+          "name": "GLB doorway ray",
+          "passed": true
+        },
+        {
+          "name": "GLB wall collision",
+          "passed": true
+        },
+        {
+          "name": "closed door collision",
+          "passed": true
+        },
+        {
+          "name": "door interaction command",
+          "passed": true
+        },
+        {
+          "name": "open door passage",
+          "passed": true
+        },
+        {
+          "name": "avatar enters GLB and stands on floor",
+          "passed": true
+        },
+        {
+          "name": "user filesystem snapshot save",
+          "passed": true
+        }
+      ],
+      "engine": "4.5.1-stable (official)",
+      "passed": true,
+      "physics": "Jolt Physics",
+      "previous_revision": -1,
+      "previous_snapshot_loaded": false,
+      "renderer": "gl_compatibility"
+    },
+    "isolated": true,
+    "sharedArrayBuffer": true,
+    "webgl2": true
+  },
+  "file_picker": {
+    "errors": [],
+    "passed": true
+  },
+  "reloaded": {
+    "avatar_position": [
+      80,
+      0.200898855924606,
+      -82.0346527099609
+    ],
+    "checks": [
+      {
+        "name": "production GLB importer",
+        "passed": true
+      },
+      {
+        "name": "mesh instance command",
+        "passed": true
+      },
+      {
+        "name": "door command",
+        "passed": true
+      },
+      {
+        "name": "terrain collision",
+        "passed": true
+      },
+      {
+        "name": "GLB doorway ray",
+        "passed": true
+      },
+      {
+        "name": "GLB wall collision",
+        "passed": true
+      },
+      {
+        "name": "closed door collision",
+        "passed": true
+      },
+      {
+        "name": "door interaction command",
+        "passed": true
+      },
+      {
+        "name": "open door passage",
+        "passed": true
+      },
+      {
+        "name": "avatar enters GLB and stands on floor",
+        "passed": true
+      },
+      {
+        "name": "user filesystem snapshot save",
+        "passed": true
+      }
+    ],
+    "engine": "4.5.1-stable (official)",
+    "passed": true,
+    "physics": "Jolt Physics",
+    "previous_revision": 4,
+    "previous_snapshot_loaded": true,
+    "renderer": "gl_compatibility"
+  },
+  "reload_network_files": [
+    "/jolt-single/index.html",
+    "/jolt-single/index.wasm"
+  ],
+  "passed": true,
+  "console": [
+    {
+      "type": "log",
+      "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+    },
+    {
+      "type": "log",
+      "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+    },
+    {
+      "type": "log",
+      "text": "Build configuration: Emscripten 4.0.10, single-threaded, no GDExtension support."
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true production GLB importer"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true mesh instance command"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true door command"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true terrain collision"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true GLB doorway ray"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true GLB wall collision"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true closed door collision"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true door interaction command"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true open door passage"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true user filesystem snapshot save"
+    },
+    {
+      "type": "log",
+      "text": "Godot Engine v4.5.1.stable.official.f62fdbde1 - https://godotengine.org"
+    },
+    {
+      "type": "log",
+      "text": "OpenGL API OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium)) - Compatibility - Using Device: WebKit - WebKit WebGL"
+    },
+    {
+      "type": "log",
+      "text": "Build configuration: Emscripten 4.0.10, single-threaded, no GDExtension support."
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true production GLB importer"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true mesh instance command"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true door command"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true terrain collision"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true GLB doorway ray"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true GLB wall collision"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true closed door collision"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true door interaction command"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true open door passage"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true avatar enters GLB and stands on floor"
+    },
+    {
+      "type": "log",
+      "text": "WEB_PROBE true user filesystem snapshot save"
+    }
+  ]
+}

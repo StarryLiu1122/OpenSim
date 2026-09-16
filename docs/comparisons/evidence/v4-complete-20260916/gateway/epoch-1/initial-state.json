@@ -1,0 +1,7 @@
+{
+  "snapshot_seq": 0,
+  "coordinate_system": "X-east,Y-north,Z-up;metres",
+  "scope": "non-attachment-region-objects-and-root-avatars",
+  "entities": [],
+  "consistency": "immutable frame observation; not a lock over upstream physics or viewer threads"
+}
