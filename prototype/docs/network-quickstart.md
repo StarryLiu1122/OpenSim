@@ -6,12 +6,12 @@
 
 需要 PowerShell 7、.NET SDK **8.0.424**（构建），以及 **ASP.NET Core 8 Runtime**（运行，包含 .NET Runtime）。安装 SDK 的开发电脑已具备这些运行时。Python 和 Node.js 仅用于开发测试；正常运行不需要模型服务或 API Key。
 
-在 PowerShell 7 中进入仓库根目录，更新开发分支：
+在 PowerShell 7 中进入仓库根目录，更新 main 分支：
 
 ```powershell
 git fetch origin
-git switch codex/region-lab-v5
-git pull --ff-only origin codex/region-lab-v5
+git switch main
+git pull --ff-only origin main
 $godot = 'C:\path\to\Godot_v4.5.1-stable_win64_console.exe'
 $storeBuild = Join-Path $PWD 'services\runtime\v5-store'
 $hostBuild = Join-Path $PWD 'services\runtime\v5-host'
@@ -42,12 +42,14 @@ $instance = Join-Path $PWD 'prototype\runtime\network-v5'
 
 ## 3. 操作与提交
 
-- 在列表选择对象，修改名称或 X/Y/Z 后点击“提交位置”；“门 / 灯”提交交互状态。“新建方块”和“删除”同样经服务器校验。
-- 点“漫游 / Esc”进入鼠标捕获，WASD 移动，空格跳跃，Esc 返回。必要碰撞资产未验证完成时不能进入可操作状态。
-- 组合、地形、环境等已有领域能力通过命令下拉框和 JSON 参数操作，参数格式见 [领域接口](architecture-and-api.md)。网络客户端当前没有复制完整离线编辑器的全部面板，也没有共享撤销历史。
-- GLB 文件先暂存；补全 `license` 和 `attribution` 后提交 `UploadAsset`。成功回执返回资产 ID。用 `CreateObject` 创建引用该资产的对象；网格对象使用 `material: "plain"`，尺寸和坐标须满足现有验证规则。
+新版布局和完整操作见 [界面说明](network-interface.md)。
+
+- 在场景页搜索对象或直接点选三维物体；属性页修改名称和 X/Y/Z，点击“保存对象修改”。双击列表对象或按 F 定位。“切换门 / 灯”提交交互状态；删除独立对象需要确认。
+- 点击顶部“进入漫游”或在非文本输入状态按 Tab，WASD 移动、鼠标转向、空格跳跃，Esc 返回。漫游收起工具面板；连接或必要碰撞资产未准备完成时不能进入可操作状态。
+- 组合、地形、环境等领域能力仍通过高级页命令和 JSON 参数操作，参数见 [领域接口](architecture-and-api.md)。当前没有共享撤销历史。
+- GLB 选择后在资产页填写名称、许可和来源并提交；成功后选择模型并点击“将模型放到角色前方”。模型尺寸采用原始包围尺寸，后续可以在属性页修改位置；全部操作仍由服务器校验和保存。
 - “等待服务器提交”不是成功。收到 SQLite 持久化回执后界面显示提交修订；竞争修改可能返回 `REVISION_CONFLICT`，应检查最新状态后重新提交。
-- 若提交时断线，复制保留请求 ID，重新登录后使用“查询回执”。未知结果不能当作失败并随意换 ID 重复执行。下载的观察记录包含请求 ID 和结果，不包含会话令牌；它不是完整备份。
+- 若提交时断线，复制保留请求 ID，重新登录后在高级页使用“查询提交结果”。未知结果不能当作失败并随意换 ID 重复执行。下载的观察记录包含请求 ID 和结果，不包含会话令牌；它不是完整备份。
 
 ## 4. 浏览器客户端
 

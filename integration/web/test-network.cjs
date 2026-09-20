@@ -49,7 +49,10 @@ async function functional(page,context,engine,browserPid){
  const download=page.waitForEvent('download');await action(page,{type:'download'});const file=await download;await file.saveAs(path.join(output,engine+'-observation.json'));
  const exported=read(path.join(output,engine+'-observation.json'));check(exported.format==='region-lab.observation'&&!JSON.stringify(exported).includes(config.principals[0].token),engine+' observation download contains no session token');
  // Pointer lock must originate in a real click, not an automation-only API.
- await page.bringToFront();await page.mouse.click(162,218);
+ await page.bringToFront();
+ const layout=(await observation(page)).ui, canvas=await page.locator('canvas').boundingBox();
+ const r=layout.walk_button;
+ await page.mouse.click(canvas.x+(r[0]+r[2]/2)*canvas.width/layout.viewport[0],canvas.y+(r[1]+r[3]/2)*canvas.height/layout.viewport[1]);
  await page.waitForFunction(()=>!!document.pointerLockElement,null,{timeout:5000}).catch(()=>{});
  const locked=await page.evaluate(()=>!!document.pointerLockElement);
  if(locked)await page.keyboard.press('Escape');
@@ -109,8 +112,8 @@ async function run(){
    const browserServer=await launcher.launchServer({headless:false});const browser=await launcher.connect(browserServer.wsEndpoint());versions[engine]=browser.version();let currentPage;
    try{
     const context=await browser.newContext({ignoreHTTPSErrors:true,viewport:{width:1440,height:960},deviceScaleFactor:1,acceptDownloads:true});const page=await context.newPage();currentPage=page;
-    const logs=[];page.on('console',m=>{if(['error','warning'].includes(m.type()))logs.push({type:m.type(),text:m.text()})});page.on('pageerror',e=>logs.push({type:'pageerror',text:String(e)}));
-    await page.goto(url,{waitUntil:'domcontentloaded'});await login(page);
+    const logs=[];consoles.push({engine,run,logs});page.on('console',m=>{if(['error','warning'].includes(m.type()))logs.push({type:m.type(),text:m.text()})});page.on('pageerror',e=>logs.push({type:'pageerror',text:String(e)}));
+    await page.goto(url,{waitUntil:'domcontentloaded'});await page.bringToFront();await login(page);
     const cold=await metrics(page,engine,run,'cold');samples.push(cold);console.log(`MEASURE ${engine} cold ${run}: ${cold.elapsed_ms.toFixed(1)} ms`);report();
     check(cold.asset_ready&&cold.nodes>=44&&cold.isolated,`${engine} cold ${run} is interactive with complete collisions and isolation headers`);
     if(run===1){
@@ -118,7 +121,6 @@ async function run(){
      await page.reload({waitUntil:'domcontentloaded'});await login(page);samples.push(await metrics(page,engine,run,'hot'));report();
      if(args['--functional']!=='false')await functional(page,context,engine,browserServer.process().pid);
     }
-    consoles.push({engine,run,logs});
     check(!logs.some(x=>x.type==='pageerror'||/SCRIPT ERROR|Parse Error|Failed to load script/.test(x.text)),`${engine} run ${run} has no script failures`);
     await context.close();
    }catch(error){if(currentPage){await currentPage.screenshot({path:path.join(output,engine+'-failure.png'),timeout:5000}).catch(()=>{});const o=await observation(currentPage).catch(()=>null);if(o)write(path.join(output,engine+'-failure-observation.json'),o)}throw error}finally{await browser.close();await browserServer.close()}

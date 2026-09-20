@@ -1,0 +1,70 @@
+{
+	"checks": [
+		{
+			"name": "projection checksum survives JSON numeric and key-type round trip",
+			"passed": true
+		},
+		{
+			"name": "read-only projection accepts a real serialized snapshot",
+			"passed": true
+		},
+		{
+			"name": "snapshot reference cannot mutate the projection",
+			"passed": true
+		},
+		{
+			"name": "delta deletion and revision publish together",
+			"passed": true
+		},
+		{
+			"name": "duplicate delta cannot replay changes",
+			"passed": true
+		},
+		{
+			"name": "missing sequence refuses partial publication",
+			"passed": true
+		},
+		{
+			"name": "cross-epoch delta requires a fresh snapshot",
+			"passed": true
+		},
+		{
+			"name": "new epoch snapshot establishes a sequence boundary",
+			"passed": true
+		},
+		{
+			"name": "corrupted checksum cannot replace visible state",
+			"passed": true
+		},
+		{
+			"name": "duplicate JSON keys rejected",
+			"passed": true
+		},
+		{
+			"name": "nested duplicate keys rejected",
+			"passed": true
+		},
+		{
+			"name": "escaped duplicate keys rejected",
+			"passed": true
+		},
+		{
+			"name": "excessive nesting rejected",
+			"passed": true
+		},
+		{
+			"name": "invalid UTF-8 rejected",
+			"passed": true
+		},
+		{
+			"name": "oversized packet rejected",
+			"passed": true
+		},
+		{
+			"name": "valid escaped strings and nested arrays accepted",
+			"passed": true
+		}
+	],
+	"passed": true,
+	"suite": "network-data-contract"
+}

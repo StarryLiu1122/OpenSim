@@ -4,6 +4,8 @@
 
 V4 新增可选 SQLite 仓储，支持提交冲突检查、独立资产、备份导出和恢复；默认 JSON 保存路径保持兼容。原版网关位于 [integration](../integration/README.md)，数据库部署见 [services](../services/README.md)，阶段证据见 [V4 验收](../docs/comparisons/v4-completion.md)。
 
+V5 网络客户端现采用独立工作区：顶部提供连接状态与醒目的漫游入口，右侧按场景、属性、连接、高级和资产分区，底部显示操作结果。支持 Tab 进入漫游、场景点选、对象搜索与定位、编辑草稿保护、删除确认，以及通过表单上传 GLB 并放入场景。操作与验证见 [V5 界面说明](docs/network-interface.md)。重新打开桌面网络客户端即可加载新界面；浏览器部署需要重新导出 Web 文件。
+
 Region Lab 是基于 Godot 的单区域原型，支持对象组合、静态 GLB、六类内置对象、程序材质、地形、环境、门灯交互和角色漫游。新世界提供庭院、湖岸及可进入的展馆。区域尺寸为 256×256 米；离线模式为本机单用户，网络模式由独立权威服务和多个只读投影客户端组成。
 
 Region Lab 是世界模型与智能体协作平台的区域基础。总体定位见 [项目 README](../README.md)，原始目标与技术核实见 [对齐说明](../docs/plans/platform-integration-alignment.md)。原版 FP 0.2 网关和现代 FP 0.3 服务分别运行；尚未接入外部智能体平台。网络验收与性能状态见 [V5 记录](../docs/comparisons/v5-completion.md)。
@@ -27,11 +29,11 @@ Region Lab 是世界模型与智能体协作平台的区域基础。总体定位
 ### 2.1 获取代码
 
 ```powershell
-git clone --branch codex/region-lab-v5 https://github.com/StarryLiu1122/OpenSim.git
+git clone --branch main https://github.com/StarryLiu1122/OpenSim.git
 cd OpenSim\prototype
 ```
 
-也可在 GitHub 下载 `codex/region-lab-v5` 分支 ZIP 并解压。已有仓库先保存本地修改，再更新该分支。V3.1 固定实现提交为 `1af88966496561787e79bb387083de998dae4a81`；需要复现该版时使用独立目录检出此提交。
+也可在 GitHub 下载 `main` 分支 ZIP 并解压。已有仓库先保存本地修改，再更新该分支。V3.1 固定实现提交为 `1af88966496561787e79bb387083de998dae4a81`；需要复现该版时使用独立目录检出此提交。
 
 ### 2.2 安装引擎
 

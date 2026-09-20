@@ -1,0 +1,162 @@
+{
+  "checks": [
+    {
+      "name": "client connects to isolated authority",
+      "ok": true
+    },
+    {
+      "name": "rendered overview",
+      "ok": true
+    },
+    {
+      "name": "primary action and footer fit window",
+      "ok": true
+    },
+    {
+      "name": "advanced JSON is absent from initial workflow",
+      "ok": true
+    },
+    {
+      "name": "name search narrows object list",
+      "ok": true
+    },
+    {
+      "name": "real list click selects and opens inspector",
+      "ok": true
+    },
+    {
+      "name": "rendered inspector",
+      "ok": true
+    },
+    {
+      "name": "world refresh preserves unsaved local draft",
+      "ok": true
+    },
+    {
+      "name": "reselecting same object preserves draft",
+      "ok": true
+    },
+    {
+      "name": "save button waits for authoritative commit",
+      "ok": true
+    },
+    {
+      "name": "name-only save preserves exact coordinates",
+      "ok": true
+    },
+    {
+      "name": "rejected edit preserves draft and authoritative object",
+      "ok": true
+    },
+    {
+      "name": "reset draft restores committed properties",
+      "ok": true
+    },
+    {
+      "name": "focus button frames selected object",
+      "ok": true
+    },
+    {
+      "name": "delete requires explicit confirmation",
+      "ok": true
+    },
+    {
+      "name": "modal confirmation owns Tab navigation",
+      "ok": true
+    },
+    {
+      "name": "cancelling delete preserves world object",
+      "ok": true
+    },
+    {
+      "name": "roam button captures input and clears editing panels",
+      "ok": true
+    },
+    {
+      "name": "W key advances the real network avatar after entering roam",
+      "ok": true
+    },
+    {
+      "name": "rendered walking",
+      "ok": true
+    },
+    {
+      "name": "Escape restores editing and pointer",
+      "ok": true
+    },
+    {
+      "name": "Tab while entering connection fields does not start roaming",
+      "ok": true
+    },
+    {
+      "name": "Tab outside text entry starts roaming",
+      "ok": true
+    },
+    {
+      "name": "focus loss stops captured movement",
+      "ok": true
+    },
+    {
+      "name": "model selection opens provenance form and cannot submit incomplete data",
+      "ok": true
+    },
+    {
+      "name": "provenance form registers model only after durable upload receipt",
+      "ok": true
+    },
+    {
+      "name": "committed unused model is available for placement despite spatial filtering",
+      "ok": true
+    },
+    {
+      "name": "rendered import",
+      "ok": true
+    },
+    {
+      "name": "asset placement creates and selects a committed model without JSON",
+      "ok": true
+    },
+    {
+      "name": "placed model finishes validated collision loading before editing",
+      "ok": true
+    },
+    {
+      "name": "loaded placed model can request deletion",
+      "ok": true
+    },
+    {
+      "name": "confirmed delete removes the placed model through authority",
+      "ok": true
+    },
+    {
+      "name": "minimum supported window keeps tools above footer",
+      "ok": true
+    },
+    {
+      "name": "rendered compact",
+      "ok": true
+    },
+    {
+      "name": "disconnect disables movement and mutations",
+      "ok": true
+    },
+    {
+      "name": "rendered disconnected",
+      "ok": true
+    },
+    {
+      "name": "observer reconnects",
+      "ok": true
+    },
+    {
+      "name": "observer can explore but cannot edit properties",
+      "ok": true
+    },
+    {
+      "name": "rendered observer",
+      "ok": true
+    }
+  ],
+  "failed": 0,
+  "passed": 39
+}

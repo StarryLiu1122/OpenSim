@@ -53,8 +53,23 @@ var _started := Time.get_ticks_msec()
 var _upload_bytes := ""
 var _was_online := false
 var startup_profile: Dictionary = {}
+var ui = preload("res://network/workspace_ui.gd").new(self)
+var draft_dirty := false
+var draft_request := ""
+var draft_source: Dictionary = {}
+var overview_target := Vector3(124, 2, -139)
+var orbiting := false
+var created_requests: Dictionary = {}
+var pending_selection := ""
+var upload_requests: Dictionary = {}
+var session_assets: Dictionary = {}
+var capture_requested_at := 0
+var capture_confirmed := false
 
 func _ready() -> void:
+	# Keep text/control sizes readable when resizing the network workspace.
+	get_window().content_scale_size = Vector2i.ZERO
+	_sync_web_scale()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--network-config="): local_config = JSON.parse_string(FileAccess.get_file_as_string(arg.trim_prefix("--network-config=")))
 		if arg.begins_with("--profile="): profile = arg.trim_prefix("--profile=")
@@ -70,8 +85,26 @@ func _ready() -> void:
 	connection.welcomed.connect(func(): built = false; first_snapshot_ms = 0; input_sequence = 0)
 	connection.result_received.connect(func(result):
 		receipt_field.text = result.request_id
-		last_message = "已提交，修订 " + str(int(result.revision)) if result.ok else "操作失败：" + str(result.code))
+		last_message = "修改已保存 · 修订 " + str(int(result.revision)) if result.ok else "操作未保存：" + str(result.code)
+		if upload_requests.has(result.request_id):
+			var asset: Dictionary = upload_requests[result.request_id]
+			if result.ok and result.payload.get("id", "") == asset.id:
+				session_assets[asset.id] = asset; _upload_bytes = ""
+				ui.refresh_assets(connection.local.snapshot())
+				ui.asset_picker.select(ui.asset_ids.find(asset.id))
+				ui.upload_note.text = "模型已保存，可以从上方列表选择并放入场景。"
+				last_message = "模型资产已保存 · 在资产页选择模型并放入场景"
+			upload_requests.erase(result.request_id)
+		if created_requests.has(result.request_id):
+			if result.ok: pending_selection = created_requests[result.request_id]
+			created_requests.erase(result.request_id)
+		if result.request_id == draft_request:
+			draft_request = ""
+			if result.ok:
+				draft_dirty = false
+				_refresh_list(connection.local.snapshot()))
 	if OS.has_feature("web"):
+		ui.tabs.current_tab = 2; ui.help_open = false; ui.layout()
 		endpoint.text = str(JavaScriptBridge.eval("location.origin"))
 		JavaScriptBridge.eval("window.regionLabBooted=true; window.regionLabActions=[]; window.regionLabFile=null; window.regionLabFileEvent='';")
 	elif not local_config.is_empty():
@@ -82,57 +115,25 @@ func _ready() -> void:
 		_login()
 
 func _ui() -> void:
-	var layer := CanvasLayer.new(); add_child(layer)
-	var panel := PanelContainer.new(); panel.position = Vector2(16, 16); panel.size = Vector2(355, 855); layer.add_child(panel)
-	var theme := Theme.new(); theme.default_font = preload("res://fonts/RegionLabSansSC-Regular.ttf"); theme.default_font_size = 14; panel.theme = theme
-	var margin := MarginContainer.new(); panel.add_child(margin)
-	for key in ["margin_left", "margin_top", "margin_right", "margin_bottom"]: margin.add_theme_constant_override(key, 12)
-	var scroll := ScrollContainer.new(); scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED; margin.add_child(scroll)
-	var column := VBoxContainer.new(); column.add_theme_constant_override("separation", 7); column.size_flags_horizontal = Control.SIZE_EXPAND_FILL; scroll.add_child(column)
-	get_viewport().size_changed.connect(func(): panel.size.y = minf(855, get_viewport().get_visible_rect().size.y - 32))
-	var title := Label.new(); title.text = "REGION LAB  /  V5"; title.add_theme_font_size_override("font_size", 24); column.add_child(title)
-	var subtitle := Label.new(); subtitle.text = "权威区域 · 共享世界"; column.add_child(subtitle)
-	endpoint = LineEdit.new(); endpoint.text = "http://127.0.0.1:19551"; endpoint.placeholder_text = "服务地址"; column.add_child(endpoint)
-	token_field = LineEdit.new(); token_field.secret = true; token_field.placeholder_text = "会话令牌（仅保存在内存）"; column.add_child(token_field)
-	var row := HBoxContainer.new(); column.add_child(row)
-	_button(row, "连接", _login); _button(row, "断开", func(): connection.disconnect_from(); _stop_walk())
-	_button(row, "漫游 / Esc", _walk)
-	notice = Label.new(); notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; notice.custom_minimum_size.y = 50; column.add_child(notice)
-	statistics = Label.new(); statistics.add_theme_font_size_override("font_size", 13); column.add_child(statistics)
-	receipt_field = LineEdit.new(); receipt_field.placeholder_text = "请求 ID：可复制保存或粘贴查询"; column.add_child(receipt_field)
-	_button(column, "查询回执", func():
-		if connection.online() and Schema.is_uuid(receipt_field.text): connection.send(Wire.packet("query_result", {"request_id": receipt_field.text}))
-		else: last_message = "连接后输入有效请求 ID")
-	object_list = ItemList.new(); object_list.custom_minimum_size.y = 170; column.add_child(object_list); object_list.item_selected.connect(_select)
-	name_field = LineEdit.new(); name_field.placeholder_text = "对象名称"; column.add_child(name_field)
-	var axis_row := HBoxContainer.new(); column.add_child(axis_row)
-	for axis in ["东 X", "北 Y", "高 Z"]:
-		var field := SpinBox.new(); field.min_value = -64; field.max_value = 256; field.step = 0.1; field.prefix = axis; field.size_flags_horizontal = Control.SIZE_EXPAND_FILL; field.custom_minimum_size.x = 98; axis_row.add_child(field); coordinates.append(field)
-	var edits := HBoxContainer.new(); column.add_child(edits)
-	_button(edits, "提交位置", _edit); _button(edits, "门 / 灯", _toggle); _button(edits, "删除", _delete)
-	var create_row := HBoxContainer.new(); column.add_child(create_row)
-	_button(create_row, "新建方块", _create); _button(create_row, "选择 GLB", _pick_file); _button(create_row, "重试资产", func(): connection.assets.retry())
-	var label := Label.new(); label.text = "命令操作（JSON 参数，服务器校验）"; column.add_child(label)
-	operation_picker = OptionButton.new(); column.add_child(operation_picker)
-	for operation in Wire.MUTATIONS: operation_picker.add_item(operation)
-	payload_field = TextEdit.new(); payload_field.custom_minimum_size.y = 100; payload_field.text = "{}"; column.add_child(payload_field)
-	var actions := HBoxContainer.new(); column.add_child(actions)
-	_button(actions, "发送命令", func():
-		var payload: Variant = JSON.parse_string(payload_field.text)
-		if payload is Dictionary: _command(operation_picker.get_item_text(operation_picker.selected), payload)
-		else: last_message = "参数必须是有效 JSON 对象")
-	_button(actions, "导出观察记录", _download)
-	var help := Label.new(); help.text = "漫游：WASD / 空格；鼠标转向；Esc 退出\n编辑收到持久化回执后生效。刷新页面需重新登录。"; help.add_theme_font_size_override("font_size", 12); column.add_child(help)
+	ui.build()
+	get_window().focus_exited.connect(func():
+		if walking: _stop_walk()
+		orbiting = false)
 
-func _button(parent: Control, text: String, action: Callable) -> void:
-	var button := Button.new(); button.text = text; button.pressed.connect(action); parent.add_child(button)
+func _sync_web_scale() -> void:
+	if not OS.has_feature("web"): return
+	var dimensions: Variant = JSON.parse_string(str(JavaScriptBridge.eval("JSON.stringify([innerWidth,innerHeight])")))
+	if dimensions is Array and dimensions.size() == 2:
+		var size := Vector2i(int(dimensions[0]), int(dimensions[1]))
+		if size.x > 0 and size.y > 0 and get_window().content_scale_size != size: get_window().content_scale_size = size
 
 func _login() -> void:
 	if token_field.text.is_empty(): last_message = "请输入实例生成的会话令牌"; return
 	var base := endpoint.text.trim_suffix("/")
 	if not base.begins_with("http://") and not base.begins_with("https://"): last_message = "服务地址必须使用 http 或 https"; return
-	_stop_walk(); built = false; collision_projection_ready = false; render_generation += 1; interactive = false; selected = ""; last_message = ""
+	_stop_walk(); built = false; collision_projection_ready = false; render_generation += 1; interactive = false; selected = ""; last_message = ""; draft_dirty = false; draft_source = {}
 	_upload_bytes = ""
+	session_assets.clear(); upload_requests.clear(); created_requests.clear(); pending_selection = ""
 	for node in remote.values(): node.queue_free()
 	remote.clear(); tracks.clear()
 	connection.connect_to(base.replace("https://", "wss://").replace("http://", "ws://") + "/ws", token_field.text, base, ca)
@@ -202,25 +203,76 @@ func _render_world() -> void:
 
 func _refresh_list(state: Dictionary) -> void:
 	object_list.clear(); selection_ids.clear()
-	for item in state.objects.values():
+	var objects: Dictionary = state.get("objects", {})
+	ui.refresh_assets(state)
+	if not pending_selection.is_empty() and objects.has(pending_selection) and not draft_dirty:
+		selected = pending_selection; pending_selection = ""
+		view.select(selected); ui.show_inspector()
+	var query: String = ui.search.text.strip_edges().to_lower()
+	var ordered: Array = objects.values()
+	ordered.sort_custom(func(a, b): return str(a.name).naturalnocasecmp_to(str(b.name)) < 0)
+	for item in ordered:
+		if not query.is_empty() and not str(item.name).to_lower().contains(query): continue
 		selection_ids.append(item.id); object_list.add_item(item.name + ("  ·  组合" if not item.group_id.is_empty() else ""))
 		if item.id == selected: object_list.select(selection_ids.size() - 1)
-	if not selected.is_empty() and state.objects.has(selected): _fill_fields(state.objects[selected], state.groups.values())
+	if objects.has(selected):
+		if not draft_dirty: _fill_fields(objects[selected], state.groups.values())
+	elif not selected.is_empty():
+		selected = ""; draft_dirty = false; draft_source = {}; view.select("")
+		name_field.clear()
+		for value in coordinates: value.set_value_no_signal(0)
+		ui.tabs.get_child(1).scroll_vertical = 0
+		last_message = "所选对象已离开当前视野范围或被删除"
 
 func _select(index: int) -> void:
-	selected = selection_ids[index]
+	if index < 0 or index >= selection_ids.size(): return
+	_select_id(selection_ids[index])
+
+func _select_id(id: String) -> void:
 	var state: Dictionary = connection.local.snapshot()
+	if not state.get("objects", {}).has(id): return
+	if selected == id and draft_dirty: ui.show_inspector(); return
+	if selected != id and draft_dirty:
+		last_message = "请先保存或撤回当前对象的修改，再选择其他对象"
+		_refresh_list(state)
+		return
+	selected = id
 	_fill_fields(state.objects[selected], state.groups.values())
-	view.select(selected)
+	view.select(selected); ui.show_inspector()
 
 func _fill_fields(item: Dictionary, groups: Array) -> void:
 	var resolved := Transforms.resolve(item, groups)
 	name_field.text = item.name
-	for index in range(3): coordinates[index].value = resolved.position[index]
+	for index in range(3): coordinates[index].set_value_no_signal(resolved.position[index])
+	draft_source = {"name": item.name, "position": resolved.position.duplicate(), "group_id": item.group_id}
+	draft_dirty = false
+
+func _reset_draft() -> void:
+	var state: Dictionary = connection.local.snapshot()
+	if state.get("objects", {}).has(selected): _fill_fields(state.objects[selected], state.groups.values())
+	last_message = "已撤回未提交的修改"
 
 func _edit() -> void:
-	if selected.is_empty(): return
-	_command("UpdateObject", {"id": selected, "patch": {"name": name_field.text, "position": [coordinates[0].value, coordinates[1].value, coordinates[2].value]}})
+	if selected.is_empty() or draft_source.is_empty(): return
+	var patch := {}
+	if name_field.text != draft_source.name: patch.name = name_field.text
+	var position: Array = draft_source.position.duplicate()
+	for index in range(3):
+		# Keep exact source coordinates for unchanged displayed values.
+		if not is_equal_approx(coordinates[index].value, snappedf(float(position[index]), 0.1)): position[index] = coordinates[index].value
+	if position != draft_source.position: patch.position = position
+	if patch.is_empty(): draft_dirty = false; last_message = "没有需要保存的修改"; return
+	draft_request = _command("UpdateObject", {"id": selected, "patch": patch})
+
+func _focus_selected() -> void:
+	if not view.bodies.has(selected): return
+	if walking: _stop_walk()
+	var body: Node3D = view.bodies[selected]
+	overview_target = body.position
+	var record: Dictionary = view._records[selected]
+	var distance: float = maxf(6.0, Vector3(record.size[0], record.size[1], record.size[2]).length() * 1.8)
+	camera.position = overview_target + Vector3(0.8, 0.65, 1.0).normalized() * distance
+	camera.look_at(overview_target)
 
 func _toggle() -> void:
 	var state: Dictionary = connection.local.snapshot()
@@ -234,7 +286,40 @@ func _delete() -> void:
 func _create() -> void:
 	var item := Schema.box("共享方块", [132.0, 122.0, 1.0], [1.0, 1.0, 1.0], "#78a5b5")
 	item.owner_id = connection.welcome.get("actor_id", "")
-	_command("CreateObject", {"object": item})
+	var request := _command("CreateObject", {"object": item})
+	if not request.is_empty(): created_requests[request] = item.id
+
+func _place_asset() -> void:
+	if ui.asset_picker.selected < 0 or ui.asset_ids.is_empty(): return
+	var id: String = ui.asset_ids[ui.asset_picker.selected]
+	var assets: Dictionary = _available_assets(connection.local.snapshot())
+	if not assets.has(id): last_message = "资产已不可用，请重新选择"; return
+	var asset: Dictionary = assets[id]
+	var position: Array = View.to_world(own.position + Vector3(0, 0, -5).rotated(Vector3.UP, yaw))
+	position[0] = clampf(position[0], float(asset.bounds[0]) * 0.5 + 1, 255 - float(asset.bounds[0]) * 0.5)
+	position[1] = clampf(position[1], float(asset.bounds[1]) * 0.5 + 1, 255 - float(asset.bounds[1]) * 0.5)
+	position[2] = view.ground_height(position[0], position[1]) + float(asset.bounds[2]) * 0.5 + 0.05
+	var item := Schema.box(str(asset.name).left(80), position, asset.bounds.duplicate(), "#ffffff")
+	item.asset_id = id; item.owner_id = connection.welcome.get("actor_id", "")
+	var request := _command("CreateObject", {"object": item})
+	if not request.is_empty(): created_requests[request] = item.id
+
+func _available_assets(state: Dictionary) -> Dictionary:
+	# Uploaded but uninstantiated assets are not in the server's spatial projection.
+	# Retain only this session's successfully committed upload metadata, never world state.
+	var assets: Dictionary = session_assets.duplicate(true)
+	assets.merge(state.get("assets", {}), true)
+	return assets
+
+func _submit_upload() -> void:
+	var bytes := Marshalls.base64_to_raw(_upload_bytes)
+	var geometry: Dictionary = preload("res://adapters/glb_reader.gd").new().parse(bytes)
+	if geometry.has("error"): last_message = "无法导入模型：" + str(geometry.error); return
+	var payload := {"name": ui.upload_name.text.strip_edges(), "license": ui.upload_license.text.strip_edges(), "attribution": ui.upload_source.text.strip_edges()}
+	var request := _command("UploadAsset", payload)
+	if not request.is_empty():
+		var id: String = Schema.MeshAssets.content_id(Schema.MeshAssets.sha256(bytes))
+		upload_requests[request] = {"id": id, "kind": "mesh", "name": payload.name, "bounds": geometry.bounds.duplicate()}
 
 func _pick_file() -> void:
 	if OS.has_feature("web"): JavaScriptBridge.eval("document.getElementById('region-file').click()"); return
@@ -252,7 +337,8 @@ func _upload(bytes: String, name: String) -> void:
 	_upload_bytes = bytes
 	operation_picker.select(Wire.MUTATIONS.find("UploadAsset"))
 	payload_field.text = Wire.canonical({"name": name, "license": "请填写授权许可", "attribution": "请填写来源"})
-	last_message = "已读取 GLB；请填写 license / attribution 后发送命令"
+	last_message = "已读取 GLB；请在资产页填写来源与许可"
+	ui.stage_upload(name)
 
 func _download() -> void:
 	var snapshot := Wire.canonical({"format": "region-lab.observation", "version": 1, "world_epoch": connection.local.epoch, "seq": connection.local.sequence, "state": connection.local.snapshot(), "results": connection.results, "pending_request_ids": connection.pending.keys()})
@@ -263,35 +349,93 @@ func _download() -> void:
 		dialog.canceled.connect(dialog.queue_free); dialog.popup_centered(Vector2i(850, 580))
 
 func _walk() -> void:
-	if not interactive: return
-	walking = true; Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if walking: _stop_walk(); return
+	if not interactive:
+		last_message = "请等待连接与场景资源准备完成，再进入漫游"
+		return
+	var focus := get_viewport().gui_get_focus_owner()
+	if focus != null: focus.release_focus()
+	walking = true; orbiting = false; Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	capture_requested_at = Time.get_ticks_msec(); capture_confirmed = false
+	last_message = "已进入漫游 · WASD 移动，鼠标转向，Esc 返回编辑"
+	ui.layout()
 
 func _stop_walk() -> void:
-	walking = false; movement = Vector2.ZERO; Input.mouse_mode = Input.MOUSE_MODE_VISIBLE; _overview()
+	walking = false; movement = Vector2.ZERO; own.jumping = false; Input.mouse_mode = Input.MOUSE_MODE_VISIBLE; _overview()
+	capture_confirmed = false
+	if ui.root != null: ui.layout()
 
 func _overview() -> void:
-	camera.position = Vector3(155, 27, -99); camera.look_at(Vector3(124, 2, -139))
+	overview_target = Vector3(124, 2, -139)
+	camera.position = Vector3(155, 27, -99); camera.look_at(overview_target)
+
+func _input(event: InputEvent) -> void:
+	if ui.delete_dialog.visible: return
+	for child in get_children():
+		if child is Window and child.visible: return
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE and walking:
+			_stop_walk(); get_viewport().set_input_as_handled(); return
+		var focus := get_viewport().gui_get_focus_owner()
+		var typing := focus is LineEdit or focus is TextEdit
+		if event.keycode == KEY_TAB and not typing:
+			_walk(); get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_F and not typing and not walking:
+			_focus_selected(); get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE: _stop_walk()
-	if walking and event is InputEventMouseMotion: yaw -= event.relative.x * 0.003; pitch = clampf(pitch - event.relative.y * 0.003, -1.3, 1.3)
+	if walking:
+		if event is InputEventMouseMotion: yaw -= event.relative.x * 0.003; pitch = clampf(pitch - event.relative.y * 0.003, -1.3, 1.3)
+		return
+	if not interactive: return
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT: orbiting = event.pressed
+		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			var id: String = view.pick(camera, event.position)
+			if not id.is_empty(): _select_id(id)
+		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+			var offset := camera.position - overview_target
+			var factor := 0.88 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.12
+			camera.position = overview_target + offset.normalized() * clampf(offset.length() * factor, 2, 180)
+	if event is InputEventMouseMotion and orbiting:
+		if not Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT): orbiting = false; return
+		var offset := camera.position - overview_target
+		offset = offset.rotated(Vector3.UP, -event.relative.x * 0.006)
+		var next := offset.rotated(camera.global_basis.x, -event.relative.y * 0.006)
+		if next.normalized().y > 0.05 and next.normalized().y < 0.96: offset = next
+		camera.position = overview_target + offset; camera.look_at(overview_target)
 
 func _process(delta: float) -> void:
 	var online: bool = connection.online()
+	if online and not _was_online:
+		ui.tabs.current_tab = 0
 	if _was_online and not online:
 		for node in view.get_children(): node.free()
 		view.bodies.clear(); view._records.clear(); view.mesh_view.cache.clear()
+		ui.tabs.current_tab = 2; ui.tools_open = true; ui.layout()
+		if not draft_request.is_empty(): last_message = "连接中断，保存结果未知；重连后请在高级页查询请求 ID"
+		created_requests.clear(); pending_selection = ""; draft_dirty = false; draft_source = {}
+		session_assets.clear(); upload_requests.clear(); ui.refresh_assets({})
 		for node in remote.values(): node.free()
 		remote.clear(); tracks.clear(); object_list.clear(); selection_ids.clear(); selected = ""; built = false; dirty = false; _upload_bytes = ""
 	_was_online = online
 	interactive = online and built and collision_projection_ready and connection.assets.ready()
 	own.enabled = interactive
 	if dirty and online: _render_world()
+	if not pending_selection.is_empty() and online: _refresh_list(connection.local.snapshot())
 	if interactive and first_interactive_ms == 0: first_interactive_ms = Time.get_ticks_msec() - _started
 	if not online:
 		own.enabled = false
 		if walking: _stop_walk()
 	movement = Vector2.ZERO
+	own.jumping = false
+	if walking:
+		var captured := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+		if OS.has_feature("web"): captured = bool(JavaScriptBridge.eval("document.pointerLockElement !== null"))
+		if captured: capture_confirmed = true
+		elif capture_confirmed: _stop_walk()
+		elif Time.get_ticks_msec() - capture_requested_at > 2000:
+			_stop_walk(); last_message = "未能获取鼠标控制，请再次点击「进入漫游」"
 	if walking and interactive and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var axes := Vector2(float(Input.is_physical_key_pressed(KEY_D)) - float(Input.is_physical_key_pressed(KEY_A)), float(Input.is_physical_key_pressed(KEY_W)) - float(Input.is_physical_key_pressed(KEY_S)))
 		movement = axes.rotated(yaw).limit_length()
@@ -305,8 +449,7 @@ func _process(delta: float) -> void:
 		connection.send(Wire.packet("input", {"sequence": input_sequence, "axis": [movement.x, movement.y], "yaw": yaw, "jump": own.jumping}))
 	if walking: camera.position = own.position + Vector3(0, 1.65, 0); camera.rotation = Vector3(pitch, yaw, 0)
 	_interpolate()
-	notice.text = connection.status + ("\n" + last_message if not last_message.is_empty() else "")
-	if online and not connection.assets.ready(): notice.text = "等待必要碰撞资产 · " + connection.assets.error
+	ui.update()
 	statistics.text = "修订 %d  /  序列 %d  /  对象 %d\n角色 %d  /  收到 %.1f KiB  /  校正 %.3f m" % [rendered_revision, connection.local.sequence, view.bodies.size(), remote.size() + int(online), connection.bytes_received / 1024.0, last_correction]
 	report_elapsed += delta
 	if report_elapsed >= 0.2:
@@ -329,7 +472,7 @@ func _interpolate() -> void:
 		remote[id].position = position; remote[id].rotation.y = right.record.yaw
 
 func _observation() -> Dictionary:
-	return {"interactive": interactive, "online": connection.online(), "status": connection.status, "welcome": connection.welcome, "state": connection.local.snapshot(), "seq": connection.local.sequence, "resyncs": connection.local.resyncs, "duplicates": connection.local.duplicates, "results": connection.results, "pending": connection.pending.keys(), "commands": test_commands, "nodes": view.bodies.size(), "remote_avatars": remote.size(), "position": View.to_world(own.position), "correction_m": last_correction, "max_correction_m": max_correction, "assets_ready": connection.assets.ready(), "asset_error": connection.assets.error, "asset_attempts": connection.assets.attempts, "asset_cache_count": connection.assets.cache.size(), "bytes_received": connection.bytes_received, "first_snapshot_ms": first_snapshot_ms, "first_interactive_ms": first_interactive_ms, "rendered_revision": rendered_revision, "test_serial": test_serial, "message": last_message, "fps": Engine.get_frames_per_second(), "startup_profile": startup_profile}
+	return {"interactive": interactive, "online": connection.online(), "status": connection.status, "welcome": connection.welcome, "state": connection.local.snapshot(), "seq": connection.local.sequence, "resyncs": connection.local.resyncs, "duplicates": connection.local.duplicates, "results": connection.results, "pending": connection.pending.keys(), "commands": test_commands, "nodes": view.bodies.size(), "remote_avatars": remote.size(), "position": View.to_world(own.position), "correction_m": last_correction, "max_correction_m": max_correction, "assets_ready": connection.assets.ready(), "asset_error": connection.assets.error, "asset_attempts": connection.assets.attempts, "asset_cache_count": connection.assets.cache.size(), "bytes_received": connection.bytes_received, "first_snapshot_ms": first_snapshot_ms, "first_interactive_ms": first_interactive_ms, "rendered_revision": rendered_revision, "test_serial": test_serial, "message": last_message, "fps": Engine.get_frames_per_second(), "startup_profile": startup_profile, "walking": walking, "ui_tab": ui.tabs.current_tab, "draft_dirty": draft_dirty, "ui": ui.observation()}
 
 func _bridge() -> void:
 	if OS.has_feature("web"):

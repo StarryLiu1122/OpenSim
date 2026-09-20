@@ -4,20 +4,20 @@
 
 项目以 **OpenSimulator 0.9.3.0** 为数据与行为参考，以 **Godot** 逐步重建现代客户端和区域能力。仓库保留原版 C# 源码，在 `prototype/` 中独立开发 **Region Lab**。总体目标依据老师提供的两份 [项目指导文档](docs/references/teacher/2026-09-15/README.md)，实施顺序及技术约束见 [目标对齐说明](docs/plans/platform-integration-alignment.md) 和 [版本路线](docs/plans/stage-one-rebuild-plan.md)。
 
-**当前开发版本为 Region Lab V5 / 0.5.1。** V5.0 已完成，V5.1 功能可运行；Firefox 冷启动预算尚未通过，当前不声明 V5 全部验收完成。现代 Godot 权威区域、桌面 / Web 客户端和 SQLite 共同组成可持续运行的共享世界：编辑经服务器验证并持久提交，客户端接收快照和增量；角色由服务端物理约束，浏览器按兴趣范围下载已授权资产。采用 Godot 4.5.1 标准版、Jolt、GDScript 和 WebGL2。默认 JSON 离线编辑器、V4 SQLite 模式及独立 OpenSim FP 0.2 网关继续保留。
+**当前开发版本为 Region Lab V5 / 0.5.1。** V5.0 已完成，V5.1 功能可运行；2026-09-20 更新了桌面与 Web 客户端界面。本轮双浏览器功能检查及 10 次冷启动预算检查通过，仍需继续验证启动稳定性和重新制作后的完整离线分发包。现代 Godot 权威区域、桌面 / Web 客户端和 SQLite 共同组成可持续运行的共享世界：编辑经服务器验证并持久提交，客户端接收快照和增量；角色由服务端物理约束，浏览器按兴趣范围下载已授权资产。采用 Godot 4.5.1 标准版、Jolt、GDScript 和 WebGL2。默认 JSON 离线编辑器、V4 SQLite 模式及独立 OpenSim FP 0.2 网关继续保留。
 
 V5 的入口见 [共享区域运行指南](prototype/docs/network-quickstart.md)、[FP 0.3 合同](docs/contracts/network-v5.md) 和 [V5 验收记录](docs/comparisons/v5-completion.md)。原版参考、融合网关、真实建筑与事务仓储的历史证据见 [V4 验收报告](docs/comparisons/v4-completion.md)。完整身份库存、在线智能体与外部平台任务闭环属于 V6。
 
-![Region Lab 区域场景](prototype/docs/images/overview.png)
+![Region Lab V5 网络工作区](docs/comparisons/evidence/v5-ui-20260920/overview.png)
 
 ## 从 V3.1 / V4 进入 V5
 
-在已有仓库根目录更新开发分支。下列命令仍打开原离线编辑器：
+在已有仓库根目录更新 main 分支。下列命令仍打开原离线编辑器：
 
 ```powershell
 git fetch origin
-git switch codex/region-lab-v5
-git pull --ff-only origin codex/region-lab-v5
+git switch main
+git pull --ff-only origin main
 .\prototype\Start.cmd
 ```
 
@@ -67,7 +67,7 @@ flowchart LR
 | V4 验证输入 | 双浏览器 WebGL2 实验、真实测绘建筑、进程中断与迁移恢复测试 |
 | 命令与验证 | WorldService 命令入口、离线 JSON 批处理、原生物理与界面测试 |
 
-V5 回归包括 **191 项原生检查、66 项离线界面检查**、网络数据合同、真实双桌面进程、SQLite 故障注入和 Chromium / Firefox 联调。逐套结果、冷 / 热启动样本及仍未达到的门槛统一列于 [V5 验收记录](docs/comparisons/v5-completion.md)，不以代码完成代替验收。此前 43 对象日景与 243 对象夜景的结果仍只作为同机历史基线。
+V5 回归包括 **191 项原生检查、66 项离线界面检查**、网络数据合同、真实双桌面进程、SQLite 故障注入和 Chromium / Firefox 联调。初始验收结果保留于 [V5 验收记录](docs/comparisons/v5-completion.md)。最新界面回归另有 39 项网络界面检查、64 项网络集成检查及 76 项浏览器检查通过，结果与初次失败记录见 [2026-09-20 界面验证](docs/comparisons/evidence/v5-ui-20260920/README.md)，操作见 [界面说明](prototype/docs/network-interface.md)。系统交接及组会 Word 文档见 [汇报文档库](docs/reports/README.md)。此前 43 对象日景与 243 对象夜景的结果仍只作为同机历史基线。
 
 当前 GLB 限定静态三角网格、不透明材质及内嵌 PNG，单文件 ≤2 MiB、三角形 ≤20,000，最多 16 个导入资产；完整快照 ≤8 MiB。原有三个 CC0 样本用于功能验证；V4 新增具有原始测绘来源和许可记录的 [Pioneer Log Cabin](prototype/fixtures/buildings/pioneer-log-cabin/README.md)，完成真实碰撞与搬移恢复验收。
 
@@ -95,7 +95,7 @@ V5 回归包括 **191 项原生检查、66 项离线界面检查**、网络数�
 Windows x64 环境需要 PowerShell 5.1、支持 OpenGL 3.3 的显卡及正常驱动。
 
 ```powershell
-git clone --branch codex/region-lab-v5 https://github.com/StarryLiu1122/OpenSim.git
+git clone --branch main https://github.com/StarryLiu1122/OpenSim.git
 cd OpenSim\prototype
 .\Install.cmd
 .\Start.cmd

@@ -28,6 +28,7 @@ try {
     & ./prototype/tools/Initialize-Network.ps1 -Directory "$Directory/native-instance" -Godot $Godot -Store $store -HostExecutable $gateway -Port $Port -WithBuilding
     & $Node ./services/Test-Network.cjs "--config=$Directory/native-instance/private-config.json" "--output=$Directory/native-network" "--python=$Python" --visual=true
     if($LASTEXITCODE){throw 'Native network checks failed.'}
+    & ./prototype/tools/Test-NetworkUI.ps1 -Godot $Godot -Store $store -HostExecutable $gateway -Directory "$Directory/network-ui" -Port ($Port+20)
     & ./prototype/tools/Export-NetworkWeb.ps1 -Godot $Godot -Template $Template -Destination "$Directory/export"
     & ./prototype/tools/Initialize-Network.ps1 -Directory "$Directory/web-instance" -Godot $Godot -Store $store -HostExecutable $gateway -WebDirectory "$Directory/export/web" -Port ($Port+10) -WithBuilding
     & $Node ./integration/web/test-network.cjs "--config=$Directory/web-instance/private-config.json" "--output=$Directory/web-tests" --runs=5 "--fixture=$repo/prototype/fixtures/meshes/bench.glb"
