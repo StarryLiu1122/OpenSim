@@ -15,11 +15,13 @@ internal sealed class StoreError(string code) : Exception(code);
 internal sealed class Store : IDisposable
 {
     internal const int MaxWorldBytes = 8 * 1024 * 1024;
-    private const int SchemaVersion = 5;
+    private const int SchemaVersion = 6;
     private static readonly HashSet<string> IdentityOperations = new(StringComparer.Ordinal)
     { "account_create", "account_list", "account_disable", "session_issue", "session_revoke", "session_validate", "audit_list" };
     private static readonly HashSet<string> PermitOperations = new(StringComparer.Ordinal)
     { "object_restrict", "grant_update", "grant_list" };
+    private static readonly HashSet<string> InventoryOperations = new(StringComparer.Ordinal)
+    { "inventory_folder_create", "inventory_add", "inventory_remove", "inventory_move", "inventory_give", "inventory_list" };
     private readonly string root, database, content;
     private readonly JsonObject configuration;
     private SqliteConnection? connection;
@@ -38,8 +40,9 @@ internal sealed class Store : IDisposable
     internal object Execute(JsonObject request)
     {
         string operation = S(request, "operation");
-        if (operation is "init" or "save" or "import" or "account_create" or "account_disable" or "session_issue" or "session_revoke" or "object_restrict" or "grant_update") Open(true); else Open(false);
-        string id = operation is "init" or "status" or "gc" || IdentityOperations.Contains(operation) || PermitOperations.Contains(operation) ? "" : Id(S(request, "region_id"));
+        if (operation is "init" or "save" or "import" or "account_create" or "account_disable" or "session_issue" or "session_revoke" or "object_restrict" or "grant_update"
+            or "inventory_folder_create" or "inventory_add" or "inventory_remove" or "inventory_move" or "inventory_give") Open(true); else Open(false);
+        string id = operation is "init" or "status" or "gc" || IdentityOperations.Contains(operation) || PermitOperations.Contains(operation) || InventoryOperations.Contains(operation) ? "" : Id(S(request, "region_id"));
         return operation switch
         {
             "init" => new { ok = true, schema_version = SchemaVersion, sqlite_version = Scalar("SELECT sqlite_version()"), path = database },
@@ -48,7 +51,7 @@ internal sealed class Store : IDisposable
             "receipts" => new { ok = true, receipts = Rows("SELECT record_json FROM network_receipts WHERE region_id=$r ORDER BY rowid", ("$r", id)).Select(r => JsonNode.Parse((string)r[0]!)).ToArray() },
             "save" => Save(Validate(ReadBounded(S(request, "input"))), id, Long(request, "expected_commit"), Id(S(request, "request_id")), false),
             "export" or "backup" => Export(id, S(request, "output")),
-            "import" => Save(Validate(ReadBundle(S(request, "input"))), id, Long(request, "expected_commit"), Id(S(request, "request_id")), true),
+            "import" => ImportRegion(request, id),
             "gc" => CollectOrphans(),
             "account_create" => AccountCreate(request),
             "account_list" => AccountList(),
@@ -67,6 +70,12 @@ internal sealed class Store : IDisposable
                 grants = Rows("SELECT object_id,account_id,granted_by,granted_at_ms FROM grants ORDER BY rowid")
                     .Select(r => new { object_id = r[0], account_id = r[1], granted_by = r[2], granted_at_ms = r[3] }).ToArray()
             },
+            "inventory_folder_create" => InventoryFolderCreate(request),
+            "inventory_add" => InventoryAdd(request),
+            "inventory_remove" => InventoryRemove(request),
+            "inventory_move" => InventoryMove(request),
+            "inventory_give" => InventoryGive(request),
+            "inventory_list" => InventoryList(request),
             _ => throw new StoreError("UNKNOWN_OPERATION")
         };
     }
@@ -134,6 +143,18 @@ internal sealed class Store : IDisposable
                     Inject("migration_permits");
                     Exec("PRAGMA user_version=5");
                 }
+                if (version < 6)
+                {
+                    // V6 inventory: per-account folders and items that reference asset
+                    // content by hash. Items are independent of world assets and scene
+                    // instances; the referenced content keeps them alive for GC.
+                    Exec("""
+                    CREATE TABLE inventory_folders(id TEXT PRIMARY KEY CHECK(length(id)=36), account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE, parent_id TEXT REFERENCES inventory_folders(id) DEFERRABLE INITIALLY DEFERRED, name TEXT NOT NULL CHECK(length(name) BETWEEN 1 AND 64), created_at_ms INTEGER NOT NULL);
+                    CREATE TABLE inventory_items(id TEXT PRIMARY KEY CHECK(length(id)=36), account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE, folder_id TEXT REFERENCES inventory_folders(id) ON DELETE CASCADE, asset_sha256 TEXT NOT NULL REFERENCES contents(sha256), name TEXT NOT NULL CHECK(length(name) BETWEEN 1 AND 128), license TEXT NOT NULL DEFAULT '', attribution TEXT NOT NULL DEFAULT '', created_at_ms INTEGER NOT NULL);
+                    """);
+                    Inject("migration_inventory");
+                    Exec("PRAGMA user_version=6");
+                }
                 transaction.Commit();
             }
             catch { transaction.Rollback(); throw; }
@@ -183,7 +204,13 @@ internal sealed class Store : IDisposable
             if (!Directory.EnumerateFileSystemEntries(scratch).Any()) Directory.Delete(scratch);
         }
     }
-    private object Save(JsonObject world, string id, long expected, string requestId, bool newEpoch)
+    private object ImportRegion(JsonObject request, string id)
+    {
+        var bundle = ReadBundle(S(request, "input"));
+        var world = Validate(bundle.World);
+        return Save(world, id, Long(request, "expected_commit"), Id(S(request, "request_id")), true, bundle.Service, bundle.ExtraContent);
+    }
+    private object Save(JsonObject world, string id, long expected, string requestId, bool newEpoch, JsonObject? service = null, Dictionary<string, byte[]>? extraContent = null)
     {
         if (S(world["region"]!.AsObject(), "id") != id) throw new StoreError("REGION_ID_MISMATCH");
         if (expected < -1) throw new StoreError("INVALID_EXPECTED_COMMIT");
@@ -248,6 +275,45 @@ internal sealed class Store : IDisposable
                 Exec("INSERT INTO objects(region_id,id,group_id,asset_id,owner_id,ordinal,record_json) VALUES($r,$i,$g,$a,$o,$n,$j)", ("$r", id), ("$i", S(item, "id")), ("$g", group.Length == 0 ? null : group), ("$a", S(item, "asset_id")), ("$o", S(item, "owner_id")), ("$n", ordinal++), ("$j", item.ToJsonString()));
             }
             Exec("INSERT INTO commits(region_id,request_id,fingerprint,commit_revision,epoch) VALUES($r,$q,$f,$c,$e)", ("$r", id), ("$q", requestId), ("$f", fingerprint), ("$c", revision), ("$e", epoch));
+            if (service != null)
+            {
+                // Bundle v2 service rows restore into the same transaction as the
+                // world: any conflict (for example a duplicate account name) rolls
+                // back the entire import atomically.
+                foreach (var node in service["accounts"]!.AsArray())
+                {
+                    var a = node!.AsObject();
+                    Exec("INSERT INTO accounts(id,name,actor_id,role,disabled,created_at_ms,updated_at_ms) VALUES($i,$n,$ac,$ro,$d,$c,$u)",
+                        ("$i", S(a, "id")), ("$n", S(a, "name")), ("$ac", S(a, "actor_id")), ("$ro", S(a, "role")), ("$d", a["disabled"]!.GetValue<bool>() ? 1 : 0), ("$c", Long(a, "created_at_ms")), ("$u", Long(a, "updated_at_ms")));
+                }
+                foreach (var node in service["restrictions"]!.AsArray())
+                {
+                    var r = node!.AsObject();
+                    Exec("INSERT INTO restrictions(object_id,set_by,at_ms) VALUES($o,$b,$t)", ("$o", S(r, "object_id")), ("$b", S(r, "set_by")), ("$t", Long(r, "at_ms")));
+                }
+                foreach (var node in service["grants"]!.AsArray())
+                {
+                    var g = node!.AsObject();
+                    Exec("INSERT INTO grants(object_id,account_id,granted_by,granted_at_ms) VALUES($o,$a,$b,$t)", ("$o", S(g, "object_id")), ("$a", S(g, "account_id")), ("$b", S(g, "granted_by")), ("$t", Long(g, "granted_at_ms")));
+                }
+                foreach (var node in service["folders"]!.AsArray())
+                {
+                    var f = node!.AsObject();
+                    Exec("INSERT INTO inventory_folders(id,account_id,parent_id,name,created_at_ms) VALUES($i,$a,$p,$n,$t)",
+                        ("$i", S(f, "id")), ("$a", S(f, "account_id")), ("$p", f["parent_id"]?.GetValue<string>()), ("$n", S(f, "name")), ("$t", Long(f, "created_at_ms")));
+                }
+                foreach (var node in service["items"]!.AsArray())
+                {
+                    var m = node!.AsObject(); string hash = S(m, "asset_sha256");
+                    if (extraContent != null && extraContent.TryGetValue(hash, out var bytes))
+                    {
+                        Publish(hash, bytes);
+                        Exec("INSERT INTO contents(sha256,bytes) VALUES($h,$n) ON CONFLICT(sha256) DO NOTHING", ("$h", hash), ("$n", bytes.Length));
+                    }
+                    Exec("INSERT INTO inventory_items(id,account_id,folder_id,asset_sha256,name,license,attribution,created_at_ms) VALUES($i,$a,$f,$h,$n,$l,$at,$t)",
+                        ("$i", S(m, "id")), ("$a", S(m, "account_id")), ("$f", m["folder_id"]?.GetValue<string>()), ("$h", hash), ("$n", S(m, "name")), ("$l", m["license"]?.GetValue<string>() ?? ""), ("$at", m["attribution"]?.GetValue<string>() ?? ""), ("$t", Long(m, "created_at_ms")));
+                }
+            }
             if (receipt != null)
                 Exec("INSERT INTO network_receipts(region_id,request_id,principal_id,record_json) VALUES($r,$q,$p,$j)", ("$r", id), ("$q", requestId), ("$p", S(receipt, "principal_id")), ("$j", receipt.ToJsonString()));
             Inject("before_commit");
@@ -317,11 +383,33 @@ internal sealed class Store : IDisposable
             }
             Validate(Encoding.UTF8.GetBytes(hydrated.ToJsonString()));
             files["world.json"] = Encoding.UTF8.GetBytes(world.ToJsonString());
+            // Bundle version 2 carries the service tables (accounts, permits and
+            // inventory — never sessions or audit) plus inventory-only content.
+            foreach (var itemRow in Rows("SELECT DISTINCT asset_sha256 FROM inventory_items"))
+            {
+                string itemHash = (string)itemRow[0]!;
+                if (!files.ContainsKey("objects/" + itemHash + ".glb")) files["objects/" + itemHash + ".glb"] = ReadContent(itemHash);
+            }
+            var service = new
+            {
+                format = "region-lab.service", version = 1,
+                accounts = Rows("SELECT id,name,actor_id,role,disabled,created_at_ms,updated_at_ms FROM accounts ORDER BY rowid")
+                    .Select(r => new { id = r[0], name = r[1], actor_id = r[2], role = r[3], disabled = Convert.ToInt64(r[4]) == 1, created_at_ms = r[5], updated_at_ms = r[6] }).ToArray(),
+                restrictions = Rows("SELECT object_id,set_by,at_ms FROM restrictions ORDER BY rowid")
+                    .Select(r => new { object_id = r[0], set_by = r[1], at_ms = r[2] }).ToArray(),
+                grants = Rows("SELECT object_id,account_id,granted_by,granted_at_ms FROM grants ORDER BY rowid")
+                    .Select(r => new { object_id = r[0], account_id = r[1], granted_by = r[2], granted_at_ms = r[3] }).ToArray(),
+                folders = Rows("SELECT id,account_id,parent_id,name,created_at_ms FROM inventory_folders ORDER BY rowid")
+                    .Select(r => new { id = r[0], account_id = r[1], parent_id = r[2], name = r[3], created_at_ms = r[4] }).ToArray(),
+                items = Rows("SELECT id,account_id,folder_id,asset_sha256,name,license,attribution,created_at_ms FROM inventory_items ORDER BY rowid")
+                    .Select(r => new { id = r[0], account_id = r[1], folder_id = r[2], asset_sha256 = r[3], name = r[4], license = r[5], attribution = r[6], created_at_ms = r[7] }).ToArray()
+            };
+            files["service.json"] = JsonSerializer.SerializeToUtf8Bytes(service);
             row = Rows("SELECT commit_revision,epoch FROM regions WHERE id=$r", ("$r", id))[0];
             transaction.Commit();
         }
         finally { transaction.Dispose(); transaction = null; }
-        var manifest = new { format = "region-lab.bundle", version = 1, tool_version = "0.5.1", region_id = id, source_commit_revision = row[0], source_epoch = row[1], entries = files.Select(p => new { path = p.Key, bytes = p.Value.Length, sha256 = Hash(p.Value) }).ToArray() };
+        var manifest = new { format = "region-lab.bundle", version = 2, tool_version = "0.6.0", region_id = id, source_commit_revision = row[0], source_epoch = row[1], entries = files.Select(p => new { path = p.Key, bytes = p.Value.Length, sha256 = Hash(p.Value) }).ToArray() };
         Directory.CreateDirectory(Path.GetDirectoryName(output)!); string temporary = output + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
@@ -339,16 +427,17 @@ internal sealed class Store : IDisposable
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
         return new { ok = true, path = output, sha256 = Hash(File.ReadAllBytes(output)), source_commit_revision = row[0], scope = "one complete region, including all registered mesh assets" };
     }
-    private byte[] ReadBundle(string path)
+    internal sealed record BundleContent(byte[] World, JsonObject? Service, Dictionary<string, byte[]> ExtraContent);
+    private BundleContent ReadBundle(string path)
     {
         if (new FileInfo(path).Length > 16 * 1024 * 1024) throw new StoreError("BUNDLE_SIZE_LIMIT");
         using var archive = ZipFile.OpenRead(path);
-        if (archive.Entries.Count < 2 || archive.Entries.Count > 18) throw new StoreError("BUNDLE_ENTRY_LIMIT");
+        if (archive.Entries.Count < 2 || archive.Entries.Count > 19) throw new StoreError("BUNDLE_ENTRY_LIMIT");
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
         long total = 0;
         foreach (var entry in archive.Entries)
         {
-            if (!Regex.IsMatch(entry.FullName, @"^(manifest\.json|world\.json|objects/[a-f0-9]{64}\.glb)$") || files.ContainsKey(entry.FullName)) throw new StoreError("BUNDLE_PATH_OR_DUPLICATE");
+            if (!Regex.IsMatch(entry.FullName, @"^(manifest\.json|world\.json|service\.json|objects/[a-f0-9]{64}\.glb)$") || files.ContainsKey(entry.FullName)) throw new StoreError("BUNDLE_PATH_OR_DUPLICATE");
             if (entry.Length < 1 || entry.Length > MaxWorldBytes || (total += entry.Length) > 16 * 1024 * 1024) throw new StoreError("BUNDLE_INFLATED_LIMIT");
             using var stream = entry.Open(); using var buffer = new MemoryStream();
             var chunk = new byte[8192]; int read;
@@ -359,7 +448,10 @@ internal sealed class Store : IDisposable
         if (!files.TryGetValue("manifest.json", out var manifestBytes) || manifestBytes.Length > 65536 || !files.ContainsKey("world.json")) throw new StoreError("BUNDLE_MANIFEST_MISSING");
         NoDuplicateKeys(manifestBytes); NoDuplicateKeys(files["world.json"]);
         var manifest = JsonNode.Parse(manifestBytes)!.AsObject();
-        if (S(manifest, "format") != "region-lab.bundle" || Long(manifest, "version") != 1) throw new StoreError("UNSUPPORTED_BUNDLE");
+        long bundleVersion = S(manifest, "format") != "region-lab.bundle" ? -1 : Long(manifest, "version");
+        if (bundleVersion is not (1 or 2)) throw new StoreError("UNSUPPORTED_BUNDLE");
+        if (bundleVersion == 1 && files.ContainsKey("service.json")) throw new StoreError("UNSUPPORTED_BUNDLE");
+        if (bundleVersion == 2 && !files.ContainsKey("service.json")) throw new StoreError("BUNDLE_SERVICE_MISSING");
         var listed = new HashSet<string>(StringComparer.Ordinal);
         foreach (var node in manifest["entries"]!.AsArray())
         {
@@ -370,15 +462,55 @@ internal sealed class Store : IDisposable
         var world = JsonNode.Parse(files["world.json"])!.AsObject();
         if (S(world["region"]!.AsObject(), "id") != S(manifest, "region_id")) throw new StoreError("BUNDLE_REGION_MISMATCH");
         var used = new HashSet<string>(StringComparer.Ordinal) { "world.json" };
+        var worldHashes = new HashSet<string>(StringComparer.Ordinal);
         foreach (var asset in world["assets"]!.AsArray().Select(n => n!.AsObject()).Where(a => S(a, "kind") == "mesh"))
         {
             string hash = S(asset, "sha256"); string name = "objects/" + hash + ".glb";
-            used.Add(name);
+            used.Add(name); worldHashes.Add(hash);
             if (!files.TryGetValue(name, out var bytes) || Hash(bytes) != hash || bytes.Length > 2097152 || asset.ContainsKey("glb")) throw new StoreError("BUNDLE_ASSET_MISSING_OR_INVALID");
             asset["glb"] = Convert.ToBase64String(bytes);
         }
+        JsonObject? service = null;
+        var extraContent = new Dictionary<string, byte[]>(StringComparer.Ordinal);
+        if (bundleVersion == 2)
+        {
+            var serviceBytes = files["service.json"];
+            if (serviceBytes.Length > 1048576) throw new StoreError("BUNDLE_INFLATED_LIMIT");
+            NoDuplicateKeys(serviceBytes);
+            service = JsonNode.Parse(serviceBytes)!.AsObject();
+            if (S(service, "format") != "region-lab.service" || Long(service, "version") != 1) throw new StoreError("UNSUPPORTED_BUNDLE");
+            foreach (string key in new[] { "accounts", "restrictions", "grants", "folders", "items" })
+                if (service[key] is not JsonArray) throw new StoreError("BUNDLE_SERVICE_INVALID");
+            foreach (var node in service["accounts"]!.AsArray())
+            {
+                var account = node!.AsObject();
+                Id(S(account, "id")); Id(S(account, "actor_id"));
+                if (!AccountRoles.Contains(S(account, "role")) || S(account, "name").Length is < 1 or > 64 || account["disabled"] is not JsonValue) throw new StoreError("BUNDLE_SERVICE_INVALID");
+            }
+            foreach (var node in service["restrictions"]!.AsArray()) { var row = node!.AsObject(); Id(S(row, "object_id")); }
+            foreach (var node in service["grants"]!.AsArray()) { var row = node!.AsObject(); Id(S(row, "object_id")); Id(S(row, "account_id")); }
+            foreach (var node in service["folders"]!.AsArray())
+            {
+                var row = node!.AsObject(); Id(S(row, "id")); Id(S(row, "account_id"));
+                if (row["parent_id"] is JsonValue parent && parent.GetValue<string>() is string p && p.Length > 0) Id(p);
+                if (S(row, "name").Length is < 1 or > 64) throw new StoreError("BUNDLE_SERVICE_INVALID");
+            }
+            foreach (var node in service["items"]!.AsArray())
+            {
+                var row = node!.AsObject(); Id(S(row, "id")); Id(S(row, "account_id"));
+                string hash = S(row, "asset_sha256");
+                if (!Regex.IsMatch(hash, "^[a-f0-9]{64}$") || S(row, "name").Length is < 1 or > 128) throw new StoreError("BUNDLE_SERVICE_INVALID");
+                if (row["folder_id"] is JsonValue folder && folder.GetValue<string>() is string f && f.Length > 0) Id(f);
+                if (worldHashes.Contains(hash)) continue;
+                string name = "objects/" + hash + ".glb"; used.Add(name);
+                if (!files.TryGetValue(name, out var bytes) || Hash(bytes) != hash || bytes.Length > 2097152) throw new StoreError("BUNDLE_ASSET_MISSING_OR_INVALID");
+                extraContent[hash] = bytes;
+            }
+            used.Add("service.json");
+        }
         if (!used.SetEquals(listed)) throw new StoreError("BUNDLE_UNREFERENCED_CONTENT");
-        var result = Encoding.UTF8.GetBytes(world.ToJsonString()); if (result.Length > MaxWorldBytes) throw new StoreError("WORLD_SIZE_LIMIT"); return result;
+        var result = Encoding.UTF8.GetBytes(world.ToJsonString()); if (result.Length > MaxWorldBytes) throw new StoreError("WORLD_SIZE_LIMIT");
+        return new BundleContent(result, service, extraContent);
     }
     private object CollectOrphans()
     {
@@ -387,6 +519,9 @@ internal sealed class Store : IDisposable
         try
         {
             var live = Rows("SELECT DISTINCT sha256 FROM assets WHERE sha256 IS NOT NULL").Select(r => (string)r[0]!).ToHashSet(StringComparer.Ordinal);
+            // Inventory items keep their referenced content alive even when no world
+            // asset currently uses it.
+            foreach (var row in Rows("SELECT DISTINCT asset_sha256 FROM inventory_items")) live.Add((string)row[0]!);
             // Publication and GC share the SQLite write lock. No uncommitted asset
             // can be collected while a save is between file publication and commit.
             foreach (var file in Directory.Exists(content) ? Directory.EnumerateFiles(content) : Array.Empty<string>())
@@ -395,7 +530,7 @@ internal sealed class Store : IDisposable
                 if (Regex.IsMatch(name, @"^[a-f0-9]{64}\.glb$") && !live.Contains(name[..64])) { File.Delete(file); removed.Add(name); }
                 else if (Regex.IsMatch(name, @"^[a-f0-9]{64}\.[a-f0-9]{32}\.tmp$")) { File.Delete(file); removed.Add(name); }
             }
-            Exec("DELETE FROM contents WHERE sha256 NOT IN (SELECT sha256 FROM assets WHERE sha256 IS NOT NULL)"); transaction.Commit();
+            Exec("DELETE FROM contents WHERE sha256 NOT IN (SELECT sha256 FROM assets WHERE sha256 IS NOT NULL) AND sha256 NOT IN (SELECT asset_sha256 FROM inventory_items)"); transaction.Commit();
         }
         finally { transaction.Dispose(); transaction = null; }
         return new { ok = true, removed };
@@ -576,6 +711,131 @@ internal sealed class Store : IDisposable
         catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
         finally { transaction.Dispose(); transaction = null; }
         return new { ok = true, object_id = objectId, account_id = accountId, granted };
+    }
+    private void RequireAccount(string accountId)
+    {
+        if (Scalar("SELECT COUNT(*) FROM accounts WHERE id=$i", ("$i", accountId)) is long missing && missing == 0) throw new StoreError("ACCOUNT_NOT_FOUND");
+    }
+    private object InventoryFolderCreate(JsonObject request)
+    {
+        string accountId = Id(S(request, "account_id"));
+        string name = S(request, "name");
+        if (name.Trim().Length is < 1 or > 64) throw new StoreError("INVALID_FOLDER_NAME");
+        string? parentId = request["parent_id"] is JsonNode given ? Id(given.GetValue<string>()) : null;
+        long now = Long(request, "now_ms");
+        string id = Guid.NewGuid().ToString();
+        transaction = connection!.BeginTransaction(deferred: false);
+        try
+        {
+            RequireAccount(accountId);
+            if (parentId != null && Scalar("SELECT COUNT(*) FROM inventory_folders WHERE id=$f AND account_id=$a", ("$f", parentId), ("$a", accountId)) is long bad && bad == 0) throw new StoreError("FOLDER_NOT_FOUND");
+            Exec("INSERT INTO inventory_folders(id,account_id,parent_id,name,created_at_ms) VALUES($i,$a,$p,$n,$t)",
+                ("$i", id), ("$a", accountId), ("$p", parentId), ("$n", name), ("$t", now));
+            Audit(now, accountId, "inventory_folder_create", "ok", name);
+            transaction.Commit();
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+        return new { ok = true, folder = new { id, account_id = accountId, parent_id = parentId, name, created_at_ms = now } };
+    }
+    private object InventoryAdd(JsonObject request)
+    {
+        string accountId = Id(S(request, "account_id"));
+        string name = S(request, "name");
+        if (name.Trim().Length is < 1 or > 128) throw new StoreError("INVALID_ITEM_NAME");
+        string hash = S(request, "sha256");
+        if (!Regex.IsMatch(hash, "^[a-f0-9]{64}$")) throw new StoreError("INVALID_CONTENT_ID");
+        string? folderId = request["folder_id"] is JsonNode given ? Id(given.GetValue<string>()) : null;
+        string license = request["license"]?.GetValue<string>() ?? "", attribution = request["attribution"]?.GetValue<string>() ?? "";
+        if (license.Length > 64 || attribution.Length > 512) throw new StoreError("INVALID_ITEM_METADATA");
+        long now = Long(request, "now_ms");
+        string id = Guid.NewGuid().ToString();
+        transaction = connection!.BeginTransaction(deferred: false);
+        try
+        {
+            RequireAccount(accountId);
+            if (Scalar("SELECT COUNT(*) FROM contents WHERE sha256=$h", ("$h", hash)) is long absent && absent == 0) throw new StoreError("CONTENT_UNKNOWN");
+            if (folderId != null && Scalar("SELECT COUNT(*) FROM inventory_folders WHERE id=$f AND account_id=$a", ("$f", folderId), ("$a", accountId)) is long bad && bad == 0) throw new StoreError("FOLDER_NOT_FOUND");
+            Exec("INSERT INTO inventory_items(id,account_id,folder_id,asset_sha256,name,license,attribution,created_at_ms) VALUES($i,$a,$f,$h,$n,$l,$t2,$t)",
+                ("$i", id), ("$a", accountId), ("$f", folderId), ("$h", hash), ("$n", name), ("$l", license), ("$t2", attribution), ("$t", now));
+            Audit(now, accountId, "inventory_add", "ok", $"sha256={hash}");
+            transaction.Commit();
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+        return new { ok = true, item = new { id, account_id = accountId, folder_id = folderId, asset_sha256 = hash, name, license, attribution, created_at_ms = now } };
+    }
+    private object InventoryRemove(JsonObject request)
+    {
+        string itemId = Id(S(request, "item_id"));
+        long now = Long(request, "now_ms");
+        transaction = connection!.BeginTransaction(deferred: false);
+        try
+        {
+            var rows = Rows("SELECT account_id FROM inventory_items WHERE id=$i", ("$i", itemId));
+            if (rows.Count == 0) throw new StoreError("ITEM_NOT_FOUND");
+            Exec("DELETE FROM inventory_items WHERE id=$i", ("$i", itemId));
+            Audit(now, (string)rows[0][0]!, "inventory_remove", "ok", $"item={itemId}");
+            transaction.Commit();
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+        return new { ok = true, removed = itemId };
+    }
+    private object InventoryMove(JsonObject request)
+    {
+        string itemId = Id(S(request, "item_id"));
+        string? folderId = request["folder_id"] is JsonNode given ? Id(given.GetValue<string>()) : null;
+        long now = Long(request, "now_ms");
+        transaction = connection!.BeginTransaction(deferred: false);
+        try
+        {
+            var rows = Rows("SELECT account_id FROM inventory_items WHERE id=$i", ("$i", itemId));
+            if (rows.Count == 0) throw new StoreError("ITEM_NOT_FOUND");
+            string accountId = (string)rows[0][0]!;
+            if (folderId != null && Scalar("SELECT COUNT(*) FROM inventory_folders WHERE id=$f AND account_id=$a", ("$f", folderId), ("$a", accountId)) is long bad && bad == 0) throw new StoreError("FOLDER_NOT_FOUND");
+            Exec("UPDATE inventory_items SET folder_id=$f WHERE id=$i", ("$f", folderId), ("$i", itemId));
+            Audit(now, accountId, "inventory_move", "ok", $"item={itemId}");
+            transaction.Commit();
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+        return new { ok = true, item_id = itemId, folder_id = folderId };
+    }
+    private object InventoryGive(JsonObject request)
+    {
+        string itemId = Id(S(request, "item_id"));
+        string targetId = Id(S(request, "to_account_id"));
+        long now = Long(request, "now_ms");
+        transaction = connection!.BeginTransaction(deferred: false);
+        try
+        {
+            var rows = Rows("SELECT account_id FROM inventory_items WHERE id=$i", ("$i", itemId));
+            if (rows.Count == 0) throw new StoreError("ITEM_NOT_FOUND");
+            string fromId = (string)rows[0][0]!;
+            var target = Rows("SELECT disabled FROM accounts WHERE id=$i", ("$i", targetId));
+            if (target.Count == 0) throw new StoreError("ACCOUNT_NOT_FOUND");
+            if (Convert.ToInt64(target[0][0]) == 1) throw new StoreError("ACCOUNT_DISABLED");
+            Exec("UPDATE inventory_items SET account_id=$a,folder_id=NULL WHERE id=$i", ("$a", targetId), ("$i", itemId));
+            Audit(now, fromId, "inventory_give", "ok", $"item={itemId} to={targetId}");
+            transaction.Commit();
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+        return new { ok = true, item_id = itemId, account_id = targetId };
+    }
+    private object InventoryList(JsonObject request)
+    {
+        string accountId = Id(S(request, "account_id"));
+        RequireAccount(accountId);
+        return new
+        {
+            ok = true,
+            folders = Rows("SELECT id,account_id,parent_id,name,created_at_ms FROM inventory_folders WHERE account_id=$a ORDER BY created_at_ms,rowid", ("$a", accountId))
+                .Select(r => new { id = r[0], account_id = r[1], parent_id = r[2], name = r[3], created_at_ms = r[4] }).ToArray(),
+            items = Rows("SELECT id,account_id,folder_id,asset_sha256,name,license,attribution,created_at_ms FROM inventory_items WHERE account_id=$a ORDER BY created_at_ms,rowid", ("$a", accountId))
+                .Select(r => new { id = r[0], account_id = r[1], folder_id = r[2], asset_sha256 = r[3], name = r[4], license = r[5], attribution = r[6], created_at_ms = r[7] }).ToArray()
+        };
     }
     private string ContentPath(string hash)
     {

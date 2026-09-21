@@ -63,7 +63,7 @@ class Suite:
         self.check(generation.returncode == 0 and fixture.exists(), "native WorldService created grouped world with real building and door/lamp state")
         world = json.loads(json.loads(fixture.read_text(encoding="utf-8"))["world_json"])
         init = self.call("init")
-        self.check(init["ok"] and init["schema_version"] == 5, "empty database initialized and migrated")
+        self.check(init["ok"] and init["schema_version"] == 6, "empty database initialized and migrated")
         (self.output / "runtime.json").write_text(json.dumps(init, indent=2) + "\n")
         self.check(self.call("init")["ok"], "repeated migration is idempotent")
         save = self.request("save", input=str(fixture), expected_commit=-1, request_id=str(uuid.uuid4()))
@@ -174,6 +174,8 @@ class Suite:
         self.check(self.invoke(populated)["ok"], "upgrade fixture contains a complete committed region and asset")
         v1_db = v1_root / "worlds.sqlite3"
         with sqlite3.connect(v1_db) as c:
+            c.execute("DROP TABLE inventory_items")
+            c.execute("DROP TABLE inventory_folders")
             c.execute("DROP TABLE grants")
             c.execute("DROP TABLE restrictions")
             c.execute("DROP TABLE audit_log")
@@ -215,7 +217,7 @@ class Suite:
         invalid_receipt = copy.deepcopy(network_save); invalid_receipt["request_id"] = str(uuid.uuid4())
         self.check(self.invoke(invalid_receipt).get("error") == "INVALID_NETWORK_RECEIPT", "mismatched receipt and transaction identity rejected")
         with sqlite3.connect(network_root / "worlds.sqlite3") as c:
-            c.execute("DROP TABLE grants"); c.execute("DROP TABLE restrictions")
+            c.execute("DROP TABLE inventory_items"); c.execute("DROP TABLE inventory_folders"); c.execute("DROP TABLE grants"); c.execute("DROP TABLE restrictions")
             c.execute("DROP TABLE audit_log"); c.execute("DROP TABLE sessions"); c.execute("DROP TABLE accounts")
             c.execute("DROP TABLE network_receipts"); c.execute("PRAGMA user_version=2")
         migrate2 = self.request("init", fault="migration_receipts"); migrate2["root"] = str(network_root)
@@ -283,7 +285,7 @@ class Suite:
             self.check(c.execute("SELECT COUNT(*) FROM sessions WHERE token_hash=$h", (hashlib.sha256(token.encode()).hexdigest(),)).fetchone()[0] == 1, "sessions persist only token hashes")
         # v3 to v4 migration rolls back DDL and version together.
         with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
-            c.execute("DROP TABLE grants"); c.execute("DROP TABLE restrictions")
+            c.execute("DROP TABLE inventory_items"); c.execute("DROP TABLE inventory_folders"); c.execute("DROP TABLE grants"); c.execute("DROP TABLE restrictions")
             c.execute("DROP TABLE audit_log"); c.execute("DROP TABLE sessions"); c.execute("DROP TABLE accounts"); c.execute("PRAGMA user_version=3")
         migrate3 = dict(init_id, fault="migration_identity")
         self.check(self.invoke(migrate3).get("error") == "INJECTED_MIGRATION_IDENTITY", "v3 to v4 migration failure is explicit")
@@ -315,13 +317,96 @@ class Suite:
         self.check("object_restrict" in actions and "grant_revoke" in actions and "object_unrestrict" in actions, "audit log records permit actions")
         # v4 to v5 migration rolls back DDL and version together.
         with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
-            c.execute("DROP TABLE grants"); c.execute("DROP TABLE restrictions"); c.execute("PRAGMA user_version=4")
+            c.execute("DROP TABLE inventory_items"); c.execute("DROP TABLE inventory_folders"); c.execute("DROP TABLE grants"); c.execute("DROP TABLE restrictions"); c.execute("PRAGMA user_version=4")
         migrate4 = dict(init_id, fault="migration_permits")
         self.check(self.invoke(migrate4).get("error") == "INJECTED_MIGRATION_PERMITS", "v4 to v5 migration failure is explicit")
         with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
             self.check(c.execute("PRAGMA user_version").fetchone()[0] == 4 and not c.execute("SELECT name FROM sqlite_master WHERE name='grants'").fetchall(), "v5 migration rolls back DDL and version together")
         migrate4.pop("fault")
         self.check(self.invoke(migrate4)["ok"], "v5 migration retries after rollback")
+        # V6 inventory: folders and items reference content by hash, independent of
+        # world assets and scene instances.
+        holder = self.call("account_create", name="inventory-holder", role="editor", now_ms=now)["account"]["id"]
+        friend = self.call("account_create", name="inventory-friend", role="editor", now_ms=now)["account"]["id"]
+        folder = self.call("inventory_folder_create", account_id=holder, name="props", now_ms=now)
+        self.check(folder["ok"] and folder["folder"]["parent_id"] is None, "root inventory folder created")
+        child = self.call("inventory_folder_create", account_id=holder, name="nested", parent_id=folder["folder"]["id"], now_ms=now)
+        self.check(child["ok"] and child["folder"]["parent_id"] == folder["folder"]["id"], "nested folder created")
+        self.check(self.call("inventory_folder_create", account_id=holder, name="bad", parent_id=str(uuid.uuid4()), now_ms=now).get("error") == "FOLDER_NOT_FOUND", "folder under unknown parent rejected")
+        self.check(self.call("inventory_folder_create", account_id=holder, name="bad", parent_id=folder["folder"]["id"].replace(folder["folder"]["id"][0], "a" if folder["folder"]["id"][0] != "a" else "b"), now_ms=now).get("error") == "FOLDER_NOT_FOUND", "folder id from another tree rejected")
+        self.check(self.call("inventory_folder_create", account_id=str(uuid.uuid4()), name="x", now_ms=now).get("error") == "ACCOUNT_NOT_FOUND", "folder for unknown account rejected")
+        added = self.call("inventory_add", account_id=holder, name="Cabin kit", sha256=mesh["sha256"], license="CC0-1.0", attribution="test", now_ms=now)
+        self.check(added["ok"] and added["item"]["asset_sha256"] == mesh["sha256"], "inventory item references content by hash")
+        item_id = added["item"]["id"]
+        self.check(self.call("inventory_add", account_id=holder, name="ghost", sha256="0" * 64, now_ms=now).get("error") == "CONTENT_UNKNOWN", "item for unknown content rejected")
+        self.check(self.call("inventory_add", account_id=holder, name=" ", sha256=mesh["sha256"], now_ms=now).get("error") == "INVALID_ITEM_NAME", "blank item name rejected")
+        self.check(self.call("inventory_add", account_id=friend, name="stolen", sha256=mesh["sha256"], folder_id=folder["folder"]["id"], now_ms=now).get("error") == "FOLDER_NOT_FOUND", "item into another account folder rejected")
+        moved_item = self.call("inventory_move", item_id=item_id, folder_id=child["folder"]["id"], now_ms=now)
+        self.check(moved_item["ok"] and moved_item["folder_id"] == child["folder"]["id"], "item moved into nested folder")
+        self.check(self.call("inventory_move", item_id=item_id, folder_id=str(uuid.uuid4()), now_ms=now).get("error") == "FOLDER_NOT_FOUND", "move to unknown folder rejected")
+        listing = self.call("inventory_list", account_id=holder)
+        self.check(listing["ok"] and len(listing["folders"]) == 2 and len(listing["items"]) == 1, "inventory list shows folders and items")
+        # Inventory keeps content alive for garbage collection even without world assets.
+        with sqlite3.connect(db) as c:
+            orphan_hash = "9" * 64
+            c.execute("INSERT INTO contents(sha256,bytes) VALUES($h,4)", {"h": orphan_hash})
+            c.execute("INSERT INTO inventory_items(id,account_id,folder_id,asset_sha256,name,license,attribution,created_at_ms) VALUES($i,$a,NULL,$h,'held','','',0)", {"i": str(uuid.uuid4()), "a": holder, "h": orphan_hash})
+        (self.root / "objects" / (orphan_hash + ".glb")).write_bytes(b"held")
+        self.check(self.call("gc")["removed"] == [], "garbage collection preserves inventory-referenced content")
+        self.check((self.root / "objects" / (orphan_hash + ".glb")).exists(), "inventory-only content file survives collection")
+        with sqlite3.connect(db) as c:
+            c.execute("DELETE FROM inventory_items WHERE asset_sha256=$h", {"h": orphan_hash})
+        self.check(orphan_hash + ".glb" in self.call("gc")["removed"], "content collected once inventory reference removed")
+        # Give transfers the item; disabled recipients refused.
+        self.call("account_disable", account_id=friend, disabled=True, now_ms=now)
+        self.check(self.call("inventory_give", item_id=item_id, to_account_id=friend, now_ms=now).get("error") == "ACCOUNT_DISABLED", "give to disabled account rejected")
+        self.call("account_disable", account_id=friend, disabled=False, now_ms=now)
+        given = self.call("inventory_give", item_id=item_id, to_account_id=friend, now_ms=now)
+        self.check(given["ok"] and given["account_id"] == friend, "item given to another account")
+        self.check(self.call("inventory_list", account_id=holder)["items"] == [], "giver inventory empty after give")
+        friend_listing = self.call("inventory_list", account_id=friend)
+        self.check(len(friend_listing["items"]) == 1 and friend_listing["items"][0]["folder_id"] is None, "recipient finds item at inventory root")
+        self.check(self.call("inventory_give", item_id=str(uuid.uuid4()), to_account_id=friend, now_ms=now).get("error") == "ITEM_NOT_FOUND", "give of unknown item rejected")
+        removed_item = self.call("inventory_remove", item_id=item_id, now_ms=now)
+        self.check(removed_item["ok"] and self.call("inventory_list", account_id=friend)["items"] == [], "item removed from inventory")
+        self.check(self.call("inventory_remove", item_id=item_id, now_ms=now).get("error") == "ITEM_NOT_FOUND", "removing twice rejected")
+        audit = self.call("audit_list", limit=200)
+        actions = [row[2] for row in audit["audit"]]
+        self.check("inventory_add" in actions and "inventory_give" in actions and "inventory_remove" in actions, "audit log records inventory actions")
+        # Bundle v2 carries accounts, permits and inventory with their content.
+        permit_item = self.call("inventory_add", account_id=holder, name="Roundtrip kit", sha256=mesh["sha256"], folder_id=folder["folder"]["id"], now_ms=now)["item"]["id"]
+        self.call("object_restrict", object_id=world["objects"][0]["id"], restricted=True, actor_id=holder, now_ms=now)
+        self.call("grant_update", object_id=world["objects"][0]["id"], account_id=friend, granted=True, actor_id=holder, now_ms=now)
+        package2 = self.output / "v2.bundle.zip"
+        exported2 = self.call("backup", output=str(package2))
+        self.check(exported2["ok"], "v2 bundle exported with service data")
+        service_root = self.output / "restored service"
+        restore2 = self.request("import", input=str(package2), expected_commit=-1, request_id=str(uuid.uuid4())); restore2["root"] = str(service_root)
+        self.check(self.invoke(restore2)["ok"], "v2 bundle restores into a fresh root")
+        def restored(op, **values):
+            request = self.request(op, **values); request["root"] = str(service_root); return self.invoke(request)
+        r_accounts = restored("account_list")
+        self.check(any(a["name"] == "inventory-holder" for a in r_accounts["accounts"]), "restored bundle preserves accounts")
+        r_permits = restored("grant_list")
+        self.check(len(r_permits["restrictions"]) == 1 and len(r_permits["grants"]) == 1, "restored bundle preserves restrictions and grants")
+        holder_id = next(a["id"] for a in r_accounts["accounts"] if a["name"] == "inventory-holder")
+        r_items = restored("inventory_list", account_id=holder_id)
+        self.check(len(r_items["items"]) == 1 and r_items["items"][0]["id"] == permit_item and len(r_items["folders"]) == 2, "restored bundle preserves inventory folders and items")
+        self.check(len(list((service_root / "objects").glob("*.glb"))) == 1, "restored bundle republishes referenced content")
+        # A version 1 bundle without service data still imports (world only).
+        v1_package = self.output / "v1.bundle.zip"
+        with zipfile.ZipFile(package2) as source, zipfile.ZipFile(v1_package, "w") as target_zip:
+            for info in source.infolist():
+                if info.filename == "service.json": continue
+                data = source.read(info)
+                if info.filename == "manifest.json":
+                    manifest = json.loads(data); manifest["version"] = 1
+                    manifest["entries"] = [e for e in manifest["entries"] if e["path"] != "service.json"]
+                    data = json.dumps(manifest).encode()
+                target_zip.writestr(info.filename, data)
+        v1_root = self.output / "restored v1"
+        restore_v1 = self.request("import", input=str(v1_package), expected_commit=-1, request_id=str(uuid.uuid4())); restore_v1["root"] = str(v1_root)
+        self.check(self.invoke(restore_v1)["ok"], "version 1 bundle imports without service data")
         self.report()
 
 

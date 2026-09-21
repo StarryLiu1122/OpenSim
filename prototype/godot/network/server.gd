@@ -15,6 +15,7 @@ var accounts: Dictionary = {}
 var sessions: Dictionary = {}
 var restrictions: Dictionary = {}
 var grants: Dictionary = {}
+var inventories: Dictionary = {}
 var crypto := Crypto.new()
 var view = View.new()
 var listener := TCPServer.new()
@@ -65,6 +66,7 @@ func _ready() -> void:
 	for receipt in prior.receipts: receipts[receipt.request_id] = receipt
 	if not _identity_bootstrap(): return
 	if not _permits_bootstrap(): return
+	if not _inventory_bootstrap(): return
 	add_child(view); view.rebuild(service.model.snapshot())
 	_publish_assets()
 	if listener.listen(int(config.port), "127.0.0.1") != OK: _fatal("PORT_UNAVAILABLE"); return
@@ -287,6 +289,100 @@ func _permit(client: Dictionary, packet: Dictionary) -> void:
 func _permit_reply(client: Dictionary, request_id: String, ok: bool, code: String, data: Dictionary = {}) -> void:
 	_send(client, Wire.packet("permit_result", {"request_id": request_id, "ok": ok, "code": code, "data": data}))
 
+# --- V6 inventory: per-account folders and items referencing content by hash.
+# --- The cache mirrors the store; every mutation lands in the store first.
+
+func _inventory_bootstrap() -> bool:
+	for account_id in accounts:
+		var listed: Dictionary = store._invoke({"operation": "inventory_list", "account_id": account_id})
+		if listed.has("error"): _fatal("INVENTORY_" + str(listed.error)); return false
+		var entry := {"folders": {}, "items": {}}
+		for folder in listed.folders: entry.folders[folder.id] = folder
+		for item in listed.items: entry.items[item.id] = item
+		inventories[account_id] = entry
+	return true
+
+func _own_inventory(account_id: String) -> Dictionary:
+	if not inventories.has(account_id): inventories[account_id] = {"folders": {}, "items": {}}
+	return inventories[account_id]
+
+func _inventory(client: Dictionary, packet: Dictionary) -> void:
+	if not Schema.exact_keys(packet, ["fp_version", "type", "request_id", "action", "params"]) or not Schema.is_uuid(packet.request_id) or not packet.action is String or not packet.params is Dictionary:
+		_inventory_reply(client, "", false, "INVALID_INVENTORY_REQUEST"); return
+	var request_id: String = packet.request_id
+	var params: Dictionary = packet.params
+	var own := _own_inventory(client.principal.id)
+	match packet.action:
+		"list":
+			_inventory_reply(client, request_id, true, "", {"folders": own.folders.values(), "items": own.items.values()})
+		"folder_create":
+			if not Schema.exact_keys(params, ["name"]) and not Schema.exact_keys(params, ["name", "parent_id"]):
+				_inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
+			if not params.name is String or (params.has("parent_id") and not Schema.is_uuid(str(params.parent_id))):
+				_inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
+			var request := {"operation": "inventory_folder_create", "account_id": client.principal.id, "name": params.name, "now_ms": _utc()}
+			if params.has("parent_id"): request.parent_id = params.parent_id
+			var created: Dictionary = store._invoke(request)
+			if created.has("error"): _inventory_reply(client, request_id, false, str(created.error)); return
+			own.folders[created.folder.id] = created.folder
+			_inventory_reply(client, request_id, true, "", {"folder": created.folder})
+		"add":
+			if not params.get("asset_id") is String or not Schema.is_uuid(str(params.get("asset_id", ""))) or params.keys().any(func(k): return k not in ["asset_id", "name", "folder_id"]):
+				_inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
+			if params.has("name") and not params.name is String: _inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
+			if params.has("folder_id") and not own.folders.has(str(params.folder_id)): _inventory_reply(client, request_id, false, "FOLDER_NOT_FOUND"); return
+			var found := {}
+			for asset in service.model.snapshot().assets:
+				if asset.id == params.asset_id and asset.kind == "mesh": found = asset
+			if found.is_empty(): _inventory_reply(client, request_id, false, "ASSET_UNKNOWN"); return
+			var request := {"operation": "inventory_add", "account_id": client.principal.id, "name": str(params.get("name", found.get("name", "asset"))), "sha256": found.sha256, "license": str(found.get("license", "")), "attribution": str(found.get("attribution", "")), "now_ms": _utc()}
+			if params.has("folder_id"): request.folder_id = str(params.folder_id)
+			var added: Dictionary = store._invoke(request)
+			if added.has("error"): _inventory_reply(client, request_id, false, str(added.error)); return
+			own.items[added.item.id] = added.item
+			_inventory_reply(client, request_id, true, "", {"item": added.item})
+		"remove":
+			if not Schema.exact_keys(params, ["item_id"]) or not Schema.is_uuid(str(params.item_id)):
+				_inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
+			if not own.items.has(params.item_id): _inventory_reply(client, request_id, false, "ITEM_NOT_FOUND"); return
+			var removed: Dictionary = store._invoke({"operation": "inventory_remove", "item_id": params.item_id, "now_ms": _utc()})
+			if removed.has("error"): _inventory_reply(client, request_id, false, str(removed.error)); return
+			own.items.erase(params.item_id)
+			_inventory_reply(client, request_id, true, "", {"removed": params.item_id})
+		"move":
+			if not Schema.exact_keys(params, ["item_id"]) and not Schema.exact_keys(params, ["item_id", "folder_id"]):
+				_inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
+			if not Schema.is_uuid(str(params.get("item_id", ""))): _inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
+			if not own.items.has(str(params.item_id)): _inventory_reply(client, request_id, false, "ITEM_NOT_FOUND"); return
+			var target = null
+			if params.has("folder_id"):
+				if not Schema.is_uuid(str(params.folder_id)): _inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
+				if not own.folders.has(str(params.folder_id)): _inventory_reply(client, request_id, false, "FOLDER_NOT_FOUND"); return
+				target = str(params.folder_id)
+			var request := {"operation": "inventory_move", "item_id": params.item_id, "now_ms": _utc()}
+			if target != null: request.folder_id = target
+			var moved: Dictionary = store._invoke(request)
+			if moved.has("error"): _inventory_reply(client, request_id, false, str(moved.error)); return
+			own.items[params.item_id].folder_id = target
+			_inventory_reply(client, request_id, true, "", {"item_id": params.item_id, "folder_id": target})
+		"give":
+			if not Schema.exact_keys(params, ["item_id", "to_account_id"]) or not Schema.is_uuid(str(params.get("item_id", ""))) or not Schema.is_uuid(str(params.get("to_account_id", ""))):
+				_inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
+			if not own.items.has(str(params.item_id)): _inventory_reply(client, request_id, false, "ITEM_NOT_FOUND"); return
+			if not accounts.has(str(params.to_account_id)): _inventory_reply(client, request_id, false, "ACCOUNT_NOT_FOUND"); return
+			var given: Dictionary = store._invoke({"operation": "inventory_give", "item_id": params.item_id, "to_account_id": params.to_account_id, "now_ms": _utc()})
+			if given.has("error"): _inventory_reply(client, request_id, false, str(given.error)); return
+			var transferred: Dictionary = own.items[params.item_id].duplicate(true)
+			own.items.erase(params.item_id)
+			transferred.account_id = params.to_account_id; transferred.folder_id = null
+			_own_inventory(params.to_account_id).items[params.item_id] = transferred
+			_inventory_reply(client, request_id, true, "", {"item_id": params.item_id, "to_account_id": params.to_account_id})
+		_:
+			_inventory_reply(client, request_id, false, "UNSUPPORTED_INVENTORY_ACTION")
+
+func _inventory_reply(client: Dictionary, request_id: String, ok: bool, code: String, data: Dictionary = {}) -> void:
+	_send(client, Wire.packet("inventory_result", {"request_id": request_id, "ok": ok, "code": code, "data": data}))
+
 func _process(delta: float) -> void:
 	if ready_at == 0: return
 	if listener.is_connection_available():
@@ -378,6 +474,7 @@ func _receive(client: Dictionary, packet: Dictionary) -> void:
 			else: _reject(client, packet.request_id, "RESULT_UNKNOWN")
 		"account": _account(client, packet)
 		"permit": _permit(client, packet)
+		"inventory": _inventory(client, packet)
 		"command": _command(client, packet)
 		_: _reject(client, "", "UNSUPPORTED_PACKET")
 
@@ -456,6 +553,42 @@ func _execute(job: Dictionary) -> void:
 				var file := FileAccess.open(temporary, FileAccess.WRITE)
 				file.store_buffer(bytes); file.close()
 				payload.erase("bytes"); payload.path = temporary; operation = "ImportGlb"
+	elif operation == "PlaceInventoryItem":
+		var owned: Dictionary = inventories.get(job.principal.id, {})
+		var entry: Dictionary = owned.get("items", {}).get(str(payload.get("item_id", "")), {})
+		if not Schema.exact_keys(payload, ["item_id", "position"]) and not Schema.exact_keys(payload, ["item_id", "position", "name"]):
+			outcome = {"ok": false, "errors": [{"code": "INVALID_PLACEMENT"}]}
+		elif not Schema.is_uuid(str(payload.item_id)) or not Schema.vector(payload.position, 3, -64, 256) or (payload.has("name") and (not payload.name is String or payload.name.length() > 128)):
+			outcome = {"ok": false, "errors": [{"code": "INVALID_PLACEMENT"}]}
+		elif entry.is_empty():
+			outcome = {"ok": false, "errors": [{"code": "ITEM_NOT_FOUND"}]}
+		else:
+			# Reuse the world asset already holding this content, or import the
+			# inventory copy. Content stays hash-addressed and shared by instances.
+			var asset_id := ""
+			for asset in candidate.model.snapshot().assets:
+				if asset.kind == "mesh" and asset.sha256 == entry.asset_sha256: asset_id = asset.id
+			if asset_id.is_empty():
+				var source: String = config.storage.path_join("objects").path_join(entry.asset_sha256 + ".glb")
+				if not FileAccess.file_exists(source):
+					outcome = {"ok": false, "errors": [{"code": "CONTENT_MISSING"}]}
+				else:
+					temporary = config.storage.path_join("place-" + command.request_id + ".glb")
+					if DirAccess.copy_absolute(source, temporary) != OK:
+						outcome = {"ok": false, "errors": [{"code": "CONTENT_MISSING"}]}
+					else:
+						var imported: Dictionary = candidate.dispatch({"api_version": 1, "request_id": command.request_id, "operation": "ImportGlb", "expected_revision": command.expected_revision, "payload": {"path": temporary, "name": entry.name, "license": entry.get("license", ""), "attribution": entry.get("attribution", "")}})
+						if imported.ok:
+							asset_id = imported.payload.id
+							command.expected_revision = candidate.model.revision()
+						else: outcome = imported
+			if outcome.is_empty():
+				var box = Schema.box(str(payload.get("name", entry.name)), payload.position.duplicate(), [1.0, 1.0, 1.0], "#ffffff")
+				box.asset_id = asset_id
+				for asset in candidate.model.snapshot().assets:
+					if asset.id == asset_id: box.size = asset.bounds.duplicate(); box.position[2] = float(asset.bounds[2]) * 0.5 + 0.1
+				var placed: Dictionary = candidate.dispatch({"api_version": 1, "request_id": command.request_id, "operation": "CreateObject", "expected_revision": command.expected_revision, "payload": {"object": box}})
+				outcome = placed
 	if outcome.is_empty():
 		outcome = candidate.dispatch({"api_version": 1, "request_id": command.request_id, "operation": operation, "expected_revision": command.expected_revision, "payload": payload})
 	if not temporary.is_empty(): DirAccess.remove_absolute(temporary)
