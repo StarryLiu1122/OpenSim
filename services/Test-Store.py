@@ -63,7 +63,7 @@ class Suite:
         self.check(generation.returncode == 0 and fixture.exists(), "native WorldService created grouped world with real building and door/lamp state")
         world = json.loads(json.loads(fixture.read_text(encoding="utf-8"))["world_json"])
         init = self.call("init")
-        self.check(init["ok"] and init["schema_version"] == 4, "empty database initialized and migrated")
+        self.check(init["ok"] and init["schema_version"] == 5, "empty database initialized and migrated")
         (self.output / "runtime.json").write_text(json.dumps(init, indent=2) + "\n")
         self.check(self.call("init")["ok"], "repeated migration is idempotent")
         save = self.request("save", input=str(fixture), expected_commit=-1, request_id=str(uuid.uuid4()))
@@ -174,6 +174,8 @@ class Suite:
         self.check(self.invoke(populated)["ok"], "upgrade fixture contains a complete committed region and asset")
         v1_db = v1_root / "worlds.sqlite3"
         with sqlite3.connect(v1_db) as c:
+            c.execute("DROP TABLE grants")
+            c.execute("DROP TABLE restrictions")
             c.execute("DROP TABLE audit_log")
             c.execute("DROP TABLE sessions")
             c.execute("DROP TABLE accounts")
@@ -213,6 +215,7 @@ class Suite:
         invalid_receipt = copy.deepcopy(network_save); invalid_receipt["request_id"] = str(uuid.uuid4())
         self.check(self.invoke(invalid_receipt).get("error") == "INVALID_NETWORK_RECEIPT", "mismatched receipt and transaction identity rejected")
         with sqlite3.connect(network_root / "worlds.sqlite3") as c:
+            c.execute("DROP TABLE grants"); c.execute("DROP TABLE restrictions")
             c.execute("DROP TABLE audit_log"); c.execute("DROP TABLE sessions"); c.execute("DROP TABLE accounts")
             c.execute("DROP TABLE network_receipts"); c.execute("PRAGMA user_version=2")
         migrate2 = self.request("init", fault="migration_receipts"); migrate2["root"] = str(network_root)
@@ -225,7 +228,7 @@ class Suite:
         # V6 identity lifecycle: accounts, hashed sessions, atomic revocation and audit.
         identity_root = self.output / "identity database"
         init_id = self.request("init"); init_id["root"] = str(identity_root)
-        self.check(self.invoke(init_id)["ok"], "identity database initialized at schema 4")
+        self.check(self.invoke(init_id)["ok"], "identity database initialized at current schema")
         now = 1_760_000_000_000
         def identity(op, **values):
             request = self.request(op, **values); request["root"] = str(identity_root); return self.invoke(request)
@@ -280,6 +283,7 @@ class Suite:
             self.check(c.execute("SELECT COUNT(*) FROM sessions WHERE token_hash=$h", (hashlib.sha256(token.encode()).hexdigest(),)).fetchone()[0] == 1, "sessions persist only token hashes")
         # v3 to v4 migration rolls back DDL and version together.
         with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
+            c.execute("DROP TABLE grants"); c.execute("DROP TABLE restrictions")
             c.execute("DROP TABLE audit_log"); c.execute("DROP TABLE sessions"); c.execute("DROP TABLE accounts"); c.execute("PRAGMA user_version=3")
         migrate3 = dict(init_id, fault="migration_identity")
         self.check(self.invoke(migrate3).get("error") == "INJECTED_MIGRATION_IDENTITY", "v3 to v4 migration failure is explicit")
@@ -287,6 +291,37 @@ class Suite:
             self.check(c.execute("PRAGMA user_version").fetchone()[0] == 3 and not c.execute("SELECT name FROM sqlite_master WHERE name='accounts'").fetchall(), "v4 migration rolls back DDL and version together")
         migrate3.pop("fault")
         self.check(self.invoke(migrate3)["ok"], "v4 migration retries after rollback")
+        # V6 permits: restrictions and per-account grants over the same database.
+        permit_owner = identity("account_create", name="permit-owner", role="owner", now_ms=now)["account"]["id"]
+        permit_guest = identity("account_create", name="permit-guest", role="observer", now_ms=now)["account"]["id"]
+        thing = str(uuid.uuid4())
+        applied = identity("object_restrict", object_id=thing, restricted=True, actor_id=permit_owner, now_ms=now)
+        self.check(applied["ok"] and applied["restricted"], "object restriction registered")
+        self.check(identity("object_restrict", object_id=str(uuid.uuid4()), restricted=True, actor_id=str(uuid.uuid4()), now_ms=now).get("error") == "ACCOUNT_NOT_FOUND", "restriction by unknown actor rejected")
+        self.check(identity("grant_update", object_id=str(uuid.uuid4()), account_id=permit_guest, granted=True, actor_id=permit_owner, now_ms=now).get("error") == "OBJECT_NOT_RESTRICTED", "grant without restriction rejected")
+        self.check(identity("grant_update", object_id=thing, account_id=str(uuid.uuid4()), granted=True, actor_id=permit_owner, now_ms=now).get("error") == "ACCOUNT_NOT_FOUND", "grant to unknown account rejected")
+        granted = identity("grant_update", object_id=thing, account_id=permit_guest, granted=True, actor_id=permit_owner, now_ms=now)
+        self.check(granted["ok"] and granted["granted"], "grant recorded for restricted object")
+        listing = identity("grant_list")
+        self.check(listing["ok"] and [r["object_id"] for r in listing["restrictions"]] == [thing] and [g["account_id"] for g in listing["grants"]] == [permit_guest], "grant list exposes restriction and grant")
+        revoked = identity("grant_update", object_id=thing, account_id=permit_guest, granted=False, actor_id=permit_owner, now_ms=now)
+        self.check(revoked["ok"] and not revoked["granted"] and identity("grant_list")["grants"] == [], "grant revoked")
+        lifted = identity("object_restrict", object_id=thing, restricted=False, actor_id=permit_owner, now_ms=now)
+        self.check(lifted["ok"] and not lifted["restricted"], "restriction lifted")
+        cleared = identity("grant_list")
+        self.check(cleared["restrictions"] == [] and cleared["grants"] == [], "lifting restriction retires its grants")
+        audit = identity("audit_list", limit=50)
+        actions = [row[2] for row in audit["audit"]]
+        self.check("object_restrict" in actions and "grant_revoke" in actions and "object_unrestrict" in actions, "audit log records permit actions")
+        # v4 to v5 migration rolls back DDL and version together.
+        with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
+            c.execute("DROP TABLE grants"); c.execute("DROP TABLE restrictions"); c.execute("PRAGMA user_version=4")
+        migrate4 = dict(init_id, fault="migration_permits")
+        self.check(self.invoke(migrate4).get("error") == "INJECTED_MIGRATION_PERMITS", "v4 to v5 migration failure is explicit")
+        with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
+            self.check(c.execute("PRAGMA user_version").fetchone()[0] == 4 and not c.execute("SELECT name FROM sqlite_master WHERE name='grants'").fetchall(), "v5 migration rolls back DDL and version together")
+        migrate4.pop("fault")
+        self.check(self.invoke(migrate4)["ok"], "v5 migration retries after rollback")
         self.report()
 
 

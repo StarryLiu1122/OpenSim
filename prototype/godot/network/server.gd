@@ -13,6 +13,8 @@ var service = Service.new()
 var store
 var accounts: Dictionary = {}
 var sessions: Dictionary = {}
+var restrictions: Dictionary = {}
+var grants: Dictionary = {}
 var crypto := Crypto.new()
 var view = View.new()
 var listener := TCPServer.new()
@@ -62,6 +64,7 @@ func _ready() -> void:
 	if prior.has("error"): _fatal(prior.error); return
 	for receipt in prior.receipts: receipts[receipt.request_id] = receipt
 	if not _identity_bootstrap(): return
+	if not _permits_bootstrap(): return
 	add_child(view); view.rebuild(service.model.snapshot())
 	_publish_assets()
 	if listener.listen(int(config.port), "127.0.0.1") != OK: _fatal("PORT_UNAVAILABLE"); return
@@ -189,6 +192,101 @@ func _account(client: Dictionary, packet: Dictionary) -> void:
 func _account_reply(client: Dictionary, request_id: String, ok: bool, code: String, data: Dictionary = {}) -> void:
 	_send(client, Wire.packet("account_result", {"request_id": request_id, "ok": ok, "code": code, "data": data}))
 
+# --- V6 permits: object-level restrictions and per-account grants persist in
+# --- the store; config.private_objects only seeds an empty registry once.
+
+func _permits_bootstrap() -> bool:
+	var listed: Dictionary = store._invoke({"operation": "grant_list"})
+	if listed.has("error"): _fatal("PERMITS_" + str(listed.error)); return false
+	for row in listed.restrictions: restrictions[row.object_id] = true
+	for row in listed.grants:
+		if not grants.has(row.object_id): grants[row.object_id] = {}
+		grants[row.object_id][row.account_id] = true
+	var seeded: Dictionary = config.get("private_objects", {})
+	if seeded.is_empty(): return true
+	var owner_id := ""
+	for account in accounts.values():
+		if account.role == "owner" and not account.disabled: owner_id = account.id; break
+	if owner_id.is_empty(): _fatal("PERMITS_NO_OWNER"); return false
+	for object_id in seeded:
+		if restrictions.has(object_id): continue
+		var applied: Dictionary = store._invoke({"operation": "object_restrict", "object_id": object_id, "restricted": true, "actor_id": owner_id, "now_ms": _utc()})
+		if applied.has("error"): _fatal("PERMITS_" + str(applied.error)); return false
+		restrictions[object_id] = true; grants[object_id] = {}
+		for account_id in seeded[object_id]:
+			if not accounts.has(account_id): continue
+			var granted: Dictionary = store._invoke({"operation": "grant_update", "object_id": object_id, "account_id": account_id, "granted": true, "actor_id": owner_id, "now_ms": _utc()})
+			if granted.has("error"): _fatal("PERMITS_" + str(granted.error)); return false
+			grants[object_id][account_id] = true
+	return true
+
+func _object_known(object_id: String) -> bool:
+	var world: Dictionary = service.model.snapshot()
+	for item in world.objects:
+		if item.id == object_id: return true
+	for group in world.groups:
+		if group.id == object_id: return true
+	return false
+
+func _can_permit(principal: Dictionary, object_id: String) -> bool:
+	if principal.role == "observer": return false
+	if principal.role == "owner": return true
+	var world: Dictionary = service.model.snapshot()
+	for item in world.objects:
+		if item.id == object_id: return item.owner_id == principal.actor
+	for group in world.groups:
+		if group.id == object_id: return group.owner_id == principal.actor
+	return false
+
+func _permit(client: Dictionary, packet: Dictionary) -> void:
+	if not Schema.exact_keys(packet, ["fp_version", "type", "request_id", "action", "params"]) or not Schema.is_uuid(packet.request_id) or not packet.action is String or not packet.params is Dictionary:
+		_permit_reply(client, "", false, "INVALID_PERMIT_REQUEST"); return
+	var request_id: String = packet.request_id
+	var params: Dictionary = packet.params
+	match packet.action:
+		"restrict", "unrestrict":
+			if not Schema.exact_keys(params, ["object_id"]) or not Schema.is_uuid(str(params.object_id)):
+				_permit_reply(client, request_id, false, "INVALID_PERMIT_REQUEST"); return
+			if not _object_known(params.object_id): _permit_reply(client, request_id, false, "OBJECT_UNKNOWN"); return
+			if not _can_permit(client.principal, params.object_id): _permit_reply(client, request_id, false, "PERMISSION_DENIED"); return
+			var turning_on: bool = packet.action == "restrict"
+			if turning_on == restrictions.has(params.object_id):
+				_permit_reply(client, request_id, true, "", {"object_id": params.object_id, "restricted": turning_on, "unchanged": true}); return
+			var applied: Dictionary = store._invoke({"operation": "object_restrict", "object_id": params.object_id, "restricted": turning_on, "actor_id": client.principal.id, "now_ms": _utc()})
+			if applied.has("error"): _permit_reply(client, request_id, false, str(applied.error)); return
+			if turning_on:
+				restrictions[params.object_id] = true; grants[params.object_id] = {}
+				# The restricting account keeps its own access automatically.
+				var self_grant: Dictionary = store._invoke({"operation": "grant_update", "object_id": params.object_id, "account_id": client.principal.id, "granted": true, "actor_id": client.principal.id, "now_ms": _utc()})
+				if self_grant.has("error"): _permit_reply(client, request_id, false, str(self_grant.error)); return
+				grants[params.object_id][client.principal.id] = true
+			else:
+				restrictions.erase(params.object_id); grants.erase(params.object_id)
+			_publish_assets()
+			_permit_reply(client, request_id, true, "", {"object_id": params.object_id, "restricted": turning_on})
+		"grant", "revoke":
+			if not Schema.exact_keys(params, ["object_id", "account_id"]) or not Schema.is_uuid(str(params.object_id)) or not Schema.is_uuid(str(params.account_id)):
+				_permit_reply(client, request_id, false, "INVALID_PERMIT_REQUEST"); return
+			if not restrictions.has(params.object_id): _permit_reply(client, request_id, false, "OBJECT_NOT_RESTRICTED"); return
+			if not accounts.has(params.account_id): _permit_reply(client, request_id, false, "ACCOUNT_NOT_FOUND"); return
+			if not _can_permit(client.principal, params.object_id): _permit_reply(client, request_id, false, "PERMISSION_DENIED"); return
+			var updated: Dictionary = store._invoke({"operation": "grant_update", "object_id": params.object_id, "account_id": params.account_id, "granted": packet.action == "grant", "actor_id": client.principal.id, "now_ms": _utc()})
+			if updated.has("error"): _permit_reply(client, request_id, false, str(updated.error)); return
+			if packet.action == "grant": grants[params.object_id][params.account_id] = true
+			else: grants[params.object_id].erase(params.account_id)
+			_publish_assets()
+			_permit_reply(client, request_id, true, "", {"object_id": params.object_id, "account_id": params.account_id, "granted": packet.action == "grant"})
+		"list":
+			var entries: Array = []
+			for object_id in restrictions:
+				entries.append({"object_id": object_id, "accounts": grants.get(object_id, {}).keys(), "exists": _object_known(object_id)})
+			_permit_reply(client, request_id, true, "", {"restrictions": entries})
+		_:
+			_permit_reply(client, request_id, false, "UNSUPPORTED_PERMIT_ACTION")
+
+func _permit_reply(client: Dictionary, request_id: String, ok: bool, code: String, data: Dictionary = {}) -> void:
+	_send(client, Wire.packet("permit_result", {"request_id": request_id, "ok": ok, "code": code, "data": data}))
+
 func _process(delta: float) -> void:
 	if ready_at == 0: return
 	if listener.is_connection_available():
@@ -279,6 +377,7 @@ func _receive(client: Dictionary, packet: Dictionary) -> void:
 			if receipt.get("principal_id") == client.principal.id: _send(client, receipt.result)
 			else: _reject(client, packet.request_id, "RESULT_UNKNOWN")
 		"account": _account(client, packet)
+		"permit": _permit(client, packet)
 		"command": _command(client, packet)
 		_: _reject(client, "", "UNSUPPORTED_PACKET")
 
@@ -316,7 +415,7 @@ func _command(client: Dictionary, command: Dictionary) -> void:
 	_send(client, Wire.packet("pending", {"request_id": command.request_id}))
 
 func _visible(principal: Dictionary, id: String) -> bool:
-	return not config.get("private_objects", {}).has(id) or principal.id in config.private_objects[id]
+	return not restrictions.has(id) or principal.get("id", "") in grants.get(id, {})
 
 func _authorized(principal: Dictionary, command: Dictionary) -> bool:
 	var world: Dictionary = service.model.snapshot()

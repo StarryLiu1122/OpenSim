@@ -15,9 +15,11 @@ internal sealed class StoreError(string code) : Exception(code);
 internal sealed class Store : IDisposable
 {
     internal const int MaxWorldBytes = 8 * 1024 * 1024;
-    private const int SchemaVersion = 4;
+    private const int SchemaVersion = 5;
     private static readonly HashSet<string> IdentityOperations = new(StringComparer.Ordinal)
     { "account_create", "account_list", "account_disable", "session_issue", "session_revoke", "session_validate", "audit_list" };
+    private static readonly HashSet<string> PermitOperations = new(StringComparer.Ordinal)
+    { "object_restrict", "grant_update", "grant_list" };
     private readonly string root, database, content;
     private readonly JsonObject configuration;
     private SqliteConnection? connection;
@@ -36,8 +38,8 @@ internal sealed class Store : IDisposable
     internal object Execute(JsonObject request)
     {
         string operation = S(request, "operation");
-        if (operation is "init" or "save" or "import" or "account_create" or "account_disable" or "session_issue" or "session_revoke") Open(true); else Open(false);
-        string id = operation is "init" or "status" or "gc" || IdentityOperations.Contains(operation) ? "" : Id(S(request, "region_id"));
+        if (operation is "init" or "save" or "import" or "account_create" or "account_disable" or "session_issue" or "session_revoke" or "object_restrict" or "grant_update") Open(true); else Open(false);
+        string id = operation is "init" or "status" or "gc" || IdentityOperations.Contains(operation) || PermitOperations.Contains(operation) ? "" : Id(S(request, "region_id"));
         return operation switch
         {
             "init" => new { ok = true, schema_version = SchemaVersion, sqlite_version = Scalar("SELECT sqlite_version()"), path = database },
@@ -55,6 +57,16 @@ internal sealed class Store : IDisposable
             "session_revoke" => SessionRevoke(request),
             "session_validate" => SessionValidate(request),
             "audit_list" => new { ok = true, audit = Rows("SELECT at_ms,account_id,action,outcome,detail FROM audit_log ORDER BY rowid DESC LIMIT $n", ("$n", Math.Clamp((int)Long(request, "limit"), 1, 200))) },
+            "object_restrict" => ObjectRestrict(request),
+            "grant_update" => GrantUpdate(request),
+            "grant_list" => new
+            {
+                ok = true,
+                restrictions = Rows("SELECT object_id,set_by,at_ms FROM restrictions ORDER BY rowid")
+                    .Select(r => new { object_id = r[0], set_by = r[1], at_ms = r[2] }).ToArray(),
+                grants = Rows("SELECT object_id,account_id,granted_by,granted_at_ms FROM grants ORDER BY rowid")
+                    .Select(r => new { object_id = r[0], account_id = r[1], granted_by = r[2], granted_at_ms = r[3] }).ToArray()
+            },
             _ => throw new StoreError("UNKNOWN_OPERATION")
         };
     }
@@ -109,6 +121,18 @@ internal sealed class Store : IDisposable
                     """);
                     Inject("migration_identity");
                     Exec("PRAGMA user_version=4");
+                }
+                if (version < 5)
+                {
+                    // V6 permits: restricted objects and per-account grants. These are
+                    // soft references to world objects (objects are rewritten per
+                    // commit), so no foreign key into the world tables.
+                    Exec("""
+                    CREATE TABLE restrictions(object_id TEXT PRIMARY KEY CHECK(length(object_id)=36), set_by TEXT NOT NULL, at_ms INTEGER NOT NULL);
+                    CREATE TABLE grants(object_id TEXT NOT NULL CHECK(length(object_id)=36), account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE, granted_by TEXT NOT NULL, granted_at_ms INTEGER NOT NULL, PRIMARY KEY(object_id,account_id));
+                    """);
+                    Inject("migration_permits");
+                    Exec("PRAGMA user_version=5");
                 }
                 transaction.Commit();
             }
@@ -504,6 +528,54 @@ internal sealed class Store : IDisposable
         Audit(now, accountId, "session_validate", code.Length == 0 ? "ok" : code.ToLowerInvariant());
         if (code.Length > 0) return new { ok = true, valid = false, code };
         return new { ok = true, valid = true, account = new { id = accountId, name = (string)row[3]!, actor_id = (string)row[4]!, role = (string)row[5]! }, expires_at_ms = row[1] };
+    }
+    private object ObjectRestrict(JsonObject request)
+    {
+        string objectId = Id(S(request, "object_id"));
+        bool restricted = request["restricted"]?.GetValue<bool>() ?? throw new StoreError("MISSING_RESTRICTED");
+        string by = Id(S(request, "actor_id"));
+        long now = Long(request, "now_ms");
+        transaction = connection!.BeginTransaction(deferred: false);
+        try
+        {
+            if (Scalar("SELECT COUNT(*) FROM accounts WHERE id=$i", ("$i", by)) is long missing && missing == 0) throw new StoreError("ACCOUNT_NOT_FOUND");
+            if (restricted)
+                Exec("INSERT INTO restrictions(object_id,set_by,at_ms) VALUES($o,$b,$t) ON CONFLICT(object_id) DO NOTHING", ("$o", objectId), ("$b", by), ("$t", now));
+            else
+            {
+                // Lifting a restriction retires every grant on the object with it.
+                Exec("DELETE FROM restrictions WHERE object_id=$o", ("$o", objectId));
+                Exec("DELETE FROM grants WHERE object_id=$o", ("$o", objectId));
+            }
+            Audit(now, by, restricted ? "object_restrict" : "object_unrestrict", "ok", $"object={objectId}");
+            transaction.Commit();
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+        return new { ok = true, object_id = objectId, restricted };
+    }
+    private object GrantUpdate(JsonObject request)
+    {
+        string objectId = Id(S(request, "object_id"));
+        string accountId = Id(S(request, "account_id"));
+        bool granted = request["granted"]?.GetValue<bool>() ?? throw new StoreError("MISSING_GRANTED");
+        string by = Id(S(request, "actor_id"));
+        long now = Long(request, "now_ms");
+        transaction = connection!.BeginTransaction(deferred: false);
+        try
+        {
+            if (Scalar("SELECT COUNT(*) FROM restrictions WHERE object_id=$o", ("$o", objectId)) is long open && open == 0) throw new StoreError("OBJECT_NOT_RESTRICTED");
+            if (Scalar("SELECT COUNT(*) FROM accounts WHERE id=$i", ("$i", accountId)) is long missing && missing == 0) throw new StoreError("ACCOUNT_NOT_FOUND");
+            if (granted)
+                Exec("INSERT INTO grants(object_id,account_id,granted_by,granted_at_ms) VALUES($o,$a,$b,$t) ON CONFLICT(object_id,account_id) DO NOTHING", ("$o", objectId), ("$a", accountId), ("$b", by), ("$t", now));
+            else
+                Exec("DELETE FROM grants WHERE object_id=$o AND account_id=$a", ("$o", objectId), ("$a", accountId));
+            Audit(now, by, granted ? "grant_update" : "grant_revoke", "ok", $"object={objectId} account={accountId}");
+            transaction.Commit();
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+        return new { ok = true, object_id = objectId, account_id = accountId, granted };
     }
     private string ContentPath(string hash)
     {
