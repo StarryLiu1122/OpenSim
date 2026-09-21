@@ -4,9 +4,9 @@
 
 项目以 **OpenSimulator 0.9.3.0** 为数据与行为参考，以 **Godot** 逐步重建现代客户端和区域能力。仓库保留原版 C# 源码，在 `prototype/` 中独立开发 **Region Lab**。总体目标依据老师提供的两份 [项目指导文档](docs/references/teacher/2026-09-15/README.md)，实施顺序及技术约束见 [目标对齐说明](docs/plans/platform-integration-alignment.md) 和 [版本路线](docs/plans/stage-one-rebuild-plan.md)。
 
-**当前开发版本为 Region Lab V5 / 0.5.1。** V5.0 已完成，V5.1 功能可运行；2026-09-20 更新了桌面与 Web 客户端界面。本轮双浏览器功能检查及 10 次冷启动预算检查通过，仍需继续验证启动稳定性和重新制作后的完整离线分发包。现代 Godot 权威区域、桌面 / Web 客户端和 SQLite 共同组成可持续运行的共享世界：编辑经服务器验证并持久提交，客户端接收快照和增量；角色由服务端物理约束，浏览器按兴趣范围下载已授权资产。采用 Godot 4.5.1 标准版、Jolt、GDScript 和 WebGL2。默认 JSON 离线编辑器、V4 SQLite 模式及独立 OpenSim FP 0.2 网关继续保留。
+**当前开发版本为 Region Lab V6 / 0.6.0。** V6-1～V6-5 已完成：持久身份与哈希会话、对象级权限、按哈希引用内容的个人库存、受控智能体接口与端到端智能体任务均已通过真实权威服务的端到端验收。V5 底座保持完整：现代 Godot 权威区域、桌面 / Web 客户端和 SQLite 共同组成可持续运行的共享世界，编辑经服务器验证并持久提交，客户端接收快照和增量；角色由服务端物理约束，浏览器按兴趣范围下载已授权资产。采用 Godot 4.5.1 标准版、Jolt、GDScript 和 WebGL2。默认 JSON 离线编辑器、V4 SQLite 模式及独立 OpenSim FP 0.2 网关继续保留。
 
-V5 的入口见 [共享区域运行指南](prototype/docs/network-quickstart.md)、[FP 0.3 合同](docs/contracts/network-v5.md) 和 [V5 验收记录](docs/comparisons/v5-completion.md)。原版参考、融合网关、真实建筑与事务仓储的历史证据见 [V4 验收报告](docs/comparisons/v4-completion.md)。完整身份库存、在线智能体与外部平台任务闭环属于 V6。
+V6 的入口见 [身份合同](docs/contracts/identity-v6.md)、[权限合同](docs/contracts/permits-v6.md)、[库存合同](docs/contracts/inventory-v6.md)、[智能体合同](docs/contracts/agents-v6.md) 及对应 [ADR 0002～0006](docs/adr/)；V5 的入口见 [共享区域运行指南](prototype/docs/network-quickstart.md)、[FP 0.3 合同](docs/contracts/network-v5.md) 和 [V5 验收记录](docs/comparisons/v5-completion.md)。原版参考、融合网关、真实建筑与事务仓储的历史证据见 [V4 验收报告](docs/comparisons/v4-completion.md)。
 
 ![Region Lab V5 网络工作区](docs/comparisons/evidence/v5-ui-20260920/overview.png)
 
@@ -63,11 +63,18 @@ flowchart LR
 | 原版融合 | 独立 OpenSim Region 模块、FP 0.2、受控 Bot、事件、权限及持久回执 |
 | 现代网络 | FP 0.3、只读客户端投影、服务端排序与修订冲突、持久幂等回执、断线 / 重启恢复 |
 | 共享角色与权限 | 60 Hz 权威碰撞、20 Hz 状态分发、预测校正和远端插值、最小认证主体与对象权限 |
+| V6 身份与会话 | 账户目录、SHA-256 哈希会话、所有者引导、帧内撤销踢出、生命周期审计 |
+| V6 对象权限 | 对象级限制与按账户授权、默认拒绝、防自锁、配置一次性播种 |
+| V6 资产库存 | 个人文件夹与条目按哈希引用内容、放置共享同一内容、导出包 v2 含服务表 |
+| V6 受控智能体 | agent 角色封禁既有通道、observe/status/task/cancel 表面、四类任务白名单 |
+| V6 智能体任务 | 调用方编排参考实现、障碍恢复、观察记录与动作回执文件化审计 |
 | Web 客户端 | WebGL2、文件选择和下载、指针锁、距离兴趣过滤、授权 HTTPS 资产与完整性验证 |
 | V4 验证输入 | 双浏览器 WebGL2 实验、真实测绘建筑、进程中断与迁移恢复测试 |
 | 命令与验证 | WorldService 命令入口、离线 JSON 批处理、原生物理与界面测试 |
 
 V5 回归包括 **191 项原生检查、66 项离线界面检查**、网络数据合同、真实双桌面进程、SQLite 故障注入和 Chromium / Firefox 联调。初始验收结果保留于 [V5 验收记录](docs/comparisons/v5-completion.md)。最新界面回归另有 39 项网络界面检查、64 项网络集成检查及 76 项浏览器检查通过，结果与初次失败记录见 [2026-09-20 界面验证](docs/comparisons/evidence/v5-ui-20260920/README.md)，操作见 [界面说明](prototype/docs/network-interface.md)。系统交接及组会 Word 文档见 [汇报文档库](docs/reports/README.md)。此前 43 对象日景与 243 对象夜景的结果仍只作为同机历史基线。
+
+V6 回归基线（2026-09-21，本机）：存储套件 **137/137**（含 schema 4～7 迁移与回滚夹具）、身份 **29/29**、权限 **37/37**、库存 **31/31**、智能体表面 **50/50**、端到端智能体任务 **18/18**（含超时 / 取消 / 重复 / 越权四类可复现失败形态）、网络集成 **64/64**。各套件的验证口径见对应合同文档末节。
 
 当前 GLB 限定静态三角网格、不透明材质及内嵌 PNG，单文件 ≤2 MiB、三角形 ≤20,000，最多 16 个导入资产；完整快照 ≤8 MiB。原有三个 CC0 样本用于功能验证；V4 新增具有原始测绘来源和许可记录的 [Pioneer Log Cabin](prototype/fixtures/buildings/pioneer-log-cabin/README.md)，完成真实碰撞与搬移恢复验收。
 
@@ -76,8 +83,8 @@ V5 回归包括 **191 项原生检查、66 项离线界面检查**、网络数�
 | 版本 | 核心交付 | 进入下一阶段的依据 |
 | --- | --- | --- |
 | V4（已完成） | 原版运行对照、FP 契约与最小网关、存储抽象和数据库 | 两部件行为可对照；原版状态—动作—回执贯通；数据事务与恢复通过 |
-| V5（当前） | 现代区域权威服务、双客户端同步、Web 轻客户端 | 桌面与浏览器观察同一状态；逐项状态与性能门槛见验收记录 |
-| V6 | 身份库存、受控智能体、平台联调与实验回放 | 人类与 Bot 完成任务；推演回注、专家反馈和遥测形成闭环 |
+| V5（已完成） | 现代区域权威服务、双客户端同步、Web 轻客户端 | 桌面与浏览器观察同一状态；逐项状态与性能门槛见验收记录 |
+| V6（当前） | 持久身份与对象权限、内容库存、受控智能体与端到端任务 | 人类与 Bot 完成任务并产出可审计回执；平台联调与实验回放待联调窗口 |
 | V7 | 真实场景资产、OAR 子集迁移、分块加载与画质分档 | 可追溯场景可迁移、可通行、可按需加载；达到明确的客户端预算 |
 | V8 | 分级容量验证、跨区域与多端部署、国产算力适配 | 按硬件和负载报告容量、延迟、稳定性及适配结果 |
 | 专题阶段 | WebGPU、GPU 物理、完整旧协议与脚本兼容、联邦及云渲染 | 先取得技术验证和业务必要性证据，再确定独立版本范围 |
@@ -121,6 +128,7 @@ cd OpenSim\prototype
 | [V4 执行记录](docs/plans/v4-progress.md) | 21 项完成情况、验收证据和下一阶段输入 |
 | [V5 运行指南](prototype/docs/network-quickstart.md) | 服务、双桌面、Web、会话、备份和故障处理 |
 | [V5 协议合同](docs/contracts/network-v5.md) | 主体、序列、事务、回执、角色、AOI 与资产 |
+| [V6 合同与 ADR](docs/contracts/agents-v6.md) | 身份、权限、库存、智能体四份合同与 ADR 0002～0006 决策记录 |
 | [V5 验收记录](docs/comparisons/v5-completion.md) | 12 项任务、实测证据及性能门槛 |
 | [原版集成工具](integration/README.md) | 固定构建、区域模块、Bot、接口和跨实现测试 |
 | [原型架构与接口](prototype/docs/architecture-and-api.md) | 已实现的领域模型、命令与快照协议 |
@@ -165,7 +173,7 @@ docs/
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\Test-RegionLab.ps1 -Visual
 ```
 
-原版构建参考 [BUILDING.md](BUILDING.md)，固定基线见 [源码来源](docs/UPSTREAM.md)。V4 对照使用独立原版实例、BulletSim 和 YEngine；现代桌面使用 Jolt，两者的组身份与缩放表达保留显式映射。已完成的测试不构成断电、跨平台、大规模场景或长期稳定性保证。完整 Viewer 权限、库存、SSO、LSL/OSSL、OAR、CAD/BIM、真实平台联调和在线模型仍未交付。
+原版构建参考 [BUILDING.md](BUILDING.md)，固定基线见 [源码来源](docs/UPSTREAM.md)。V4 对照使用独立原版实例、BulletSim 和 YEngine；现代桌面使用 Jolt，两者的组身份与缩放表达保留显式映射。已完成的测试不构成断电、跨平台、大规模场景或长期稳定性保证。Viewer 兼容的权限与库存语义、SSO、LSL/OSSL、OAR、CAD/BIM、真实平台联调和在线模型仍未交付（V6 的身份 / 权限 / 库存为现代区域的独立实现）。
 
 ## 上游与许可证
 
