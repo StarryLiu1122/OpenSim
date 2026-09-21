@@ -31,7 +31,7 @@ class Peer{
    if(p.type==='welcome')this.welcome=p;
    if(p.type==='snapshot'){this.state=p.state;this.stream=p.seq;this.tick=p.tick;}
    if(p.type==='delta'){if(p.seq!==this.stream+1)this.gaps++;this.stream=p.seq;this.tick=p.tick;for(const k of ['objects','groups','assets','avatars']){for(const id of p.delta.deletes[k])delete this.state[k][id];Object.assign(this.state[k],p.delta.upserts[k]);}if(p.delta.meta)this.state.meta=p.delta.meta;}
-   if(p.type==='result')this.results[p.request_id]=p;
+   if(p.type==='result'||p.type==='permit_result')this.results[p.request_id]=p;
    if(p.type==='snapshot'||p.type==='delta')this.send({type:'ack',seq:p.seq});
   };
   await until(()=>this.ws.readyState===WebSocket.OPEN||this.closed);if(!this.closed)this.send({type:'hello',token});return this;
@@ -41,6 +41,7 @@ class Peer{
  packet(operation,payload,extra={}){return {fp_version:'0.3',type:'command',world_id:this.welcome.world_id,region_id:this.welcome.region_id,world_epoch:this.welcome.world_epoch,request_id:crypto.randomUUID(),trace_id:crypto.randomUUID(),origin:'test',source_seq:++this.seq,expected_revision:this.state.meta.revision,expires_at_ms:Date.now()+30000,operation,payload,...extra}}
  async submit(packet){const started=performance.now();this.send(packet);const result=await until(()=>this.results[packet.request_id]);timings.push({operation:packet.operation,ok:result.ok,milliseconds:Math.round((performance.now()-started)*100)/100});if(result.ok)await until(()=>this.state.meta.revision>=result.revision);return result}
  async command(op,payload,extra){return this.submit(this.packet(op,payload,extra))}
+ async permit(action,params={}){const request_id=crypto.randomUUID();this.send({type:'permit',request_id,action,params});return until(()=>this.results[request_id])}
  input(axis,jump=false){this.send({type:'input',sequence:++this.inputSeq,axis,yaw:0,jump})}
  close(){this.ws.close()}
 }
@@ -127,6 +128,11 @@ async function run(){
  check((await b.command('UpdateObject',{id:cabin.id,patch:{name:'leak'}})).code==='PERMISSION_DENIED','private object edit denied despite shared region editor role');
  check((await b.command('UpdateObject',{id:loose.id,patch:{asset_id:mesh.id,material:'plain'}})).code==='PERMISSION_DENIED','private asset cannot be acquired by changing a public object asset reference');
  a.close();b.close();delete config.private_objects[cabin.id];await restart();
+ // V6 seeded restrictions persist in the store; config removal no longer
+ // reopens the object, so lift it explicitly through the permit surface.
+ a=await (await new Peer(0).connect()).ready();
+ check((await a.permit('unrestrict',{object_id:cabin.id})).ok,'config-seeded restriction lifted through the permit surface');
+ a.close();
  // Store process dies after SQL COMMIT: authority resolves receipt before reply.
  config.test_storage_fault='crash_after_commit';await restart();a=await (await new Peer(0).connect()).ready();
  check((await a.command('UpdateObject',{id:loose.id,patch:{name:'Recovered writer response'}})).ok,'post-commit storage process death resolves to one durable success');
@@ -142,7 +148,10 @@ async function run(){
  // Two actual Godot clients use the same LocalWorldView, asset loader and UI.
  const nativeA=new Native('editor-a',args['--visual']==='true'),nativeB=new Native('editor-b',args['--visual']==='true');
  await Promise.all([nativeA.ready(),nativeB.ready()]);await until(()=>nativeA.value.remote_avatars===1&&nativeB.value.remote_avatars===1);
- check(nativeA.value.nodes===nativeB.value.nodes&&nativeA.value.asset_cache_count===1,'two independent native clients construct matching collision-ready scenes');
+ // Asset download and GLB parse finish after the first snapshot; wait for both
+ // clients to reach the same steady scene before comparing node counts.
+ await until(()=>nativeA.value.asset_cache_count===1&&nativeB.value.asset_cache_count===1&&nativeA.value.nodes===nativeB.value.nodes);
+ check(true,'two independent native clients construct matching collision-ready scenes');
  const nativeResult=await nativeA.command('UpdateObject',{id:loose.id,patch:{name:'Two native clients'}},'edit');check(nativeResult.ok,'native UI command obtains durable server confirmation');
  await until(()=>nativeB.value.state.objects[loose.id].name==='Two native clients');check(true,'native peer displays the confirmed object update');
  nativeA.action({type:'drop_delta'});await until(()=>nativeA.value.resyncs>0);await until(()=>nativeA.value.interactive&&nativeA.value.seq>nativeB.value.seq-10);check(true,'native missing delta recovers with a full snapshot');
