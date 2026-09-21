@@ -63,7 +63,7 @@ class Suite:
         self.check(generation.returncode == 0 and fixture.exists(), "native WorldService created grouped world with real building and door/lamp state")
         world = json.loads(json.loads(fixture.read_text(encoding="utf-8"))["world_json"])
         init = self.call("init")
-        self.check(init["ok"] and init["schema_version"] == 3, "empty database initialized and migrated")
+        self.check(init["ok"] and init["schema_version"] == 4, "empty database initialized and migrated")
         (self.output / "runtime.json").write_text(json.dumps(init, indent=2) + "\n")
         self.check(self.call("init")["ok"], "repeated migration is idempotent")
         save = self.request("save", input=str(fixture), expected_commit=-1, request_id=str(uuid.uuid4()))
@@ -174,6 +174,9 @@ class Suite:
         self.check(self.invoke(populated)["ok"], "upgrade fixture contains a complete committed region and asset")
         v1_db = v1_root / "worlds.sqlite3"
         with sqlite3.connect(v1_db) as c:
+            c.execute("DROP TABLE audit_log")
+            c.execute("DROP TABLE sessions")
+            c.execute("DROP TABLE accounts")
             c.execute("DROP TABLE network_receipts")
             c.execute("DROP TABLE commits")
             c.execute("ALTER TABLE regions DROP COLUMN epoch")
@@ -210,6 +213,7 @@ class Suite:
         invalid_receipt = copy.deepcopy(network_save); invalid_receipt["request_id"] = str(uuid.uuid4())
         self.check(self.invoke(invalid_receipt).get("error") == "INVALID_NETWORK_RECEIPT", "mismatched receipt and transaction identity rejected")
         with sqlite3.connect(network_root / "worlds.sqlite3") as c:
+            c.execute("DROP TABLE audit_log"); c.execute("DROP TABLE sessions"); c.execute("DROP TABLE accounts")
             c.execute("DROP TABLE network_receipts"); c.execute("PRAGMA user_version=2")
         migrate2 = self.request("init", fault="migration_receipts"); migrate2["root"] = str(network_root)
         self.check(self.invoke(migrate2).get("error") == "INJECTED_MIGRATION_RECEIPTS", "v2 to v3 migration failure is explicit")
@@ -218,6 +222,71 @@ class Suite:
         migrate2.pop("fault")
         network_load = self.request("load"); network_load["root"] = str(network_root)
         self.check(self.invoke(migrate2)["ok"] and self.invoke(network_load)["world"] == world, "v2 database retries migration and preserves committed world")
+        # V6 identity lifecycle: accounts, hashed sessions, atomic revocation and audit.
+        identity_root = self.output / "identity database"
+        init_id = self.request("init"); init_id["root"] = str(identity_root)
+        self.check(self.invoke(init_id)["ok"], "identity database initialized at schema 4")
+        now = 1_760_000_000_000
+        def identity(op, **values):
+            request = self.request(op, **values); request["root"] = str(identity_root); return self.invoke(request)
+        owner = identity("account_create", name="owner", role="owner", now_ms=now)
+        self.check(owner["ok"] and owner["account"]["role"] == "owner" and not owner["account"]["disabled"], "owner account created with generated identifiers")
+        owner_id = owner["account"]["id"]
+        self.check(identity("account_create", name="owner", role="editor", now_ms=now).get("error") == "ACCOUNT_NAME_TAKEN", "duplicate account name rejected")
+        self.check(identity("account_create", name="bad", role="admin", now_ms=now).get("error") == "INVALID_ACCOUNT_ROLE", "unknown role rejected")
+        self.check(identity("account_create", name=" ", role="editor", now_ms=now).get("error") == "INVALID_ACCOUNT_NAME", "blank account name rejected")
+        token = "secret-token-one"
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+        issued = identity("session_issue", account_id=owner_id, token_hash=token_hash, now_ms=now, ttl_ms=3_600_000)
+        self.check(issued["ok"] and issued["expires_at_ms"] == now + 3_600_000, "session issued with bounded ttl")
+        valid = identity("session_validate", token_hash=token_hash, now_ms=now + 1000)
+        self.check(valid["ok"] and valid["valid"] and valid["account"]["id"] == owner_id and valid["account"]["role"] == "owner", "hashed token validates to account")
+        self.check(identity("session_validate", token_hash="b" * 64, now_ms=now).get("code") == "UNKNOWN_TOKEN", "unknown token refused without account detail")
+        self.check(identity("session_issue", account_id=owner_id, token_hash=token_hash, now_ms=now, ttl_ms=3_600_000).get("error") == "SESSION_EXISTS", "duplicate token hash rejected")
+        self.check(identity("session_issue", account_id=owner_id, token_hash="not-a-hash", now_ms=now, ttl_ms=3_600_000).get("error") == "INVALID_TOKEN_HASH", "malformed token hash rejected")
+        self.check(identity("session_issue", account_id=owner_id, token_hash="c" * 64, now_ms=now, ttl_ms=1000).get("error") == "INVALID_SESSION_TTL", "ttl below floor rejected")
+        short_hash = "d" * 64
+        self.check(identity("session_issue", account_id=owner_id, token_hash=short_hash, now_ms=now, ttl_ms=60_000)["ok"], "minimum ttl session issued")
+        self.check(identity("session_validate", token_hash=short_hash, now_ms=now + 61_000).get("code") == "SESSION_EXPIRED", "expired session refused at server time")
+        revoked = identity("session_revoke", token_hash=token_hash, now_ms=now + 2000)
+        self.check(revoked["ok"] and revoked["revoked"] == 1, "session revoked by token hash")
+        self.check(identity("session_validate", token_hash=token_hash, now_ms=now + 3000).get("code") == "SESSION_REVOKED", "revoked session stays revoked")
+        self.check(identity("session_revoke", now_ms=now).get("error") == "REVOKE_TARGET_REQUIRED", "revoke without target rejected")
+        self.check(identity("session_revoke", token_hash=token_hash, account_id=owner_id, now_ms=now).get("error") == "REVOKE_TARGET_REQUIRED", "revoke with two targets rejected")
+        editor = identity("account_create", name="editor", role="editor", now_ms=now)
+        editor_id = editor["account"]["id"]
+        editor_hash = "e" * 64
+        self.check(identity("session_issue", account_id=editor_id, token_hash=editor_hash, now_ms=now, ttl_ms=3_600_000)["ok"], "second account session issued")
+        disabled = identity("account_disable", account_id=editor_id, disabled=True, now_ms=now + 4000)
+        self.check(disabled["ok"] and disabled["disabled"], "account disabled")
+        self.check(identity("session_validate", token_hash=editor_hash, now_ms=now + 5000).get("code") == "SESSION_REVOKED", "disabling revokes live sessions atomically")
+        self.check(identity("session_issue", account_id=editor_id, token_hash="f" * 64, now_ms=now, ttl_ms=3_600_000).get("error") == "ACCOUNT_DISABLED", "disabled account cannot receive sessions")
+        enabled = identity("account_disable", account_id=editor_id, disabled=False, now_ms=now + 6000)
+        self.check(enabled["ok"] and not enabled["disabled"], "account re-enabled")
+        self.check(identity("session_validate", token_hash=editor_hash, now_ms=now + 7000).get("code") == "SESSION_REVOKED", "re-enable does not resurrect revoked sessions")
+        new_editor_hash = "1" * 64
+        self.check(identity("session_issue", account_id=editor_id, token_hash=new_editor_hash, now_ms=now + 8000, ttl_ms=3_600_000)["ok"], "re-enabled account receives new session")
+        self.check(identity("session_validate", token_hash=new_editor_hash, now_ms=now + 9000)["valid"], "new session valid after re-enable")
+        by_account = identity("session_revoke", account_id=editor_id, now_ms=now + 10000)
+        self.check(by_account["ok"] and by_account["revoked"] == 1, "all account sessions revoked by account id")
+        self.check(identity("account_disable", account_id=str(uuid.uuid4()), disabled=True, now_ms=now).get("error") == "ACCOUNT_NOT_FOUND", "disabling unknown account rejected")
+        listing = identity("account_list")
+        self.check(listing["ok"] and len(listing["accounts"]) == 2 and len(listing["sessions"]) >= 3, "account list exposes accounts and sessions")
+        audit = identity("audit_list", limit=200)
+        actions = [row[2] for row in audit["audit"]]
+        self.check(audit["ok"] and "account_create" in actions and "session_revoke" in actions and "account_disable" in actions, "audit log records identity actions")
+        self.check(audit["audit"][0][2] == "session_revoke" and audit["audit"][0][4] == "revoked_sessions=1", "audit log returned newest entry first")
+        with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
+            self.check(c.execute("SELECT COUNT(*) FROM sessions WHERE token_hash=$h", (hashlib.sha256(token.encode()).hexdigest(),)).fetchone()[0] == 1, "sessions persist only token hashes")
+        # v3 to v4 migration rolls back DDL and version together.
+        with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
+            c.execute("DROP TABLE audit_log"); c.execute("DROP TABLE sessions"); c.execute("DROP TABLE accounts"); c.execute("PRAGMA user_version=3")
+        migrate3 = dict(init_id, fault="migration_identity")
+        self.check(self.invoke(migrate3).get("error") == "INJECTED_MIGRATION_IDENTITY", "v3 to v4 migration failure is explicit")
+        with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
+            self.check(c.execute("PRAGMA user_version").fetchone()[0] == 3 and not c.execute("SELECT name FROM sqlite_master WHERE name='accounts'").fetchall(), "v4 migration rolls back DDL and version together")
+        migrate3.pop("fault")
+        self.check(self.invoke(migrate3)["ok"], "v4 migration retries after rollback")
         self.report()
 
 

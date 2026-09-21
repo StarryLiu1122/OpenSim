@@ -10,6 +10,10 @@ const StorageJob = preload("res://network/storage_job.gd")
 const Transforms = preload("res://domain/world_transforms.gd")
 var config: Dictionary
 var service = Service.new()
+var store
+var accounts: Dictionary = {}
+var sessions: Dictionary = {}
+var crypto := Crypto.new()
 var view = View.new()
 var listener := TCPServer.new()
 var clients: Array = []
@@ -33,11 +37,11 @@ func _ready() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not parsed is Dictionary: _fatal("INVALID_CONFIGURATION"); return
 	config = parsed
-	var repo = Repository.new(config.storage, config.store)
-	var initialized: Dictionary = repo._invoke({"operation": "init"})
+	store = Repository.new(config.storage, config.store)
+	var initialized: Dictionary = store._invoke({"operation": "init"})
 	if initialized.has("error"): _fatal(initialized.error); return
-	if repo.exists():
-		var loaded: Dictionary = repo.load_world()
+	if store.exists():
+		var loaded: Dictionary = store.load_world()
 		if loaded.has("error"): _fatal(loaded.error); return
 		service.model.replace(loaded.world); commit_revision = int(loaded.commit_revision)
 	else:
@@ -51,12 +55,13 @@ func _ready() -> void:
 				if asset.id == item.asset_id: item.size = asset.bounds.duplicate(); item.position[2] = float(asset.bounds[2]) * 0.5 + 0.1
 			var created: Dictionary = service.request("CreateObject", {"object": item})
 			if not created.ok: _fatal(Wire.canonical(created)); return
-		var saved: Dictionary = repo.save_world(service.model.snapshot())
+		var saved: Dictionary = store.save_world(service.model.snapshot())
 		if saved.has("error"): _fatal(saved.error); return
 		commit_revision = int(saved.commit_revision)
-	var prior: Dictionary = repo._invoke({"operation": "receipts"})
+	var prior: Dictionary = store._invoke({"operation": "receipts"})
 	if prior.has("error"): _fatal(prior.error); return
 	for receipt in prior.receipts: receipts[receipt.request_id] = receipt
+	if not _identity_bootstrap(): return
 	add_child(view); view.rebuild(service.model.snapshot())
 	_publish_assets()
 	if listener.listen(int(config.port), "127.0.0.1") != OK: _fatal("PORT_UNAVAILABLE"); return
@@ -71,6 +76,118 @@ func _write(path: String, value: Variant) -> void:
 	var file := FileAccess.open(path + ".tmp", FileAccess.WRITE)
 	file.store_string(Wire.canonical(value)); file.close()
 	DirAccess.rename_absolute(path + ".tmp", path)
+
+# --- V6 identity: accounts and sessions persist in the store; the server keeps
+# --- an in-memory registry that every management operation updates only after
+# --- the store confirms, so memory never diverges from durable state.
+
+func _identity_bootstrap() -> bool:
+	var listed: Dictionary = store._invoke({"operation": "account_list"})
+	if listed.has("error"): _fatal("IDENTITY_" + str(listed.error)); return false
+	for account in listed.accounts: accounts[account.id] = account
+	for session in listed.sessions: sessions[session.token_hash] = session
+	var owner_exists := false
+	for account in accounts.values():
+		if account.role == "owner" and not account.disabled: owner_exists = true
+	for i in range(config.principals.size()):
+		var principal: Dictionary = config.principals[i]
+		var hash: String = String(principal.token).sha256_text()
+		if sessions.has(hash): continue
+		var remaining: int = int(principal.expires_at_ms) - _utc()
+		if remaining <= 0: continue
+		var role: String = principal.role
+		if i == 0 and not owner_exists:
+			# The first configured principal bootstraps as the manageable root owner.
+			role = "owner"; owner_exists = true
+		if not accounts.has(principal.id):
+			var created: Dictionary = store._invoke({"operation": "account_create", "name": principal.name, "role": role, "id": principal.id, "actor_id": principal.actor, "now_ms": _utc()})
+			if created.has("error"): _fatal("IDENTITY_" + str(created.error)); return false
+			accounts[principal.id] = created.account
+		var ttl: int = clampi(remaining, 60000, 2592000000)
+		var issued: Dictionary = store._invoke({"operation": "session_issue", "account_id": principal.id, "token_hash": hash, "ttl_ms": ttl, "now_ms": _utc()})
+		if issued.has("error"): _fatal("IDENTITY_" + str(issued.error)); return false
+		sessions[hash] = {"token_hash": hash, "account_id": principal.id, "issued_at_ms": issued.issued_at_ms, "expires_at_ms": issued.expires_at_ms, "revoked": false}
+	return true
+
+func _principal_for(token: String) -> Dictionary:
+	var hash := token.sha256_text()
+	var session: Dictionary = sessions.get(hash, {})
+	if session.is_empty() or session.revoked: return {}
+	var account: Dictionary = accounts.get(session.account_id, {})
+	if account.is_empty() or account.disabled: return {}
+	if _utc() >= int(session.expires_at_ms): return {}
+	return {"id": account.id, "name": account.name, "actor": account.actor_id, "role": account.role, "expires_at_ms": int(session.expires_at_ms), "token_hash": hash}
+
+func _session_alive(principal: Dictionary) -> bool:
+	var session: Dictionary = sessions.get(principal.get("token_hash", ""), {})
+	if session.is_empty() or session.revoked: return false
+	var account: Dictionary = accounts.get(session.account_id, {})
+	return not account.is_empty() and not account.disabled
+
+func _new_token() -> String:
+	return crypto.generate_random_bytes(32).hex_encode()
+
+func _account(client: Dictionary, packet: Dictionary) -> void:
+	if not Schema.exact_keys(packet, ["fp_version", "type", "request_id", "action", "params"]) or not Schema.is_uuid(packet.request_id) or not packet.action is String or not packet.params is Dictionary:
+		_account_reply(client, "", false, "INVALID_ACCOUNT_REQUEST"); return
+	var request_id: String = packet.request_id
+	if client.principal.role != "owner": _account_reply(client, request_id, false, "PERMISSION_DENIED"); return
+	var params: Dictionary = packet.params
+	match packet.action:
+		"create":
+			if not Schema.exact_keys(params, ["name", "role"]) or not params.name is String or not params.role is String:
+				_account_reply(client, request_id, false, "INVALID_ACCOUNT_REQUEST"); return
+			var created: Dictionary = store._invoke({"operation": "account_create", "name": params.name, "role": params.role, "now_ms": _utc()})
+			if created.has("error"): _account_reply(client, request_id, false, str(created.error)); return
+			accounts[created.account.id] = created.account
+			_account_reply(client, request_id, true, "", {"account": created.account})
+		"disable", "enable":
+			if not Schema.exact_keys(params, ["account_id"]) or not Schema.is_uuid(str(params.account_id)):
+				_account_reply(client, request_id, false, "INVALID_ACCOUNT_REQUEST"); return
+			var updated: Dictionary = store._invoke({"operation": "account_disable", "account_id": params.account_id, "disabled": packet.action == "disable", "now_ms": _utc()})
+			if updated.has("error"): _account_reply(client, request_id, false, str(updated.error)); return
+			accounts[params.account_id].disabled = packet.action == "disable"
+			if packet.action == "disable":
+				for hash in sessions:
+					if sessions[hash].account_id == params.account_id: sessions[hash].revoked = true
+			_account_reply(client, request_id, true, "", {"account_id": params.account_id, "disabled": packet.action == "disable"})
+		"issue":
+			if not Schema.exact_keys(params, ["account_id", "ttl_ms"]) or not Schema.is_uuid(str(params.account_id)) or not _integer(params.ttl_ms, 60000, 2592000000):
+				_account_reply(client, request_id, false, "INVALID_ACCOUNT_REQUEST"); return
+			var token := _new_token()
+			var hash := token.sha256_text()
+			var issued: Dictionary = store._invoke({"operation": "session_issue", "account_id": params.account_id, "token_hash": hash, "ttl_ms": int(params.ttl_ms), "now_ms": _utc()})
+			if issued.has("error"): _account_reply(client, request_id, false, str(issued.error)); return
+			sessions[hash] = {"token_hash": hash, "account_id": params.account_id, "issued_at_ms": issued.issued_at_ms, "expires_at_ms": issued.expires_at_ms, "revoked": false}
+			_account_reply(client, request_id, true, "", {"token": token, "account_id": params.account_id, "expires_at_ms": issued.expires_at_ms})
+		"revoke":
+			var by_token: bool = params.has("token")
+			if not Schema.exact_keys(params, ["token"]) and not Schema.exact_keys(params, ["account_id"]):
+				_account_reply(client, request_id, false, "INVALID_ACCOUNT_REQUEST"); return
+			var request := {"operation": "session_revoke", "now_ms": _utc()}
+			if by_token:
+				if not params.token is String: _account_reply(client, request_id, false, "INVALID_ACCOUNT_REQUEST"); return
+				request.token_hash = String(params.token).sha256_text()
+			else:
+				if not Schema.is_uuid(str(params.account_id)): _account_reply(client, request_id, false, "INVALID_ACCOUNT_REQUEST"); return
+				request.account_id = params.account_id
+			var revoked: Dictionary = store._invoke(request)
+			if revoked.has("error"): _account_reply(client, request_id, false, str(revoked.error)); return
+			for hash in sessions:
+				if (by_token and hash == request.token_hash) or (not by_token and sessions[hash].account_id == params.account_id): sessions[hash].revoked = true
+			_account_reply(client, request_id, true, "", {"revoked": revoked.revoked})
+		"list":
+			_account_reply(client, request_id, true, "", {"accounts": accounts.values(), "sessions": sessions.values()})
+		"audit":
+			var limit := int(params.get("limit", 50))
+			var rows: Dictionary = store._invoke({"operation": "audit_list", "limit": limit})
+			if rows.has("error"): _account_reply(client, request_id, false, str(rows.error)); return
+			_account_reply(client, request_id, true, "", {"audit": rows.audit})
+		_:
+			_account_reply(client, request_id, false, "UNSUPPORTED_ACCOUNT_ACTION")
+
+func _account_reply(client: Dictionary, request_id: String, ok: bool, code: String, data: Dictionary = {}) -> void:
+	_send(client, Wire.packet("account_result", {"request_id": request_id, "ok": ok, "code": code, "data": data}))
 
 func _process(delta: float) -> void:
 	if ready_at == 0: return
@@ -90,6 +207,7 @@ func _process(delta: float) -> void:
 		if Time.get_ticks_msec() - int(client.window) >= 1000: client.messages = 0; client.window = Time.get_ticks_msec()
 		if client.principal.is_empty() and Time.get_ticks_msec() - int(client.opened) > 5000: client.peer.close(1008, "AUTH_TIMEOUT")
 		if not client.principal.is_empty() and (_utc() >= int(client.principal.expires_at_ms) or Time.get_ticks_msec() - int(client.opened) > 28800000): client.peer.close(1008, "SESSION_EXPIRED")
+		if not client.principal.is_empty() and not _session_alive(client.principal): client.peer.close(1008, "SESSION_REVOKED")
 		var count := 0
 		while client.peer.get_available_packet_count() > 0 and count < 16:
 			count += 1; client.messages += 1
@@ -125,15 +243,18 @@ func _receive(client: Dictionary, packet: Dictionary) -> void:
 	if client.principal.is_empty():
 		if packet.type != "hello" or not Schema.exact_keys(packet, ["fp_version", "type", "token"]) or not packet.token is String:
 			client.peer.close(1008, "AUTH_REQUIRED"); return
-		for principal in config.principals:
-			if principal.token == packet.token and _utc() < int(principal.expires_at_ms): client.principal = principal.duplicate(true); break
+		client.principal = _principal_for(packet.token)
 		if client.principal.is_empty(): client.peer.close(1008, "AUTH_FAILED"); return
 		for other in clients:
 			if other != client and other.principal.get("id") == client.principal.id: other.peer.close(1008, "SESSION_REPLACED"); _disconnect(other); break
 		var avatar = Avatar.new()
 		add_child(avatar)
 		var spawn: Array = service.model.snapshot().region.spawn.duplicate()
-		spawn[0] += float(config.principals.find(client.principal)) * 1.0
+		var slot := 0
+		for configured in config.principals:
+			if configured.id == client.principal.id: break
+			slot += 1
+		spawn[0] += slot * 1.0
 		avatar.spawn = View.to_engine(spawn); avatar.position = avatar.spawn
 		client.avatar = avatar
 		_send(client, Wire.packet("welcome", {"world_id": Schema.REGION_ID, "region_id": Schema.REGION_ID, "world_epoch": epoch, "principal_id": client.principal.id, "actor_id": client.principal.actor, "role": client.principal.role, "avatar_id": client.principal.id, "send_hz": 20, "physics_hz": 60}))
@@ -157,6 +278,7 @@ func _receive(client: Dictionary, packet: Dictionary) -> void:
 			var receipt: Dictionary = receipts.get(packet.request_id, failures.get(packet.request_id, {}))
 			if receipt.get("principal_id") == client.principal.id: _send(client, receipt.result)
 			else: _reject(client, packet.request_id, "RESULT_UNKNOWN")
+		"account": _account(client, packet)
 		"command": _command(client, packet)
 		_: _reject(client, "", "UNSUPPORTED_PACKET")
 
@@ -289,8 +411,9 @@ func _publish_assets() -> void:
 	for asset in world.assets:
 		if asset.kind != "mesh": continue
 		var allowed: Array = []
-		for principal in config.principals:
-			if _asset_allowed(principal, asset.id, world): allowed.append(principal.id)
+		for account in accounts.values():
+			if account.disabled: continue
+			if _asset_allowed({"id": account.id, "role": account.role}, asset.id, world): allowed.append(account.id)
 		catalog[asset.sha256] = {"principals": allowed, "bytes": Marshalls.base64_to_raw(asset.glb).size()}
 	_write(config.storage.path_join("asset-catalog.json"), catalog)
 

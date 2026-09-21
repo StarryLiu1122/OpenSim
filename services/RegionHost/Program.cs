@@ -130,7 +130,21 @@ static async Task Pump(WebSocket source, WebSocket target, CancellationToken can
     while (source.State == WebSocketState.Open && target.State == WebSocketState.Open)
     {
         var received = await source.ReceiveAsync(buffer.AsMemory(), cancel);
-        if (received.MessageType == WebSocketMessageType.Close) return;
+        if (received.MessageType == WebSocketMessageType.Close)
+        {
+            // Forward the authority's close status (for example SESSION_REVOKED)
+            // so clients learn why the session ended instead of seeing an abort.
+            if (target.State == WebSocketState.Open)
+            {
+                try
+                {
+                    using var grace = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                    await target.CloseAsync(source.CloseStatus ?? WebSocketCloseStatus.NormalClosure, source.CloseStatusDescription, grace.Token);
+                }
+                catch (WebSocketException) { } catch (OperationCanceledException) { }
+            }
+            return;
+        }
         size += received.Count;
         if (size > 3 * 1024 * 1024 || received.MessageType != WebSocketMessageType.Text) { source.Abort(); return; }
         await target.SendAsync(buffer.AsMemory(0, received.Count), received.MessageType, received.EndOfMessage, cancel);

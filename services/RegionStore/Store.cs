@@ -15,7 +15,9 @@ internal sealed class StoreError(string code) : Exception(code);
 internal sealed class Store : IDisposable
 {
     internal const int MaxWorldBytes = 8 * 1024 * 1024;
-    private const int SchemaVersion = 3;
+    private const int SchemaVersion = 4;
+    private static readonly HashSet<string> IdentityOperations = new(StringComparer.Ordinal)
+    { "account_create", "account_list", "account_disable", "session_issue", "session_revoke", "session_validate", "audit_list" };
     private readonly string root, database, content;
     private readonly JsonObject configuration;
     private SqliteConnection? connection;
@@ -34,8 +36,8 @@ internal sealed class Store : IDisposable
     internal object Execute(JsonObject request)
     {
         string operation = S(request, "operation");
-        if (operation is "init" or "save" or "import") Open(true); else Open(false);
-        string id = operation is "init" or "status" or "gc" ? "" : Id(S(request, "region_id"));
+        if (operation is "init" or "save" or "import" or "account_create" or "account_disable" or "session_issue" or "session_revoke") Open(true); else Open(false);
+        string id = operation is "init" or "status" or "gc" || IdentityOperations.Contains(operation) ? "" : Id(S(request, "region_id"));
         return operation switch
         {
             "init" => new { ok = true, schema_version = SchemaVersion, sqlite_version = Scalar("SELECT sqlite_version()"), path = database },
@@ -46,6 +48,13 @@ internal sealed class Store : IDisposable
             "export" or "backup" => Export(id, S(request, "output")),
             "import" => Save(Validate(ReadBundle(S(request, "input"))), id, Long(request, "expected_commit"), Id(S(request, "request_id")), true),
             "gc" => CollectOrphans(),
+            "account_create" => AccountCreate(request),
+            "account_list" => AccountList(),
+            "account_disable" => AccountDisable(request),
+            "session_issue" => SessionIssue(request),
+            "session_revoke" => SessionRevoke(request),
+            "session_validate" => SessionValidate(request),
+            "audit_list" => new { ok = true, audit = Rows("SELECT at_ms,account_id,action,outcome,detail FROM audit_log ORDER BY rowid DESC LIMIT $n", ("$n", Math.Clamp((int)Long(request, "limit"), 1, 200))) },
             _ => throw new StoreError("UNKNOWN_OPERATION")
         };
     }
@@ -83,9 +92,24 @@ internal sealed class Store : IDisposable
                 Exec("CREATE TABLE commits(region_id TEXT NOT NULL REFERENCES regions(id), request_id TEXT NOT NULL, fingerprint TEXT NOT NULL, commit_revision INTEGER NOT NULL, epoch TEXT NOT NULL, PRIMARY KEY(region_id,request_id))");
                 Exec("PRAGMA user_version=2");
                 }
-                Exec("CREATE TABLE network_receipts(region_id TEXT NOT NULL, request_id TEXT NOT NULL, principal_id TEXT NOT NULL CHECK(length(principal_id)=36), record_json TEXT NOT NULL CHECK(length(record_json)<=65536), PRIMARY KEY(region_id,request_id), FOREIGN KEY(region_id,request_id) REFERENCES commits(region_id,request_id))");
-                Inject("migration_receipts");
-                Exec("PRAGMA user_version=3");
+                if (version < 3)
+                {
+                    Exec("CREATE TABLE network_receipts(region_id TEXT NOT NULL, request_id TEXT NOT NULL, principal_id TEXT NOT NULL CHECK(length(principal_id)=36), record_json TEXT NOT NULL CHECK(length(record_json)<=65536), PRIMARY KEY(region_id,request_id), FOREIGN KEY(region_id,request_id) REFERENCES commits(region_id,request_id))");
+                    Inject("migration_receipts");
+                    Exec("PRAGMA user_version=3");
+                }
+                if (version < 4)
+                {
+                    // V6 identity: accounts, hashed sessions and an append-only audit log.
+                    // Tokens are stored only as SHA-256 hashes; cleartext never persists.
+                    Exec("""
+                    CREATE TABLE accounts(id TEXT PRIMARY KEY CHECK(length(id)=36), name TEXT NOT NULL UNIQUE CHECK(length(name) BETWEEN 1 AND 64), actor_id TEXT NOT NULL CHECK(length(actor_id)=36), role TEXT NOT NULL CHECK(role IN ('owner','editor','observer')), disabled INTEGER NOT NULL DEFAULT 0 CHECK(disabled IN (0,1)), created_at_ms INTEGER NOT NULL, updated_at_ms INTEGER NOT NULL);
+                    CREATE TABLE sessions(token_hash TEXT PRIMARY KEY CHECK(length(token_hash)=64), account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE, issued_at_ms INTEGER NOT NULL, expires_at_ms INTEGER NOT NULL CHECK(expires_at_ms>issued_at_ms), revoked INTEGER NOT NULL DEFAULT 0 CHECK(revoked IN (0,1)), revoked_at_ms INTEGER);
+                    CREATE TABLE audit_log(at_ms INTEGER NOT NULL, account_id TEXT, action TEXT NOT NULL, outcome TEXT NOT NULL, detail TEXT NOT NULL DEFAULT '' CHECK(length(detail)<=2048));
+                    """);
+                    Inject("migration_identity");
+                    Exec("PRAGMA user_version=4");
+                }
                 transaction.Commit();
             }
             catch { transaction.Rollback(); throw; }
@@ -351,6 +375,135 @@ internal sealed class Store : IDisposable
         }
         finally { transaction.Dispose(); transaction = null; }
         return new { ok = true, removed };
+    }
+    private static readonly HashSet<string> AccountRoles = new(StringComparer.Ordinal) { "owner", "editor", "observer" };
+    private void Audit(long nowMs, string? accountId, string action, string outcome, string detail = "")
+    {
+        Exec("INSERT INTO audit_log(at_ms,account_id,action,outcome,detail) VALUES($t,$a,$c,$o,$d)",
+            ("$t", nowMs), ("$a", accountId), ("$c", action), ("$o", outcome), ("$d", detail.Length <= 2048 ? detail : detail[..2048]));
+    }
+    private object AccountList() => new
+    {
+        ok = true,
+        accounts = Rows("SELECT id,name,actor_id,role,disabled,created_at_ms,updated_at_ms FROM accounts ORDER BY created_at_ms,rowid")
+            .Select(r => new { id = r[0], name = r[1], actor_id = r[2], role = r[3], disabled = Convert.ToInt64(r[4]) == 1, created_at_ms = r[5], updated_at_ms = r[6] }).ToArray(),
+        sessions = Rows("SELECT token_hash,account_id,issued_at_ms,expires_at_ms,revoked,revoked_at_ms FROM sessions ORDER BY issued_at_ms,rowid")
+            .Select(r => new { token_hash = r[0], account_id = r[1], issued_at_ms = r[2], expires_at_ms = r[3], revoked = Convert.ToInt64(r[4]) == 1, revoked_at_ms = r[5] }).ToArray()
+    };
+    private object AccountCreate(JsonObject request)
+    {
+        string name = S(request, "name"); string role = S(request, "role");
+        if (name.Trim().Length is < 1 or > 64) throw new StoreError("INVALID_ACCOUNT_NAME");
+        if (!AccountRoles.Contains(role)) throw new StoreError("INVALID_ACCOUNT_ROLE");
+        long now = Long(request, "now_ms");
+        string id = request["id"] is JsonNode givenId ? Id(givenId.GetValue<string>()) : Guid.NewGuid().ToString();
+        string actor = request["actor_id"] is JsonNode givenActor ? Id(givenActor.GetValue<string>()) : Guid.NewGuid().ToString();
+        transaction = connection!.BeginTransaction(deferred: false);
+        try
+        {
+            if (Scalar("SELECT COUNT(*) FROM accounts WHERE name=$n", ("$n", name)) is long taken && taken > 0) throw new StoreError("ACCOUNT_NAME_TAKEN");
+            if (Scalar("SELECT COUNT(*) FROM accounts WHERE id=$i", ("$i", id)) is long clash && clash > 0) throw new StoreError("ACCOUNT_ID_TAKEN");
+            Exec("INSERT INTO accounts(id,name,actor_id,role,disabled,created_at_ms,updated_at_ms) VALUES($i,$n,$a,$r,0,$t,$t)",
+                ("$i", id), ("$n", name), ("$a", actor), ("$r", role), ("$t", now));
+            Audit(now, id, "account_create", "ok", role);
+            transaction.Commit();
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+        return new { ok = true, account = new { id, name, actor_id = actor, role, disabled = false, created_at_ms = now, updated_at_ms = now } };
+    }
+    private object AccountDisable(JsonObject request)
+    {
+        string accountId = Id(S(request, "account_id"));
+        bool disabled = request["disabled"]?.GetValue<bool>() ?? throw new StoreError("MISSING_DISABLED");
+        long now = Long(request, "now_ms");
+        transaction = connection!.BeginTransaction(deferred: false);
+        try
+        {
+            var rows = Rows("SELECT disabled FROM accounts WHERE id=$i", ("$i", accountId));
+            if (rows.Count == 0) throw new StoreError("ACCOUNT_NOT_FOUND");
+            Exec("UPDATE accounts SET disabled=$d,updated_at_ms=$t WHERE id=$i", ("$d", disabled ? 1 : 0), ("$t", now), ("$i", accountId));
+            int revoked = 0;
+            if (disabled)
+            {
+                // Disabling an account revokes every live session in the same transaction.
+                revoked = (int)(long)Scalar("SELECT COUNT(*) FROM sessions WHERE account_id=$i AND revoked=0", ("$i", accountId))!;
+                Exec("UPDATE sessions SET revoked=1,revoked_at_ms=$t WHERE account_id=$i AND revoked=0", ("$t", now), ("$i", accountId));
+            }
+            Audit(now, accountId, disabled ? "account_disable" : "account_enable", "ok", disabled ? $"revoked_sessions={revoked}" : "");
+            transaction.Commit();
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+        return new { ok = true, account_id = accountId, disabled };
+    }
+    private object SessionIssue(JsonObject request)
+    {
+        string accountId = Id(S(request, "account_id"));
+        string tokenHash = S(request, "token_hash");
+        if (!Regex.IsMatch(tokenHash, "^[a-f0-9]{64}$")) throw new StoreError("INVALID_TOKEN_HASH");
+        long now = Long(request, "now_ms"), ttl = Long(request, "ttl_ms");
+        if (ttl < 60_000 || ttl > 30L * 24 * 3600 * 1000) throw new StoreError("INVALID_SESSION_TTL");
+        transaction = connection!.BeginTransaction(deferred: false);
+        try
+        {
+            var rows = Rows("SELECT disabled FROM accounts WHERE id=$i", ("$i", accountId));
+            if (rows.Count == 0) throw new StoreError("ACCOUNT_NOT_FOUND");
+            if (Convert.ToInt64(rows[0][0]) == 1) throw new StoreError("ACCOUNT_DISABLED");
+            if (Scalar("SELECT COUNT(*) FROM sessions WHERE token_hash=$h", ("$h", tokenHash)) is long clash && clash > 0) throw new StoreError("SESSION_EXISTS");
+            Exec("INSERT INTO sessions(token_hash,account_id,issued_at_ms,expires_at_ms,revoked) VALUES($h,$i,$t,$e,0)",
+                ("$h", tokenHash), ("$i", accountId), ("$t", now), ("$e", now + ttl));
+            Audit(now, accountId, "session_issue", "ok");
+            transaction.Commit();
+            return new { ok = true, account_id = accountId, token_hash = tokenHash, issued_at_ms = now, expires_at_ms = now + ttl };
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+    }
+    private object SessionRevoke(JsonObject request)
+    {
+        long now = Long(request, "now_ms");
+        string? tokenHash = request["token_hash"]?.GetValue<string>();
+        string? accountId = request["account_id"]?.GetValue<string>();
+        if ((tokenHash == null) == (accountId == null)) throw new StoreError("REVOKE_TARGET_REQUIRED");
+        if (tokenHash != null && !Regex.IsMatch(tokenHash, "^[a-f0-9]{64}$")) throw new StoreError("INVALID_TOKEN_HASH");
+        if (accountId != null) accountId = Id(accountId);
+        transaction = connection!.BeginTransaction(deferred: false);
+        int count;
+        try
+        {
+            if (tokenHash != null)
+            {
+                count = (int)(long)Scalar("SELECT COUNT(*) FROM sessions WHERE token_hash=$h AND revoked=0", ("$h", tokenHash))!;
+                Exec("UPDATE sessions SET revoked=1,revoked_at_ms=$t WHERE token_hash=$h AND revoked=0", ("$t", now), ("$h", tokenHash));
+                Audit(now, null, "session_revoke", count > 0 ? "ok" : "unknown", "by_token");
+            }
+            else
+            {
+                if (Scalar("SELECT COUNT(*) FROM accounts WHERE id=$i", ("$i", accountId)) is long missing && missing == 0) throw new StoreError("ACCOUNT_NOT_FOUND");
+                count = (int)(long)Scalar("SELECT COUNT(*) FROM sessions WHERE account_id=$i AND revoked=0", ("$i", accountId))!;
+                Exec("UPDATE sessions SET revoked=1,revoked_at_ms=$t WHERE account_id=$i AND revoked=0", ("$t", now), ("$i", accountId));
+                Audit(now, accountId, "session_revoke", "ok", $"revoked_sessions={count}");
+            }
+            transaction.Commit();
+        }
+        catch { try { transaction.Rollback(); } catch (InvalidOperationException) { } throw; }
+        finally { transaction.Dispose(); transaction = null; }
+        return new { ok = true, revoked = count };
+    }
+    private object SessionValidate(JsonObject request)
+    {
+        string tokenHash = S(request, "token_hash");
+        if (!Regex.IsMatch(tokenHash, "^[a-f0-9]{64}$")) throw new StoreError("INVALID_TOKEN_HASH");
+        long now = Long(request, "now_ms");
+        var rows = Rows("SELECT s.account_id,s.expires_at_ms,s.revoked,a.name,a.actor_id,a.role,a.disabled FROM sessions s JOIN accounts a ON a.id=s.account_id WHERE s.token_hash=$h", ("$h", tokenHash));
+        if (rows.Count == 0) { Audit(now, null, "session_validate", "unknown_token"); return new { ok = true, valid = false, code = "UNKNOWN_TOKEN" }; }
+        var row = rows[0];
+        string accountId = (string)row[0]!;
+        string code = Convert.ToInt64(row[2]) == 1 ? "SESSION_REVOKED" : Convert.ToInt64(row[6]) == 1 ? "ACCOUNT_DISABLED" : now >= Convert.ToInt64(row[1]) ? "SESSION_EXPIRED" : "";
+        Audit(now, accountId, "session_validate", code.Length == 0 ? "ok" : code.ToLowerInvariant());
+        if (code.Length > 0) return new { ok = true, valid = false, code };
+        return new { ok = true, valid = true, account = new { id = accountId, name = (string)row[3]!, actor_id = (string)row[4]!, role = (string)row[5]! }, expires_at_ms = row[1] };
     }
     private string ContentPath(string hash)
     {
