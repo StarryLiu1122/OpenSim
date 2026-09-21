@@ -16,6 +16,8 @@ var sessions: Dictionary = {}
 var restrictions: Dictionary = {}
 var grants: Dictionary = {}
 var inventories: Dictionary = {}
+var agent_tasks: Dictionary = {}
+var agent_task_order: Array = []
 var crypto := Crypto.new()
 var view = View.new()
 var listener := TCPServer.new()
@@ -231,7 +233,7 @@ func _object_known(object_id: String) -> bool:
 	return false
 
 func _can_permit(principal: Dictionary, object_id: String) -> bool:
-	if principal.role == "observer": return false
+	if principal.role in ["observer", "agent"]: return false
 	if principal.role == "owner": return true
 	var world: Dictionary = service.model.snapshot()
 	for item in world.objects:
@@ -309,6 +311,7 @@ func _own_inventory(account_id: String) -> Dictionary:
 func _inventory(client: Dictionary, packet: Dictionary) -> void:
 	if not Schema.exact_keys(packet, ["fp_version", "type", "request_id", "action", "params"]) or not Schema.is_uuid(packet.request_id) or not packet.action is String or not packet.params is Dictionary:
 		_inventory_reply(client, "", false, "INVALID_INVENTORY_REQUEST"); return
+	if client.principal.role == "agent": _inventory_reply(client, packet.request_id, false, "PERMISSION_DENIED"); return
 	var request_id: String = packet.request_id
 	var params: Dictionary = packet.params
 	var own := _own_inventory(client.principal.id)
@@ -383,6 +386,144 @@ func _inventory(client: Dictionary, packet: Dictionary) -> void:
 func _inventory_reply(client: Dictionary, request_id: String, ok: bool, code: String, data: Dictionary = {}) -> void:
 	_send(client, Wire.packet("inventory_result", {"request_id": request_id, "ok": ok, "code": code, "data": data}))
 
+# --- V6 agents: a controlled surface with read-only observation and a task
+# --- whitelist. Tasks run as cooperative server-side state machines; world
+# --- mutations re-enter the standard command queue, never a side path.
+
+func _agent(client: Dictionary, packet: Dictionary) -> void:
+	if not Schema.exact_keys(packet, ["fp_version", "type", "request_id", "action", "params"]) or not Schema.is_uuid(packet.request_id) or not packet.action is String or not packet.params is Dictionary:
+		_agent_reply(client, "", false, "INVALID_AGENT_REQUEST"); return
+	var request_id: String = packet.request_id
+	var params: Dictionary = packet.params
+	match packet.action:
+		"observe":
+			_agent_reply(client, request_id, true, "", {"state": _projection(client), "revision": service.model.revision(), "at_ms": _utc()})
+		"status":
+			if params.has("task_id"):
+				var one: Dictionary = agent_tasks.get(str(params.task_id), {})
+				if one.is_empty() or one.client != client: _agent_reply(client, request_id, false, "TASK_UNKNOWN"); return
+				_agent_reply(client, request_id, true, "", {"tasks": [_agent_summary(one)]}); return
+			var mine: Array = []
+			for id in agent_task_order:
+				if agent_tasks[id].client == client: mine.append(_agent_summary(agent_tasks[id]))
+			_agent_reply(client, request_id, true, "", {"tasks": mine})
+		"task":
+			if client.principal.role == "observer": _agent_reply(client, request_id, false, "PERMISSION_DENIED"); return
+			_agent_submit(client, request_id, params)
+		"cancel":
+			if not Schema.exact_keys(params, ["task_id"]) or not Schema.is_uuid(str(params.task_id)):
+				_agent_reply(client, request_id, false, "INVALID_AGENT_REQUEST"); return
+			var task: Dictionary = agent_tasks.get(str(params.task_id), {})
+			if task.is_empty() or task.client != client: _agent_reply(client, request_id, false, "TASK_UNKNOWN"); return
+			if task.state in ["completed", "failed", "timeout", "cancelled"]:
+				_agent_reply(client, request_id, true, "", {"task": _agent_summary(task)}); return
+			for job in queued:
+				if job.get("agent_task", "") == task.id: queued.erase(job); break
+			if task.kind == "move_to" and is_instance_valid(client.avatar): client.avatar.controls = Vector2.ZERO
+			_agent_finish(task, "cancelled", "")
+			_agent_reply(client, request_id, true, "", {"task": _agent_summary(task)})
+		_:
+			_agent_reply(client, request_id, false, "UNSUPPORTED_AGENT_ACTION")
+
+func _agent_submit(client: Dictionary, request_id: String, params: Dictionary) -> void:
+	var kind: String = str(params.get("kind", ""))
+	var task := {"id": Schema.uuid(), "kind": kind, "client": client, "state": "accepted", "code": "", "submitted_at_ms": _utc(), "finished_at_ms": 0, "deadline": 0, "detail": {}}
+	match kind:
+		"move_to":
+			if not Schema.vector(params.get("position"), 3, -64, 256): _agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
+			var tolerance_v: Variant = params.get("tolerance", 0.5)
+			var timeout_v: Variant = params.get("timeout_ms", 30000)
+			if not (tolerance_v is float or tolerance_v is int) or not (timeout_v is float or timeout_v is int): _agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
+			task.target = params.position
+			task.tolerance = clampf(float(tolerance_v), 0.1, 5.0)
+			task.deadline = _utc() + clampi(int(timeout_v), 1000, 120000)
+			task.state = "running"
+		"set_state":
+			if not params.get("object_id") is String or not Schema.is_uuid(str(params.get("object_id", ""))) or not params.get("active") is bool:
+				_agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
+			var state_target := _agent_object(client, params.object_id)
+			if state_target.is_empty(): _agent_reply(client, request_id, false, "AGENT_TARGET_UNKNOWN"); return
+			if not state_target.has("state") or not state_target.state.has("active"): _agent_reply(client, request_id, false, "AGENT_TARGET_UNSUPPORTED"); return
+			task.deadline = _utc() + 15000
+			if not _agent_enqueue(task, "SetObjectState", {"id": params.object_id, "active": params.active}): _agent_reply(client, request_id, false, "SERVER_BUSY"); return
+		"create_box":
+			if not Schema.vector(params.get("position"), 3, -64, 256): _agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
+			var size: Array = params.get("size", [1.0, 1.0, 1.0])
+			if not Schema.vector(size, 3, 0.05, 32.0): _agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
+			var box = Schema.box(str(params.get("name", "agent box")), params.position, size, str(params.get("color", "#8899aa")))
+			task.deadline = _utc() + 15000
+			if not _agent_enqueue(task, "CreateObject", {"object": box}): _agent_reply(client, request_id, false, "SERVER_BUSY"); return
+		"update_object":
+			if not params.get("object_id") is String or not Schema.is_uuid(str(params.get("object_id", ""))) or not params.get("patch") is Dictionary:
+				_agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
+			for key in params.patch.keys():
+				if key not in ["name", "color"]: _agent_reply(client, request_id, false, "AGENT_PATCH_FORBIDDEN"); return
+			var patch_target := _agent_object(client, params.object_id)
+			if patch_target.is_empty(): _agent_reply(client, request_id, false, "AGENT_TARGET_UNKNOWN"); return
+			# Every object references an asset; only the six builtin kinds accept
+			# cosmetic patches. Imported meshes keep their authored materials.
+			if Schema.kind(str(patch_target.get("asset_id", ""))).is_empty(): _agent_reply(client, request_id, false, "AGENT_TARGET_UNSUPPORTED"); return
+			task.deadline = _utc() + 15000
+			if not _agent_enqueue(task, "UpdateObject", {"id": params.object_id, "patch": params.patch}): _agent_reply(client, request_id, false, "SERVER_BUSY"); return
+		_:
+			_agent_reply(client, request_id, false, "AGENT_TASK_UNSUPPORTED"); return
+	agent_tasks[task.id] = task; agent_task_order.append(task.id)
+	while agent_task_order.size() > 200:
+		var oldest: String = agent_task_order.pop_front()
+		if agent_tasks[oldest].state in ["completed", "failed", "timeout", "cancelled"]: agent_tasks.erase(oldest)
+		else: agent_task_order.append(oldest)
+	_agent_reply(client, request_id, true, "", {"task": _agent_summary(task)})
+
+func _agent_object(client: Dictionary, object_id: String) -> Dictionary:
+	if not _visible(client.principal, object_id): return {}
+	for item in service.model.snapshot().objects:
+		if item.id == object_id: return item
+	return {}
+
+func _agent_enqueue(task: Dictionary, operation: String, payload: Dictionary) -> bool:
+	if queued.size() >= 64: return false
+	var command := {"fp_version": Wire.VERSION, "type": "command", "world_id": Schema.REGION_ID, "region_id": Schema.REGION_ID, "world_epoch": epoch, "request_id": task.id, "trace_id": Schema.uuid(), "origin": "agent", "source_seq": 0, "expected_revision": service.model.revision(), "expires_at_ms": _utc() + 30000, "operation": operation, "payload": payload}
+	# The whitelist above is the agent's entire capability. Within it the task
+	# acts as a region automaton with the region actor (demo objects are
+	# region-owned), while attribution keeps the agent's own account id.
+	var delegated: Dictionary = task.client.principal.duplicate(true)
+	delegated.actor = Schema.OWNER
+	queued.append({"command": command, "principal": delegated, "fingerprint": Wire.digest(command), "agent_task": task.id})
+	return true
+
+func _agent_drive(task: Dictionary) -> void:
+	var client: Dictionary = task.client
+	if not is_instance_valid(client.avatar): return
+	var target: Vector3 = View.to_engine(task.target)
+	var flat := Vector2(target.x - client.avatar.position.x, target.z - client.avatar.position.z)
+	if flat.length() <= float(task.tolerance):
+		client.avatar.controls = Vector2.ZERO
+		_agent_finish(task, "completed", "", {"position": View.to_world(client.avatar.position)})
+		return
+	var direction := flat.normalized()
+	client.avatar.controls = Vector2(direction.x, -direction.y)
+	client.avatar.input_at = Time.get_ticks_msec()
+
+func _agent_settle(job: Dictionary) -> void:
+	var task: Dictionary = agent_tasks.get(job.agent_task, {})
+	if task.is_empty() or task.state != "running": return
+	var result: Dictionary = job.receipt.result
+	if result.ok: _agent_finish(task, "completed", "", {"revision": result.revision, "payload": result.get("payload", {})})
+	else: _agent_finish(task, "failed", str(result.get("code", "UNKNOWN")))
+
+func _agent_finish(task: Dictionary, state: String, code: String, detail: Dictionary = {}) -> void:
+	task.state = state; task.code = code; task.finished_at_ms = _utc(); task.detail = detail
+	_agent_event(task)
+
+func _agent_event(task: Dictionary) -> void:
+	_send(task.client, Wire.packet("agent_event", {"task": _agent_summary(task)}))
+
+func _agent_summary(task: Dictionary) -> Dictionary:
+	return {"task_id": task.id, "kind": task.kind, "state": task.state, "code": task.code, "submitted_at_ms": task.submitted_at_ms, "finished_at_ms": task.finished_at_ms, "detail": task.detail}
+
+func _agent_reply(client: Dictionary, request_id: String, ok: bool, code: String, data: Dictionary = {}) -> void:
+	_send(client, Wire.packet("agent_result", {"request_id": request_id, "ok": ok, "code": code, "data": data}))
+
 func _process(delta: float) -> void:
 	if ready_at == 0: return
 	if listener.is_connection_available():
@@ -412,6 +553,12 @@ func _process(delta: float) -> void:
 			_receive(client, packet)
 	if worker != null and not worker.is_alive(): _finish_commit()
 	if active.is_empty() and not queued.is_empty(): _execute(queued.pop_front())
+	for task in agent_tasks.values():
+		if task.state != "running": continue
+		if _utc() > int(task.deadline):
+			if task.kind == "move_to" and is_instance_valid(task.client.avatar): task.client.avatar.controls = Vector2.ZERO
+			_agent_finish(task, "timeout", "")
+		elif task.kind == "move_to": _agent_drive(task)
 	accumulator += delta
 	if accumulator >= 0.05:
 		accumulator = fmod(accumulator, 0.05)
@@ -424,6 +571,14 @@ func _physics_process(_delta: float) -> void:
 func _disconnect(client: Dictionary) -> void:
 	if is_instance_valid(client.avatar): client.avatar.queue_free()
 	clients.erase(client)
+	# A departing agent abandons its tasks; queued jobs are dropped so the
+	# world never mutates on behalf of a session that no longer exists.
+	for id in agent_task_order:
+		var task: Dictionary = agent_tasks[id]
+		if task.client != client or task.state not in ["accepted", "running"]: continue
+		for job in queued:
+			if job.get("agent_task", "") == task.id: queued.erase(job); break
+		_agent_finish(task, "cancelled", "CLIENT_GONE")
 
 func _send(client: Dictionary, value: Dictionary) -> void:
 	if client.peer.get_ready_state() != WebSocketPeer.STATE_OPEN: return
@@ -463,6 +618,7 @@ func _receive(client: Dictionary, packet: Dictionary) -> void:
 			if Schema.exact_keys(packet, ["fp_version", "type", "centre", "radius"]) and Schema.vector(packet.centre, 3, -64, 256) and Schema.number(packet.radius, 8, 128):
 				client.centre = packet.centre; client.radius = float(packet.radius); _sync(client)
 		"input":
+			if client.principal.role == "agent": return
 			if not Schema.exact_keys(packet, ["fp_version", "type", "sequence", "axis", "yaw", "jump"]) or not Schema.vector(packet.axis, 2, -1, 1) or not Schema.number(packet.yaw, -100, 100) or not packet.jump is bool or not _integer(packet.sequence, 1, 1000000000): return
 			if packet.sequence <= client.avatar.input_seq: return
 			client.avatar.input_seq = int(packet.sequence); client.avatar.input_at = Time.get_ticks_msec()
@@ -475,6 +631,7 @@ func _receive(client: Dictionary, packet: Dictionary) -> void:
 		"account": _account(client, packet)
 		"permit": _permit(client, packet)
 		"inventory": _inventory(client, packet)
+		"agent": _agent(client, packet)
 		"command": _command(client, packet)
 		_: _reject(client, "", "UNSUPPORTED_PACKET")
 
@@ -505,7 +662,7 @@ func _command(client: Dictionary, command: Dictionary) -> void:
 	client.source_seq = command.source_seq
 	if command.expires_at_ms < _utc() or command.expires_at_ms > _utc() + 60000: _reject(client, command.request_id, "EXPIRED_COMMAND"); return
 	if command.operation not in Wire.MUTATIONS: _reject(client, command.request_id, "UNSUPPORTED_OPERATION"); return
-	if client.principal.role == "observer" or not _authorized(client.principal, command): _reject(client, command.request_id, "PERMISSION_DENIED"); return
+	if client.principal.role in ["observer", "agent"] or not _authorized(client.principal, command): _reject(client, command.request_id, "PERMISSION_DENIED"); return
 	if frozen or receipts.size() >= 10000 or failures.size() >= 10000: _reject(client, command.request_id, "MAINTENANCE_REQUIRED"); return
 	if queued.size() >= 64: _reject(client, command.request_id, "SERVER_BUSY"); return
 	queued.append({"command": command.duplicate(true), "principal": client.principal.duplicate(true), "fingerprint": fingerprint})
@@ -534,6 +691,11 @@ func _authorized(principal: Dictionary, command: Dictionary) -> bool:
 	return true
 
 func _execute(job: Dictionary) -> void:
+	if job.has("agent_task"):
+		# Tasks cancelled while queued never reach dispatch; surviving ones run.
+		var queued_task: Dictionary = agent_tasks.get(str(job.agent_task), {})
+		if queued_task.is_empty() or queued_task.state != "accepted": return
+		queued_task.state = "running"
 	var command: Dictionary = job.command
 	var candidate = Service.new()
 	candidate.model.replace(service.model.snapshot()); candidate.actor = job.principal.actor
@@ -623,6 +785,7 @@ func _finish_commit() -> void:
 	_reply(active); active = {}
 
 func _reply(job: Dictionary) -> void:
+	if job.has("agent_task"): _agent_settle(job); return
 	for client in clients:
 		if client.principal.get("id") == job.principal.id: _send(client, job.receipt.result)
 

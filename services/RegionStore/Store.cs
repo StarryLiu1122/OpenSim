@@ -15,7 +15,7 @@ internal sealed class StoreError(string code) : Exception(code);
 internal sealed class Store : IDisposable
 {
     internal const int MaxWorldBytes = 8 * 1024 * 1024;
-    private const int SchemaVersion = 6;
+    private const int SchemaVersion = 7;
     private static readonly HashSet<string> IdentityOperations = new(StringComparer.Ordinal)
     { "account_create", "account_list", "account_disable", "session_issue", "session_revoke", "session_validate", "audit_list" };
     private static readonly HashSet<string> PermitOperations = new(StringComparer.Ordinal)
@@ -91,6 +91,10 @@ internal sealed class Store : IDisposable
         Exec("PRAGMA foreign_keys=ON"); Exec("PRAGMA busy_timeout=3000");
         if (version < SchemaVersion)
         {
+            // The v7 accounts rebuild changes a CHECK constraint, which SQLite only
+            // supports through table rebuild; foreign keys must be off and may only
+            // be toggled outside a transaction.
+            if (version < 7) Exec("PRAGMA foreign_keys=OFF");
             transaction = connection.BeginTransaction(deferred: false);
             try
             {
@@ -155,10 +159,26 @@ internal sealed class Store : IDisposable
                     Inject("migration_inventory");
                     Exec("PRAGMA user_version=6");
                 }
+                if (version < 7)
+                {
+                    // V6 agents: widen the role CHECK through a table rebuild (SQLite
+                    // cannot alter CHECK in place). Foreign keys are off for this
+                    // migration; referential integrity is verified before commit.
+                    Exec("""
+                    CREATE TABLE accounts_v7(id TEXT PRIMARY KEY CHECK(length(id)=36), name TEXT NOT NULL UNIQUE CHECK(length(name) BETWEEN 1 AND 64), actor_id TEXT NOT NULL CHECK(length(actor_id)=36), role TEXT NOT NULL CHECK(role IN ('owner','editor','observer','agent')), disabled INTEGER NOT NULL DEFAULT 0 CHECK(disabled IN (0,1)), created_at_ms INTEGER NOT NULL, updated_at_ms INTEGER NOT NULL);
+                    INSERT INTO accounts_v7(id,name,actor_id,role,disabled,created_at_ms,updated_at_ms) SELECT id,name,actor_id,role,disabled,created_at_ms,updated_at_ms FROM accounts;
+                    DROP TABLE accounts;
+                    ALTER TABLE accounts_v7 RENAME TO accounts;
+                    """);
+                    Inject("migration_agent_role");
+                    if (Rows("PRAGMA foreign_key_check").Count > 0) throw new StoreError("MIGRATION_INTEGRITY");
+                    Exec("PRAGMA user_version=7");
+                }
                 transaction.Commit();
             }
             catch { transaction.Rollback(); throw; }
             finally { transaction.Dispose(); transaction = null; }
+            if (version < 7) Exec("PRAGMA foreign_keys=ON");
         }
         Scalar("PRAGMA journal_mode=WAL"); Exec("PRAGMA synchronous=FULL");
     }
@@ -535,7 +555,7 @@ internal sealed class Store : IDisposable
         finally { transaction.Dispose(); transaction = null; }
         return new { ok = true, removed };
     }
-    private static readonly HashSet<string> AccountRoles = new(StringComparer.Ordinal) { "owner", "editor", "observer" };
+    private static readonly HashSet<string> AccountRoles = new(StringComparer.Ordinal) { "owner", "editor", "observer", "agent" };
     private void Audit(long nowMs, string? accountId, string action, string outcome, string detail = "")
     {
         Exec("INSERT INTO audit_log(at_ms,account_id,action,outcome,detail) VALUES($t,$a,$c,$o,$d)",

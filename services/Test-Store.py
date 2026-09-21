@@ -63,7 +63,7 @@ class Suite:
         self.check(generation.returncode == 0 and fixture.exists(), "native WorldService created grouped world with real building and door/lamp state")
         world = json.loads(json.loads(fixture.read_text(encoding="utf-8"))["world_json"])
         init = self.call("init")
-        self.check(init["ok"] and init["schema_version"] == 6, "empty database initialized and migrated")
+        self.check(init["ok"] and init["schema_version"] == 7, "empty database initialized and migrated")
         (self.output / "runtime.json").write_text(json.dumps(init, indent=2) + "\n")
         self.check(self.call("init")["ok"], "repeated migration is idempotent")
         save = self.request("save", input=str(fixture), expected_commit=-1, request_id=str(uuid.uuid4()))
@@ -407,6 +407,20 @@ class Suite:
         v1_root = self.output / "restored v1"
         restore_v1 = self.request("import", input=str(v1_package), expected_commit=-1, request_id=str(uuid.uuid4())); restore_v1["root"] = str(v1_root)
         self.check(self.invoke(restore_v1)["ok"], "version 1 bundle imports without service data")
+        # V6 agents: the widened role CHECK accepts agent; rebuild migration is atomic.
+        self.check(identity("account_create", name="agent-7", role="agent", now_ms=now)["ok"], "agent role accepted after rebuild")
+        self.check(identity("account_create", name="agent-bad", role="superuser", now_ms=now).get("error") == "INVALID_ACCOUNT_ROLE", "unknown role still rejected")
+        with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
+            c.execute("UPDATE accounts SET role='editor' WHERE name='agent-7'"); c.execute("PRAGMA user_version=6")
+        migrate5 = dict(init_id, fault="migration_agent_role")
+        self.check(self.invoke(migrate5).get("error") == "INJECTED_MIGRATION_AGENT_ROLE", "v6 to v7 migration failure is explicit")
+        with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
+            self.check(c.execute("PRAGMA user_version").fetchone()[0] == 6 and "accounts_v7" not in [x[0] for x in c.execute("SELECT name FROM sqlite_master")], "v7 migration rolls back rebuild and version together")
+        migrate5.pop("fault")
+        self.check(self.invoke(migrate5)["ok"], "v7 migration retries after rollback")
+        with sqlite3.connect(identity_root / "worlds.sqlite3") as c:
+            self.check(c.execute("PRAGMA foreign_key_check").fetchall() == [] and c.execute("SELECT COUNT(*) FROM accounts WHERE name='permit-owner'").fetchone()[0] == 1, "rebuild preserves accounts and referential integrity")
+        self.check(identity("account_create", name="agent-7b", role="agent", now_ms=now)["ok"], "agent role accepted on migrated database")
         self.report()
 
 

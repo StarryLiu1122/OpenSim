@@ -27,5 +27,5 @@ foreach ($name in @('editor-a','editor-b','observer','guest')) {
 $config = @{storage=$storage;store=[IO.Path]::GetFullPath($Store);godot=[IO.Path]::GetFullPath($Godot);host_executable=[IO.Path]::GetFullPath($HostExecutable);project=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../godot'));port=$Port;http_port=$Port+1;https_port=$Port+2;web_root=[IO.Path]::GetFullPath($WebDirectory);certificate=(Join-Path $Directory 'localhost.pfx');principals=$principals;private_objects=@{}}
 if ($WithBuilding) { $config.seed_asset=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../fixtures/buildings/pioneer-log-cabin/pioneer-log-cabin.glb')) }
 $config | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath (Join-Path $Directory 'private-config.json') -Encoding utf8NoBOM
-@{instance=$Directory;http="http://127.0.0.1:$($Port+1)/";https="https://localhost:$($Port+2)/";protocol='0.3';world_format=3;database_schema=6} | ConvertTo-Json | Set-Content (Join-Path $Directory 'instance.json') -Encoding utf8NoBOM
+@{instance=$Directory;http="http://127.0.0.1:$($Port+1)/";https="https://localhost:$($Port+2)/";protocol='0.3';world_format=3;database_schema=7} | ConvertTo-Json | Set-Content (Join-Path $Directory 'instance.json') -Encoding utf8NoBOM
 Write-Output "Instance initialized: $Directory. Credentials are in private-config.json; do not publish this file."
