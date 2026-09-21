@@ -503,6 +503,16 @@ func _agent_drive(task: Dictionary) -> void:
 	var direction := flat.normalized()
 	client.avatar.controls = Vector2(direction.x, -direction.y)
 	client.avatar.input_at = Time.get_ticks_msec()
+	# Obstacle recovery: agents have no jump input, so a walk that stalls
+	# against a low edge (accessible floor slabs, sills) hops after a grace
+	# period. Tall walls still stall the task into its deadline.
+	var speed := Vector2(client.avatar.velocity.x, client.avatar.velocity.z).length()
+	if speed < 0.3 and _utc() - int(task.submitted_at_ms) > 600:
+		if int(task.get("stall_since", 0)) == 0: task.stall_since = _utc()
+		elif _utc() - int(task.stall_since) > 500:
+			client.avatar.jumping = true
+			task.stall_since = _utc() + 600
+	else: task.stall_since = 0
 
 func _agent_settle(job: Dictionary) -> void:
 	var task: Dictionary = agent_tasks.get(job.agent_task, {})
