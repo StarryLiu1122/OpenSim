@@ -38,4 +38,4 @@ python .\prototype\tools\Build-OarPreview.py $oar $world --focus 34 160 --limit 
 | 文化遗产扫描 | [Open Heritage 3D](https://openheritage3d.org/faq) | 按每个项目的许可下载，减面并重烘贴图后再导入。原始扫描通常远超 V6 当前单模型预算。 |
 | 通用树木、家具、材质 | [Poly Haven](https://polyhaven.com/license) | 其资源为 CC0；适合补充细节，但不能把通用素材称作某一真实建筑的测绘模型。 |
 
-目前 UI 的“导入 GLB 模型”只接收静态 GLB；每个文件最多 2 MiB，几何体与碰撞代理合计最多 20,000 个三角形，单轴尺寸需在 0.2–32 米之间。导入前应在 Blender 等工具中按区域裁切、合并重复实例、减面和烘焙贴图，保留资源许可与署名。大规模真实场景的下一步应是多区域与 LOD 基础能力，而非把整座校园硬塞入一个 GLB。
+目前桌面 UI 可选择静态 GLB 或 glTF（支持同目录 BIN/PNG/JPEG 依赖），Web UI 仍只接收单文件 GLB；打包后每个资产最多 2 MiB，几何体与碰撞代理合计最多 20,000 个三角形，单轴尺寸需在 0.2–32 米之间。PNG/JPEG 底色、法线、金属粗糙度及遮蔽贴图可随文件导入。导入前应在 Blender 等工具中按区域裁切、合并重复实例、减面和烘焙贴图，保留资源许可与署名。大规模真实场景的下一步应是多区域与 LOD 基础能力，而非把整座校园硬塞入一个 GLB。

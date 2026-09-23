@@ -254,6 +254,7 @@ func _fill_fields(item: Dictionary, groups: Array) -> void:
 func _reset_draft() -> void:
 	var state: Dictionary = connection.local.snapshot()
 	if state.get("objects", {}).has(selected): _fill_fields(state.objects[selected], state.groups.values())
+	else: draft_dirty = false; draft_source = {}
 	last_message = "已撤回未提交的修改"
 
 func _edit() -> void:
@@ -274,7 +275,7 @@ func _focus_selected() -> void:
 	var body: Node3D = view.bodies[selected]
 	overview_target = body.position
 	var record: Dictionary = view._records[selected]
-	var distance: float = maxf(6.0, Vector3(record.size[0], record.size[1], record.size[2]).length() * 1.8)
+	var distance: float = maxf(1.5, Vector3(record.size[0], record.size[1], record.size[2]).length() * 1.8)
 	camera.position = overview_target + Vector3(0.8, 0.65, 1.0).normalized() * distance
 	camera.look_at(overview_target)
 
@@ -327,11 +328,11 @@ func _submit_upload() -> void:
 
 func _pick_file() -> void:
 	if OS.has_feature("web"): JavaScriptBridge.eval("document.getElementById('region-file').click()"); return
-	var dialog := FileDialog.new(); dialog.access = FileDialog.ACCESS_FILESYSTEM; dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE; dialog.filters = PackedStringArray(["*.glb ; Static GLB"])
+	var dialog := FileDialog.new(); dialog.access = FileDialog.ACCESS_FILESYSTEM; dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE; dialog.filters = PackedStringArray(["*.glb, *.gltf ; Static GLB or glTF"])
 	add_child(dialog); dialog.file_selected.connect(func(path):
-		var file := FileAccess.open(path, FileAccess.READ)
-		if file != null and file.get_length() <= 2097152: _upload(Marshalls.raw_to_base64(file.get_buffer(file.get_length())), path.get_file())
-		else: last_message = "GLB 超过 2 MiB 或不可读取"
+		var source: Dictionary = Schema.MeshAssets.read_source(path)
+		if source.has("error"): last_message = "无法读取模型：" + str(source.error)
+		else: _upload(Marshalls.raw_to_base64(source.bytes), path.get_file())
 		dialog.queue_free())
 	dialog.canceled.connect(func(): last_message = "已取消选择，世界未更改"; dialog.queue_free())
 	dialog.popup_centered(Vector2i(850, 580))
@@ -341,7 +342,7 @@ func _upload(bytes: String, name: String) -> void:
 	_upload_bytes = bytes
 	operation_picker.select(Wire.MUTATIONS.find("UploadAsset"))
 	payload_field.text = Wire.canonical({"name": name, "license": "请填写授权许可", "attribution": "请填写来源"})
-	last_message = "已读取 GLB；请在资产页填写来源与许可"
+	last_message = "已读取模型；请在资产页填写来源与许可"
 	ui.stage_upload(name)
 
 func _download() -> void:

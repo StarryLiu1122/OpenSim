@@ -14,16 +14,16 @@ var _asset_id := ""
 func _ready() -> void:
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	add_theme_constant_override("separation", 9)
-	_label("导入静态 GLB 2.0")
+	_label("导入静态 GLB / glTF 2.0")
 	for pair in [["文件路径", path_input], ["资产名称", name_input], ["许可证或授权说明", license_input], ["来源与作者", attribution_input]]:
 		_label(pair[0])
 		pair[1].max_length = 160 if pair[1] != path_input else 2048
 		add_child(pair[1])
-	browse_button.text = "选择 GLB 文件"
+	browse_button.text = "选择 GLB / glTF 文件"
 	add_child(browse_button)
 	dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE
 	dialog.access = FileDialog.ACCESS_FILESYSTEM
-	dialog.filters = PackedStringArray(["*.glb ; 静态 GLB 模型"])
+	dialog.filters = PackedStringArray(["*.glb, *.gltf ; 静态 GLB 或 glTF 模型"])
 	add_child(dialog)
 	browse_button.pressed.connect(func(): dialog.popup_centered_ratio(0.7))
 	dialog.file_selected.connect(func(path: String):
@@ -39,7 +39,7 @@ func _ready() -> void:
 	remove_button.text = "移除当前未使用资产"
 	add_child(remove_button)
 	remove_button.pressed.connect(func(): command_requested.emit("RemoveAsset", {"id": _asset_id}))
-	_label("导入后在左侧资产列表选择模型并添加实例。\n每份文件上限 2 MiB、20,000 三角形；支持不透明材质及内嵌 PNG。\n文件内容随世界保存。示例位于 fixtures/meshes，许可为 CC0-1.0，作者为 Region Lab contributors。")
+	_label("导入后在左侧资产列表选择模型并添加实例。\n打包后的 GLB 上限 2 MiB、20,000 三角形；支持内嵌 PNG/JPEG 与常见不透明 PBR 贴图。\nglTF 的外部文件须与模型放在同一目录。文件内容随世界保存；样本来源见 fixtures/meshes/README.md。")
 
 func _label(text: String) -> void:
 	var label := Label.new()

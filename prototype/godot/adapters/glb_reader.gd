@@ -144,8 +144,7 @@ func _surface(primitive: Variant, transform: Transform3D, proxy: bool) -> void:
 		error = "Mismatched attribute counts or triangle indices."
 		return
 	vertex_count += positions.size()
-	index_count += indices.size()
-	if vertex_count > MAX_VERTICES or index_count > 60000 or surfaces.size() + proxies.size() >= 64:
+	if vertex_count > MAX_VERTICES or index_count + indices.size() > 60000 or surfaces.size() + proxies.size() >= 64:
 		error = "Asset exceeds 60,000 vertices, 20,000 triangles or 64 surfaces including proxies."
 		return
 	var points := PackedVector3Array()
@@ -174,13 +173,16 @@ func _surface(primitive: Variant, transform: Transform3D, proxy: bool) -> void:
 		var a := int(indices[i]); var b := int(indices[i + 1]); var c := int(indices[i + 2])
 		var n := (points[b] - points[a]).cross(points[c] - points[a])
 		if n.length_squared() < 0.000000000001:
-			error = "Degenerate triangles must be removed before import."
-			return
+			continue
 		if normals.is_empty():
 			for vertex in [a, b, c]:
 				directions[vertex] += n.normalized()
 		# glTF front faces are CCW; Godot mesh front faces are clockwise.
 		faces.append_array(PackedInt32Array([a, c, b]))
+	if faces.is_empty():
+		error = "Mesh contains no non-degenerate triangles."
+		return
+	index_count += faces.size()
 	for i in range(directions.size()):
 		directions[i] = directions[i].normalized()
 	var material := _material(primitive.get("material", -1), not uv.is_empty())
@@ -245,58 +247,61 @@ func _material(index: Variant, has_uv: bool) -> Dictionary:
 	if not pbr is Dictionary or material.get("alphaMode", "OPAQUE") != "OPAQUE" or not material.get("doubleSided", false) is bool:
 		error = "Only opaque metallic-roughness materials are supported."
 		return {}
-	for key in ["normalTexture", "occlusionTexture", "emissiveTexture"]:
-		if material.has(key):
-			error = "Unsupported material channel: " + key
-			return {}
-	if pbr.has("metallicRoughnessTexture") or material.get("emissiveFactor", [0, 0, 0]) != [0, 0, 0]:
-		error = "Metallic-roughness textures and emissive channels are not yet supported."
+	if material.has("emissiveTexture") or material.get("emissiveFactor", [0, 0, 0]) != [0, 0, 0]:
+		error = "Emissive materials are not yet supported."
 		return {}
 	var color: Variant = pbr.get("baseColorFactor", [1, 1, 1, 1])
 	if not C.vector(color, 4, 0, 1) or color[3] != 1 or not C.number(pbr.get("metallicFactor", 1), 0, 1) or not C.number(pbr.get("roughnessFactor", 1), 0, 1):
 		error = "Invalid material factors."
 		return {}
-	var png := PackedByteArray()
-	if pbr.has("baseColorTexture"):
-		var texture: Variant = pbr.baseColorTexture
-		if not texture is Dictionary or not has_uv or texture.get("texCoord", 0) != 0 or not _integer(texture.get("index"), 0, document.get("textures", []).size() - 1):
-			error = "Base color texture requires TEXCOORD_0 and a valid texture."
-			return {}
-		var reference: Dictionary = document.textures[int(texture.index)]
-		if not _integer(reference.get("source"), 0, document.get("images", []).size() - 1):
-			error = "Invalid image reference."
-			return {}
-		if reference.has("sampler"):
-			if not _integer(reference.sampler, 0, document.get("samplers", []).size() - 1):
-				error = "Invalid sampler reference."
-				return {}
-			var sampler: Dictionary = document.samplers[int(reference.sampler)]
-			if sampler.get("wrapS", 10497) != 10497 or sampler.get("wrapT", 10497) != 10497 or sampler.get("magFilter", 9729) != 9729 or sampler.get("minFilter", 9987) != 9987:
-				error = "Only repeat wrapping and linear mipmap filtering are supported."
-				return {}
-		var source: Dictionary = document.images[int(reference.source)]
-		if source.get("mimeType") != "image/png" or source.has("uri"):
-			error = "Only embedded PNG base color textures are supported."
-			return {}
-		var view := _buffer_view(source.get("bufferView"))
-		if not error.is_empty():
-			return {}
-		png = binary.slice(int(view.get("byteOffset", 0)), int(view.get("byteOffset", 0)) + int(view.byteLength))
-		if png.size() < 33 or png.size() > 1024 * 1024 or png.slice(0, 8).hex_encode() != "89504e470d0a1a0a" or png.slice(12, 16).get_string_from_ascii() != "IHDR":
-			error = "Invalid or oversized PNG."
-			return {}
-		var width := _be32(png, 16); var height := _be32(png, 20)
-		if width < 1 or height < 1 or width > 1024 or height > 1024:
-			error = "PNG dimensions are limited to 1024 by 1024."
-			return {}
-		var image := Image.new()
-		if image.load_png_from_buffer(png) != OK or image.get_width() != width or image.get_height() != height:
-			error = "PNG decoding failed."
-			return {}
-	return {"color": color, "metallic": pbr.get("metallicFactor", 1), "roughness": pbr.get("roughnessFactor", 1), "double_sided": material.get("doubleSided", false), "png": png}
+	var albedo := _texture(pbr.get("baseColorTexture"), has_uv) if pbr.has("baseColorTexture") else {}
+	var normal := _texture(material.get("normalTexture"), has_uv) if material.has("normalTexture") else {}
+	var roughness := _texture(pbr.get("metallicRoughnessTexture"), has_uv) if pbr.has("metallicRoughnessTexture") else {}
+	var occlusion := _texture(material.get("occlusionTexture"), has_uv) if material.has("occlusionTexture") else {}
+	if not error.is_empty():
+		return {}
+	if material.has("normalTexture") and material.normalTexture.get("scale", 1) != 1:
+		error = "Non-default normal scale is unsupported."
+		return {}
+	if material.has("occlusionTexture") and material.occlusionTexture.get("strength", 1) != 1:
+		error = "Non-default occlusion strength is unsupported."
+		return {}
+	return {"color": color, "metallic": pbr.get("metallicFactor", 1), "roughness": pbr.get("roughnessFactor", 1), "double_sided": material.get("doubleSided", false), "albedo": albedo, "normal": normal, "metallic_roughness": roughness, "occlusion": occlusion}
 
-static func _be32(bytes: PackedByteArray, offset: int) -> int:
-	return (int(bytes[offset]) << 24) | (int(bytes[offset + 1]) << 16) | (int(bytes[offset + 2]) << 8) | int(bytes[offset + 3])
+func _texture(texture: Variant, has_uv: bool) -> Dictionary:
+	if not texture is Dictionary or not has_uv or texture.get("texCoord", 0) != 0 or not _integer(texture.get("index"), 0, document.get("textures", []).size() - 1):
+		error = "Texture requires TEXCOORD_0 and a valid reference."
+		return {}
+	var reference: Dictionary = document.textures[int(texture.index)]
+	if not _integer(reference.get("source"), 0, document.get("images", []).size() - 1):
+		error = "Invalid image reference."
+		return {}
+	if reference.has("sampler"):
+		if not _integer(reference.sampler, 0, document.get("samplers", []).size() - 1):
+			error = "Invalid sampler reference."
+			return {}
+		var sampler: Dictionary = document.samplers[int(reference.sampler)]
+		if sampler.get("wrapS", 10497) != 10497 or sampler.get("wrapT", 10497) != 10497 or sampler.get("magFilter", 9729) != 9729 or sampler.get("minFilter", 9987) != 9987:
+			error = "Only repeat wrapping and linear mipmap filtering are supported."
+			return {}
+	var source: Dictionary = document.images[int(reference.source)]
+	var mime: Variant = source.get("mimeType", "")
+	if not mime is String or mime not in ["image/png", "image/jpeg"] or source.has("uri"):
+		error = "Only embedded PNG or JPEG textures are supported."
+		return {}
+	var view := _buffer_view(source.get("bufferView"))
+	if not error.is_empty():
+		return {}
+	var bytes := binary.slice(int(view.get("byteOffset", 0)), int(view.get("byteOffset", 0)) + int(view.byteLength))
+	if bytes.size() < 4 or bytes.size() > 1024 * 1024:
+		error = "Invalid or oversized texture."
+		return {}
+	var image := Image.new()
+	var decoded := image.load_png_from_buffer(bytes) if mime == "image/png" else image.load_jpg_from_buffer(bytes)
+	if decoded != OK or image.get_width() < 1 or image.get_height() < 1 or image.get_width() > 1024 or image.get_height() > 1024:
+		error = "Texture must decode within 1024 by 1024 pixels."
+		return {}
+	return {"bytes": bytes, "mime": mime}
 
 static func _integer(value: Variant, low: int, high: int) -> bool:
 	return C.number(value, low, high) and float(value) == floor(float(value))

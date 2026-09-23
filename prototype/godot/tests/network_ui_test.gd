@@ -154,6 +154,37 @@ func _run() -> void:
 		if app.connection.local.snapshot().objects.size() == count: break
 		await process_frame
 	check(app.connection.local.snapshot().objects.size() == count, "confirmed delete removes the placed model through authority")
+	var imported_count: int = app.session_assets.size()
+	var realistic := FileAccess.get_file_as_bytes("res://../fixtures/meshes/polyhaven-marble-bust-01.glb")
+	app._upload(Marshalls.raw_to_base64(realistic), "Marble Bust 01")
+	app.ui.upload_license.text = "CC0-1.0"
+	app.ui.upload_source.text = "Rico Cilliers / Poly Haven; three.ws 1K GLB conversion"
+	await click(app.ui.upload_button)
+	for frame in range(900):
+		if app.session_assets.size() > imported_count: break
+		await process_frame
+	check(app.session_assets.size() == imported_count + 1, "JPEG PBR GLB uploads through the authoritative asset service")
+	var previous_ids: Array = app.connection.local.snapshot().objects.keys()
+	await click(app.ui.place_button)
+	for frame in range(900):
+		if app.connection.local.snapshot().objects.size() > count: break
+		await process_frame
+	var placed_id := ""
+	for id in app.connection.local.snapshot().objects:
+		if id not in previous_ids: placed_id = id; break
+	var realistic_ready := false
+	for frame in range(1800):
+		if not placed_id.is_empty() and app.interactive and app.view.bodies.has(placed_id) and app.view.mesh_view.cache.has(app.connection.local.snapshot().objects[placed_id].asset_id):
+			realistic_ready = true
+			break
+		await process_frame
+	check(app.connection.local.snapshot().objects.size() == count + 1 and realistic_ready, "write-once realistic asset reloads with geometry and collision")
+	if app.draft_dirty: app._reset_draft()
+	if not placed_id.is_empty(): app._select_id(placed_id)
+	check(app.selected == placed_id, "realistic model can be selected after placement")
+	await settle()
+	app._focus_selected(); await settle()
+	await capture("real-asset")
 	root.size = Vector2i(1100, 700); await settle()
 	check(app.ui.header.get_global_rect().end.x <= root.get_visible_rect().size.x and app.ui.dock.get_global_rect().end.y < app.ui.footer.position.y, "minimum supported window keeps tools above footer")
 	await capture("compact")

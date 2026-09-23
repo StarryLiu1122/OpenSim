@@ -4,6 +4,7 @@ const Service = preload("res://domain/world_service.gd")
 const T = preload("res://domain/world_transforms.gd")
 const Reader = preload("res://adapters/glb_reader.gd")
 const Assets = preload("res://adapters/mesh_assets.gd")
+const MeshView = preload("res://adapters/mesh_view.gd")
 const View = preload("res://adapters/world_view.gd")
 const Avatar = preload("res://client/avatar.gd")
 
@@ -54,7 +55,7 @@ func run(suite: SceneTree) -> void:
 	var geometry := Assets.read(asset)
 	suite.check(geometry.collision_mode == "proxy" and geometry.surfaces.size() == 8 and geometry.collision.size() == 8, "pavilion uses separate visible and doorway-preserving collision surfaces")
 	var bench := Assets.read(service.model.snapshot().assets[7])
-	suite.check(not bench.surfaces[0].material.png.is_empty(), "bench imports embedded PNG base color texture")
+	suite.check(bench.surfaces[0].material.albedo.mime == "image/png", "bench imports embedded PNG base color texture")
 	before = service.model.snapshot()
 	suite.check(service.request("ImportGlb", import_payload("pavilion")).payload.reused and service.model.snapshot() == before, "identical GLB content reuses the immutable asset without revision change")
 	bad = asset.duplicate(true)
@@ -80,6 +81,8 @@ func run(suite: SceneTree) -> void:
 	suite.check(reader.request("LoadRegion").ok and suite._same_data(reader.model.snapshot().assets, service.model.snapshot().assets) and reader.model.object(item.id).asset_id == asset.id and reader.model.snapshot().groups.size() == 1, "relocated snapshot restores geometry from embedded bytes with empty cache")
 	suite.check(service.request("RemoveAsset", {"id": service.model.snapshot().assets[8].id}).ok and service.request("Undo").ok, "unused asset removal can be undone")
 	_invalid_glb(suite)
+	_realistic_glb(suite)
+	_gltf_source(suite)
 	await _physics(suite, item, asset)
 	await _group_physics(suite)
 	var legacy: Variant = JSON.parse_string(JSON.parse_string(FileAccess.get_file_as_string("res://../fixtures/v3-region.snapshot.json")).world_json)
@@ -103,6 +106,7 @@ func _invalid_glb(suite: SceneTree) -> void:
 	# Every material used by this bench is either metal (1) or wood (3).
 	bad.materials[1].alphaMode = "BLEND"
 	bad = doc.duplicate(true); bad.images[0].uri = "texture.png"; variants.append(bad)
+	bad = doc.duplicate(true); bad.images[0].mimeType = 5; variants.append(bad)
 	bad = doc.duplicate(true); bad.meshes[0].primitives[0].attributes.JOINTS_0 = 0; variants.append(bad)
 	for i in range(variants.size()):
 		suite.check(Reader.new().parse(_glb(variants[i], bin)).has("error"), "unsupported or malformed GLB rejected " + str(i))
@@ -111,6 +115,53 @@ func _invalid_glb(suite: SceneTree) -> void:
 	var nan_bin := bin.duplicate()
 	nan_bin.encode_float(int(doc.bufferViews[int(doc.accessors[0].bufferView)].byteOffset), NAN)
 	suite.check(Reader.new().parse(_glb(doc, nan_bin)).has("error"), "GLB non-finite vertex data rejected")
+
+func _realistic_glb(suite: SceneTree) -> void:
+	var source := "res://../fixtures/meshes/polyhaven-marble-bust-01.glb"
+	var result := Assets.import_file({"path": source, "name": "Marble Bust 01", "license": "CC0-1.0", "attribution": "Rico Cilliers / Poly Haven; three.ws 1K GLB conversion"})
+	suite.check(not result.has("error"), "CC0 realistic asset imports with JPEG PBR textures and degenerate triangles")
+	if result.has("error"): return
+	var record: Dictionary = result.asset
+	var geometry := Assets.read(record)
+	suite.check(not geometry.has("error") and geometry.triangles > 0 and geometry.triangles < 20000, "real asset survives content-addressed reread inside scene budget")
+	if geometry.has("error"): return
+	var material: Dictionary = geometry.surfaces[0].material
+	suite.check(material.albedo.mime == "image/jpeg" and material.normal.mime == "image/jpeg" and material.metallic_roughness.mime == "image/jpeg", "JPEG base color, normal and packed roughness channels are retained")
+	var item := Schema.box("Marble Bust 01", [80, 80, 2], record.bounds, "#FFFFFF")
+	item.asset_id = record.id
+	var body := StaticBody3D.new()
+	var renderer := MeshView.new()
+	renderer.cache[record.id] = geometry
+	renderer.build(body, item)
+	var visual: MeshInstance3D = body.get_child(0)
+	var shader: StandardMaterial3D = visual.material_override
+	suite.check(shader.albedo_texture != null and shader.normal_texture != null and shader.roughness_texture != null and shader.metallic_texture != null and body.get_child_count() > 1, "real asset builds textured visual and collision shapes")
+	body.free()
+
+func _gltf_source(suite: SceneTree) -> void:
+	var bytes := FileAccess.get_file_as_bytes("res://../fixtures/meshes/bench.glb")
+	var length := int(bytes.decode_u32(12))
+	var doc: Dictionary = JSON.parse_string(bytes.slice(20, 20 + length).get_string_from_utf8())
+	var binary := bytes.slice(28 + length)
+	var image: Dictionary = doc.images[0]
+	var view: Dictionary = doc.bufferViews[image.bufferView]
+	var texture := binary.slice(int(view.get("byteOffset", 0)), int(view.get("byteOffset", 0)) + int(view.byteLength))
+	var directory: String = suite.output_dir + "/gltf-source"
+	DirAccess.make_dir_recursive_absolute(directory)
+	var file := FileAccess.open(directory + "/model.bin", FileAccess.WRITE); file.store_buffer(binary); file.close()
+	file = FileAccess.open(directory + "/albedo.png", FileAccess.WRITE); file.store_buffer(texture); file.close()
+	doc.buffers[0].uri = "model.bin"
+	image.erase("bufferView"); image.erase("mimeType"); image.uri = "albedo.png"
+	file = FileAccess.open(directory + "/model.gltf", FileAccess.WRITE); file.store_string(JSON.stringify(doc)); file.close()
+	var result := Assets.import_file({"path": directory + "/model.gltf", "name": "glTF bench", "license": "CC0-1.0", "attribution": "Region Lab contributors"})
+	suite.check(not result.has("error") and result.asset.glb.begins_with("Z2xURg"), "external-buffer glTF and PNG pack into a portable GLB asset")
+	doc.buffers[0].uri = "data:application/octet-stream;base64," + Marshalls.raw_to_base64(binary)
+	image.uri = "data:image/png;base64," + Marshalls.raw_to_base64(texture)
+	file = FileAccess.open(directory + "/inline.gltf", FileAccess.WRITE); file.store_string(JSON.stringify(doc)); file.close()
+	suite.check(not Assets.import_file({"path": directory + "/inline.gltf", "name": "inline bench", "license": "CC0-1.0", "attribution": "Region Lab contributors"}).has("error"), "base64 data URI glTF packs without filesystem dependencies")
+	doc.buffers[0].uri = "../outside.bin"
+	file = FileAccess.open(directory + "/unsafe.gltf", FileAccess.WRITE); file.store_string(JSON.stringify(doc)); file.close()
+	suite.check(Assets.import_file({"path": directory + "/unsafe.gltf", "name": "unsafe", "license": "CC0-1.0", "attribution": "Region Lab contributors"}).has("error"), "glTF dependencies cannot escape the selected directory")
 
 func _glb(doc: Dictionary, bin: PackedByteArray) -> PackedByteArray:
 	var json := JSON.stringify(doc).to_utf8_buffer()

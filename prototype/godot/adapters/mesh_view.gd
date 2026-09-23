@@ -23,19 +23,28 @@ func build(body: StaticBody3D, item: Dictionary) -> void:
 	var source_size := Vector3(data.bounds[0], data.bounds[2], data.bounds[1])
 	for surface in data.surfaces:
 		var visual := MeshInstance3D.new()
-		visual.mesh = _mesh(surface, size, source_size)
 		var source: Dictionary = surface.material
+		visual.mesh = _mesh(surface, size, source_size, not source.normal.is_empty())
 		var material := StandardMaterial3D.new()
 		material.albedo_color = Color(source.color[0], source.color[1], source.color[2], 1) * Color(item.color)
 		material.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 		material.metallic = source.metallic
 		material.roughness = source.roughness
 		material.cull_mode = BaseMaterial3D.CULL_DISABLED if source.double_sided else BaseMaterial3D.CULL_BACK
-		if not source.png.is_empty():
-			var picture := Image.new()
-			picture.load_png_from_buffer(source.png)
-			picture.generate_mipmaps()
-			material.albedo_texture = ImageTexture.create_from_image(picture)
+		if not source.albedo.is_empty(): material.albedo_texture = _image_texture(source.albedo)
+		if not source.normal.is_empty():
+			material.normal_enabled = true
+			material.normal_texture = _image_texture(source.normal)
+		if not source.metallic_roughness.is_empty():
+			var packed_texture := _image_texture(source.metallic_roughness)
+			material.metallic_texture = packed_texture
+			material.metallic_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_BLUE
+			material.roughness_texture = packed_texture
+			material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_GREEN
+		if not source.occlusion.is_empty():
+			material.ao_enabled = true
+			material.ao_texture = _image_texture(source.occlusion)
+			material.ao_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
 		visual.material_override = material
 		body.add_child(visual)
 	for surface in data.collision:
@@ -48,7 +57,7 @@ func build(body: StaticBody3D, item: Dictionary) -> void:
 		collider.shape = shape
 		body.add_child(collider)
 
-func _mesh(surface: Dictionary, size: Vector3, source_size: Vector3) -> ArrayMesh:
+func _mesh(surface: Dictionary, size: Vector3, source_size: Vector3, tangent_space: bool) -> ArrayMesh:
 	var vertices := PackedVector3Array()
 	var normals := PackedVector3Array()
 	for i in range(surface.vertices.size()):
@@ -62,4 +71,16 @@ func _mesh(surface: Dictionary, size: Vector3, source_size: Vector3) -> ArrayMes
 	arrays[Mesh.ARRAY_INDEX] = surface.indices
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	if tangent_space:
+		var tool := SurfaceTool.new()
+		tool.create_from(mesh, 0)
+		tool.generate_tangents()
+		return tool.commit()
 	return mesh
+
+func _image_texture(source: Dictionary) -> ImageTexture:
+	var picture := Image.new()
+	if source.mime == "image/png": picture.load_png_from_buffer(source.bytes)
+	else: picture.load_jpg_from_buffer(source.bytes)
+	picture.generate_mipmaps()
+	return ImageTexture.create_from_image(picture)

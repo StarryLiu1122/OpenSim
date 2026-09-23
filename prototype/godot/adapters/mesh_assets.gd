@@ -1,20 +1,18 @@
 extends RefCounted
 const Reader = preload("res://adapters/glb_reader.gd")
+const Packer = preload("res://adapters/gltf_packer.gd")
 const C = preload("res://domain/schema_v2.gd")
 static var _cache: Dictionary = {}
 
 static func import_file(payload: Dictionary) -> Dictionary:
-	if not C.exact_keys(payload, ["path", "name", "license", "attribution"]) or not payload.path is String or payload.path.get_extension().to_lower() != "glb":
-		return {"error": "ImportGlb requires path, name, license and attribution; choose a .glb file."}
+	if not C.exact_keys(payload, ["path", "name", "license", "attribution"]) or not payload.path is String or payload.path.get_extension().to_lower() not in ["glb", "gltf"]:
+		return {"error": "ImportGlb requires path, name, license and attribution; choose a .glb or .gltf file."}
 	for key in ["name", "license", "attribution"]:
 		if not _text(payload[key], 160):
 			return {"error": "Provide a nonempty name, license identifier and attribution (1–160 characters)."}
-	var file := FileAccess.open(payload.path, FileAccess.READ)
-	if file == null:
-		return {"error": "Cannot open GLB: " + error_string(FileAccess.get_open_error())}
-	if file.get_length() > Reader.MAX_BYTES:
-		return {"error": "GLB exceeds the 2 MiB import limit."}
-	var bytes := file.get_buffer(file.get_length())
+	var source := read_source(payload.path)
+	if source.has("error"): return source
+	var bytes: PackedByteArray = source.bytes
 	var digest := sha256(bytes)
 	var geometry := Reader.new().parse(bytes)
 	if geometry.has("error"):
@@ -22,6 +20,14 @@ static func import_file(payload: Dictionary) -> Dictionary:
 	var record := {"id": content_id(digest), "kind": "mesh", "uri": "embedded://sha256/" + digest, "sha256": digest, "name": payload.name, "license": payload.license, "attribution": payload.attribution, "bounds": geometry.bounds, "glb": Marshalls.raw_to_base64(bytes)}
 	_remember(digest, geometry)
 	return {"asset": record, "triangles": geometry.triangles, "collision_mode": geometry.collision_mode}
+
+static func read_source(path: String) -> Dictionary:
+	if path.get_extension().to_lower() == "gltf": return Packer.read(path)
+	if path.get_extension().to_lower() != "glb": return {"error": "Choose a .glb or .gltf file."}
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null: return {"error": "Cannot open GLB: " + error_string(FileAccess.get_open_error())}
+	if file.get_length() > Reader.MAX_BYTES: return {"error": "GLB exceeds the 2 MiB import limit."}
+	return {"bytes": file.get_buffer(file.get_length())}
 
 static func read(record: Variant) -> Dictionary:
 	if not record is Dictionary or not C.exact_keys(record, ["id", "kind", "uri", "sha256", "name", "license", "attribution", "bounds", "glb"]):
