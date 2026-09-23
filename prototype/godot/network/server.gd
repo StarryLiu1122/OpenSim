@@ -50,7 +50,14 @@ func _ready() -> void:
 		if loaded.has("error"): _fatal(loaded.error); return
 		service.model.replace(loaded.world); commit_revision = int(loaded.commit_revision)
 	else:
-		service.model.replace(Demo.create())
+		if config.has("seed_world"):
+			var seed_repository = preload("res://adapters/snapshot_repository.gd").new(config.seed_world)
+			var seed: Dictionary = seed_repository.load_world()
+			if seed.has("error"): _fatal("SEED_WORLD: " + str(seed.error)); return
+			var seed_error: String = service.model.replace(seed.world)
+			if not seed_error.is_empty(): _fatal("SEED_WORLD: " + seed_error); return
+		else:
+			service.model.replace(Demo.create())
 		if config.has("seed_asset"):
 			var imported: Dictionary = service.request("ImportGlb", {"path": config.seed_asset, "name": "Pioneer Log Cabin", "license": "CC0-1.0", "attribution": "Derivative of US Library of Congress HABS WIS-18 measured drawing"})
 			if not imported.ok: _fatal(Wire.canonical(imported)); return

@@ -73,12 +73,44 @@ func _ready() -> void:
 	if service.repository.exists():
 		loaded = service.request("LoadRegion")
 	_rebuild()
+	_frame_imported_scene()
 	if not loaded.is_empty():
 		_feedback(loaded)
 	if not service.model.snapshot().objects.is_empty():
 		_select(service.model.snapshot().objects[1].id if service.model.snapshot().objects.size() > 1 else service.model.snapshot().objects[0].id)
 	if OS.get_cmdline_user_args().has("--verify-render"):
 		_verify_render.call_deferred()
+
+func _frame_imported_scene() -> void:
+	var objects: Array = service.model.snapshot().objects
+	if objects.size() < 2:
+		return
+	var minimum := Vector3(INF, INF, INF)
+	var maximum := Vector3(-INF, -INF, -INF)
+	for item in objects:
+		if not Schema.kind(item.asset_id).is_empty():
+			return
+		var center := WorldView.to_engine(item.position)
+		var half := Vector3(item.size[0], item.size[2], item.size[1]) * 0.5
+		minimum = minimum.min(center - half)
+		maximum = maximum.max(center + half)
+	orbit_target = (minimum + maximum) * 0.5
+	orbit_distance = clampf(maxf(maximum.x - minimum.x, maximum.z - minimum.z) * 1.65, 45, 150)
+	var xx := 0.0
+	var zz := 0.0
+	var xz := 0.0
+	for item in objects:
+		var point := WorldView.to_engine(item.position) - orbit_target
+		xx += point.x * point.x
+		zz += point.z * point.z
+		xz += point.x * point.z
+	if absf(xx - zz) + absf(xz) > 0.01:
+		var axis := 0.5 * atan2(2.0 * xz, xx - zz)
+		var side := Vector2(-sin(axis), cos(axis))
+		if side.x > 0.0: side = -side
+		orbit_yaw = atan2(side.x, side.y) + 0.3
+	orbit_pitch = 0.69
+	_update_camera()
 
 func _install_input() -> void:
 	var actions := {"move_forward": KEY_W, "move_back": KEY_S, "move_left": KEY_A, "move_right": KEY_D, "sprint": KEY_SHIFT, "jump": KEY_SPACE}

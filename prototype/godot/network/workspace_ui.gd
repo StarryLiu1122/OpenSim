@@ -13,6 +13,7 @@ var tabs: TabContainer
 var badge: Label
 var region_label: Label
 var summary: Label
+var source_credit: LinkButton
 var hint: Label
 var selection_title: Label
 var selection_note: Label
@@ -226,6 +227,14 @@ func build() -> void:
 	hint = label(line, "Tab 进入漫游  ·  点击对象选择  ·  F 定位  ·  右键环视 / 滚轮缩放", 13, MUTED)
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	summary = label(line, "", 13, ACCENT)
+	source_credit = LinkButton.new()
+	source_credit.text = "© 3DBAG by tudelft3d and 3DGI"
+	source_credit.tooltip_text = "https://docs.3dbag.nl/en/copyright/ · 已三角化、平移和演示着色"
+	source_credit.add_theme_font_size_override("font_size", 12)
+	source_credit.add_theme_color_override("font_color", ACCENT)
+	source_credit.pressed.connect(func(): OS.shell_open("https://docs.3dbag.nl/en/copyright/"))
+	source_credit.visible = false
+	line.add_child(source_credit)
 	delete_dialog = ConfirmationDialog.new(); root.add_child(delete_dialog)
 	delete_dialog.title = "确认删除对象"; delete_dialog.ok_button_text = "删除"; delete_dialog.cancel_button_text = "取消"
 	delete_dialog.confirmed.connect(func():
@@ -267,6 +276,11 @@ func request_delete() -> void:
 func update() -> void:
 	var online: bool = app.connection.online()
 	var state: Dictionary = app.connection.local.snapshot()
+	source_credit.visible = false
+	for asset in state.get("assets", {}).values():
+		if "© 3DBAG by tudelft3d and 3DGI" in str(asset.get("attribution", "")):
+			source_credit.visible = true
+			break
 	region_label.text = "V6  /  " + str(state.get("meta", {}).get("region", {}).get("name", "共享三维世界")) if online else "V6  /  共享三维世界"
 	var editable: bool = app.interactive and app.connection.welcome.get("role", "") != "observer"
 	var objects: Dictionary = state.get("objects", {})

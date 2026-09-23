@@ -372,7 +372,28 @@ func _stop_walk() -> void:
 
 func _overview() -> void:
 	overview_target = View.to_engine(overview_spawn) - Vector3(0, 1.5, 0)
-	camera.position = overview_target + Vector3(-26, 28, 33)
+	var offset := Vector3(-26, 28, 33)
+	camera.fov = 75
+	if connection.local != null:
+		var objects: Array = connection.local.snapshot().get("objects", {}).values()
+		if objects.size() >= 2:
+			var minimum := Vector3(INF, INF, INF)
+			var maximum := Vector3(-INF, -INF, -INF)
+			var imported_only := true
+			for item in objects:
+				if not Schema.kind(item.asset_id).is_empty():
+					imported_only = false
+					break
+				var center := View.to_engine(item.position)
+				var half := Vector3(item.size[0], item.size[2], item.size[1]) * 0.5
+				minimum = minimum.min(center - half)
+				maximum = maximum.max(center + half)
+			if imported_only:
+				overview_target = (minimum + maximum) * 0.5
+				var distance := clampf(maxf(maximum.x - minimum.x, maximum.z - minimum.z) * 1.65, 45, 150)
+				offset = Vector3(-0.8, 0.85, -0.4).normalized() * distance
+				camera.fov = 52
+	camera.position = overview_target + offset
 	camera.look_at(overview_target)
 
 func _input(event: InputEvent) -> void:
