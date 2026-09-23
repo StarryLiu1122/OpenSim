@@ -11,6 +11,7 @@ var welcome: PanelContainer
 var footer: PanelContainer
 var tabs: TabContainer
 var badge: Label
+var region_label: Label
 var summary: Label
 var hint: Label
 var selection_title: Label
@@ -129,7 +130,7 @@ func build() -> void:
 	var top := HBoxContainer.new(); top.add_theme_constant_override("separation", 16); header.add_child(top)
 	var brand := column(top, 0)
 	label(brand, "REGION LAB", 22)
-	label(brand, "V5  /  共享三维世界", 12, MUTED)
+	region_label = label(brand, "V6  /  共享三维世界", 12, MUTED)
 	badge = label(top, "未连接", 14, ACCENT)
 	walk_button = button(top, "进入漫游  ·  Tab", app._walk, true)
 	tools_button = button(top, "工具面板", func(): tools_open = not tools_open; layout())
@@ -265,8 +266,10 @@ func request_delete() -> void:
 
 func update() -> void:
 	var online: bool = app.connection.online()
+	var state: Dictionary = app.connection.local.snapshot()
+	region_label.text = "V6  /  " + str(state.get("meta", {}).get("region", {}).get("name", "共享三维世界")) if online else "V6  /  共享三维世界"
 	var editable: bool = app.interactive and app.connection.welcome.get("role", "") != "observer"
-	var objects: Dictionary = app.connection.local.snapshot().get("objects", {})
+	var objects: Dictionary = state.get("objects", {})
 	var item: Dictionary = objects.get(app.selected, {})
 	var chosen := not item.is_empty()
 	var pending: bool = not app.connection.pending.is_empty()

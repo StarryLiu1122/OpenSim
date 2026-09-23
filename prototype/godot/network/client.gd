@@ -58,6 +58,7 @@ var draft_dirty := false
 var draft_request := ""
 var draft_source: Dictionary = {}
 var overview_target := Vector3(124, 2, -139)
+var overview_spawn: Array = [124.0, 139.0, 2.0]
 var orbiting := false
 var created_requests: Dictionary = {}
 var pending_selection := ""
@@ -189,7 +190,10 @@ func _render_world() -> void:
 		var error := Schema.validate(world)
 		if not error.is_empty(): last_message = error; interactive = false; return
 	var validated := Time.get_ticks_msec()
-	if not built: view.rebuild(world); built = true
+	if not built:
+		overview_spawn = world.region.spawn.duplicate()
+		if not walking: _overview()
+		view.rebuild(world); built = true
 	else: view.sync_terrain(world.terrain, world.region.size); view.sync_objects(world.objects, world.groups, world.assets)
 	var projected := Time.get_ticks_msec()
 	environment.sync(world.environment)
@@ -366,8 +370,9 @@ func _stop_walk() -> void:
 	if ui.root != null: ui.layout()
 
 func _overview() -> void:
-	overview_target = Vector3(124, 2, -139)
-	camera.position = Vector3(155, 27, -99); camera.look_at(overview_target)
+	overview_target = View.to_engine(overview_spawn) - Vector3(0, 1.5, 0)
+	camera.position = overview_target + Vector3(-26, 28, 33)
+	camera.look_at(overview_target)
 
 func _input(event: InputEvent) -> void:
 	if ui.delete_dialog.visible: return
@@ -510,6 +515,8 @@ func _action(action: Dictionary) -> void:
 		"stop_walk": _stop_walk()
 		"screenshot":
 			if not test_directory.is_empty(): _screenshot(test_directory.path_join("client.png"))
+		"dismiss_help":
+			if not test_directory.is_empty(): ui.help_open = false; ui.layout()
 		"drop_delta":
 			if not test_directory.is_empty(): connection.test_drop_delta = true
 		"duplicate_delta":
