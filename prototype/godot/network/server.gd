@@ -437,7 +437,7 @@ func _agent_submit(client: Dictionary, request_id: String, params: Dictionary) -
 	var task := {"id": Schema.uuid(), "kind": kind, "client": client, "state": "accepted", "code": "", "submitted_at_ms": _utc(), "finished_at_ms": 0, "deadline": 0, "detail": {}}
 	match kind:
 		"move_to":
-			if not Schema.vector(params.get("position"), 3, -64, 256): _agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
+			if not Schema.vector(params.get("position"), 3, -64, 512): _agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
 			var tolerance_v: Variant = params.get("tolerance", 0.5)
 			var timeout_v: Variant = params.get("timeout_ms", 30000)
 			if not (tolerance_v is float or tolerance_v is int) or not (timeout_v is float or timeout_v is int): _agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
@@ -454,7 +454,7 @@ func _agent_submit(client: Dictionary, request_id: String, params: Dictionary) -
 			task.deadline = _utc() + 15000
 			if not _agent_enqueue(task, "SetObjectState", {"id": params.object_id, "active": params.active}): _agent_reply(client, request_id, false, "SERVER_BUSY"); return
 		"create_box":
-			if not Schema.vector(params.get("position"), 3, -64, 256): _agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
+			if not Schema.vector(params.get("position"), 3, -64, 512): _agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
 			var size: Array = params.get("size", [1.0, 1.0, 1.0])
 			if not Schema.vector(size, 3, 0.05, 32.0): _agent_reply(client, request_id, false, "INVALID_AGENT_TASK"); return
 			var box = Schema.box(str(params.get("name", "agent box")), params.position, size, str(params.get("color", "#8899aa")))
@@ -632,7 +632,7 @@ func _receive(client: Dictionary, packet: Dictionary) -> void:
 		"resync":
 			if Schema.exact_keys(packet, ["fp_version", "type"]): _sync(client, true)
 		"interest":
-			if Schema.exact_keys(packet, ["fp_version", "type", "centre", "radius"]) and Schema.vector(packet.centre, 3, -64, 256) and Schema.number(packet.radius, 8, 128):
+			if Schema.exact_keys(packet, ["fp_version", "type", "centre", "radius"]) and Schema.vector(packet.centre, 3, -64, 512) and Schema.number(packet.radius, 8, 400):
 				client.centre = packet.centre; client.radius = float(packet.radius); _sync(client)
 		"input":
 			if client.principal.role == "agent": return
@@ -737,7 +737,7 @@ func _execute(job: Dictionary) -> void:
 		var entry: Dictionary = owned.get("items", {}).get(str(payload.get("item_id", "")), {})
 		if not Schema.exact_keys(payload, ["item_id", "position"]) and not Schema.exact_keys(payload, ["item_id", "position", "name"]):
 			outcome = {"ok": false, "errors": [{"code": "INVALID_PLACEMENT"}]}
-		elif not Schema.is_uuid(str(payload.item_id)) or not Schema.vector(payload.position, 3, -64, 256) or (payload.has("name") and (not payload.name is String or payload.name.length() > 128)):
+		elif not Schema.is_uuid(str(payload.item_id)) or not Schema.vector(payload.position, 3, -64, 512) or (payload.has("name") and (not payload.name is String or payload.name.length() > 128)):
 			outcome = {"ok": false, "errors": [{"code": "INVALID_PLACEMENT"}]}
 		elif entry.is_empty():
 			outcome = {"ok": false, "errors": [{"code": "ITEM_NOT_FOUND"}]}
@@ -834,6 +834,9 @@ func _projection(client: Dictionary) -> Dictionary:
 	var result := {"meta": {}, "objects": {}, "groups": {}, "assets": {}, "avatars": {}}
 	for key in ["schema_version", "revision", "region", "terrain", "environment"]: result.meta[key] = world[key]
 	var centre: Vector3 = client.avatar.position if client.centre.is_empty() else View.to_engine(client.centre)
+	if client.centre.is_empty() and float(world.region.size[0]) > 256:
+		centre = View.to_engine([world.region.size[0] * 0.5, world.region.size[1] * 0.5, 0.0])
+		client.radius = 380.0
 	var visible_groups := {}
 	for item in world.objects:
 		if not _visible(client.principal, item.id): continue

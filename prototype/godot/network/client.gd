@@ -60,6 +60,11 @@ var draft_source: Dictionary = {}
 var overview_target := Vector3(124, 2, -139)
 var overview_spawn: Array = [124.0, 139.0, 2.0]
 var orbiting := false
+var right_origin := Vector2.ZERO
+var context_hit: Dictionary = {}
+var auto_target: Array = []
+var auto_last_distance := INF
+var auto_stalled := 0.0
 var created_requests: Dictionary = {}
 var pending_selection := ""
 var upload_requests: Dictionary = {}
@@ -77,7 +82,7 @@ func _ready() -> void:
 		if arg.begins_with("--network-testdir="): test_directory = arg.trim_prefix("--network-testdir=")
 	add_child(connection); add_child(view); add_child(environment); add_child(own); add_child(camera)
 	own.enabled = false; own.visible = false
-	camera.current = true; camera.near = 0.08; camera.far = 650
+	camera.current = true; camera.near = 0.08; camera.far = 1200
 	_overview()
 	_ui()
 	startup_profile.ui_ms = Time.get_ticks_msec() - _started
@@ -194,7 +199,9 @@ func _render_world() -> void:
 		overview_spawn = world.region.spawn.duplicate()
 		if not walking: _overview()
 		view.rebuild(world); built = true
-	else: view.sync_terrain(world.terrain, world.region.size); view.sync_objects(world.objects, world.groups, world.assets)
+	else:
+		if view._region_size != Vector2(world.region.size[0], world.region.size[1]): view.rebuild(world)
+		else: view.sync_terrain(world.terrain, world.region.size); view.sync_objects(world.objects, world.groups, world.assets)
 	var projected := Time.get_ticks_msec()
 	environment.sync(world.environment)
 	rendered_revision = int(world.revision)
@@ -294,6 +301,69 @@ func _create() -> void:
 	var request := _command("CreateObject", {"object": item})
 	if not request.is_empty(): created_requests[request] = item.id
 
+func _context_at(point: Vector2) -> Dictionary:
+	var origin := camera.project_ray_origin(point)
+	var ray := PhysicsRayQueryParameters3D.create(origin, origin + camera.project_ray_normal(point) * 1200.0, 3)
+	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
+	if hit.is_empty(): return {}
+	var position: Array = View.to_world(hit.position)
+	var size: Array = connection.local.snapshot().meta.region.size
+	if position[0] < 0 or position[1] < 0 or position[0] > size[0] or position[1] > size[1]: return {}
+	return {"position": position, "normal": hit.normal, "id": str(hit.collider.get_meta("world_id", "")), "engine": hit.position}
+
+func _show_context(point: Vector2) -> void:
+	context_hit = _context_at(point)
+	if context_hit.is_empty(): return
+	ui.show_context_menu(point, context_hit.normal.y > 0.45, not context_hit.id.is_empty(), ui.asset_picker.selected >= 0 and not ui.asset_ids.is_empty())
+
+func _context_action(id: int) -> void:
+	if context_hit.is_empty(): return
+	match id:
+		0:
+			if context_hit.normal.y <= 0.45: return
+			var destination: Array = context_hit.position.duplicate()
+			destination[0] = clampf(float(destination[0]), 1, float(connection.local.snapshot().meta.region.size[0]) - 1)
+			destination[1] = clampf(float(destination[1]), 1, float(connection.local.snapshot().meta.region.size[1]) - 1)
+			if not walking: _walk()
+			if walking:
+				auto_target = destination; auto_last_distance = INF; auto_stalled = 0.0
+				last_message = "正在前往所选地点 · WASD 可接管控制"
+		1:
+			if context_hit.normal.y <= 0.45: return
+			_place_at(context_hit.position, "")
+		2:
+			if context_hit.normal.y <= 0.45 or ui.asset_picker.selected < 0 or ui.asset_ids.is_empty(): return
+			_place_at(context_hit.position, ui.asset_ids[ui.asset_picker.selected])
+		3:
+			overview_target = context_hit.engine
+			var offset := camera.position - overview_target
+			camera.position = overview_target + (offset.normalized() if offset.length() > 0.1 else Vector3(1, 1, 1).normalized()) * clampf(offset.length(), 4, 80)
+			camera.look_at(overview_target)
+		4:
+			if not context_hit.id.is_empty(): _select_id(context_hit.id)
+
+func _place_at(hit: Array, asset_id: String) -> void:
+	var bounds: Array = [1.0, 1.0, 1.0]
+	var name := "共享方块"
+	if not asset_id.is_empty():
+		var assets := _available_assets(connection.local.snapshot())
+		if not assets.has(asset_id): last_message = "资产已不可用，请重新选择"; return
+		bounds = assets[asset_id].bounds.duplicate()
+		name = str(assets[asset_id].name).left(80)
+	var size: Array = connection.local.snapshot().meta.region.size
+	var position := [clampf(float(hit[0]), float(bounds[0]) * 0.5, float(size[0]) - float(bounds[0]) * 0.5), clampf(float(hit[1]), float(bounds[1]) * 0.5, float(size[1]) - float(bounds[1]) * 0.5), float(hit[2]) + float(bounds[2]) * 0.5 + 0.05]
+	var item := Schema.box(name, position, bounds, "#ffffff" if not asset_id.is_empty() else "#78a5b5")
+	if not asset_id.is_empty(): item.asset_id = asset_id
+	item.owner_id = connection.welcome.get("actor_id", "")
+	var request := _command("CreateObject", {"object": item})
+	if not request.is_empty(): created_requests[request] = item.id
+
+func _expand_region() -> void:
+	if not interactive: return
+	var region: Dictionary = connection.local.snapshot().meta.region
+	if float(region.size[0]) >= 512: last_message = "区域已经是 512 × 512 米"; return
+	_command("SetRegionSize", {"size": 512})
+
 func _place_asset() -> void:
 	if ui.asset_picker.selected < 0 or ui.asset_ids.is_empty(): return
 	var id: String = ui.asset_ids[ui.asset_picker.selected]
@@ -301,8 +371,9 @@ func _place_asset() -> void:
 	if not assets.has(id): last_message = "资产已不可用，请重新选择"; return
 	var asset: Dictionary = assets[id]
 	var position: Array = View.to_world(own.position + Vector3(0, 0, -5).rotated(Vector3.UP, yaw))
-	position[0] = clampf(position[0], float(asset.bounds[0]) * 0.5 + 1, 255 - float(asset.bounds[0]) * 0.5)
-	position[1] = clampf(position[1], float(asset.bounds[1]) * 0.5 + 1, 255 - float(asset.bounds[1]) * 0.5)
+	var region: Array = connection.local.snapshot().meta.region.size
+	position[0] = clampf(position[0], float(asset.bounds[0]) * 0.5 + 1, float(region[0]) - 1 - float(asset.bounds[0]) * 0.5)
+	position[1] = clampf(position[1], float(asset.bounds[1]) * 0.5 + 1, float(region[1]) - 1 - float(asset.bounds[1]) * 0.5)
 	position[2] = view.ground_height(position[0], position[1]) + float(asset.bounds[2]) * 0.5 + 0.05
 	var item := Schema.box(str(asset.name).left(80), position, asset.bounds.duplicate(), "#ffffff")
 	item.asset_id = id; item.owner_id = connection.welcome.get("actor_id", "")
@@ -328,7 +399,7 @@ func _submit_upload() -> void:
 
 func _pick_file() -> void:
 	if OS.has_feature("web"): JavaScriptBridge.eval("document.getElementById('region-file').click()"); return
-	var dialog := FileDialog.new(); dialog.access = FileDialog.ACCESS_FILESYSTEM; dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE; dialog.filters = PackedStringArray(["*.glb, *.gltf ; Static GLB or glTF"])
+	var dialog := FileDialog.new(); dialog.access = FileDialog.ACCESS_FILESYSTEM; dialog.file_mode = FileDialog.FILE_MODE_OPEN_FILE; dialog.filters = PackedStringArray(["*.glb, *.gltf, *.obj ; Static GLB, glTF or OBJ"])
 	add_child(dialog); dialog.file_selected.connect(func(path):
 		var source: Dictionary = Schema.MeshAssets.read_source(path)
 		if source.has("error"): last_message = "无法读取模型：" + str(source.error)
@@ -361,12 +432,13 @@ func _walk() -> void:
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus != null: focus.release_focus()
 	walking = true; orbiting = false; Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	camera.fov = 75
 	capture_requested_at = Time.get_ticks_msec(); capture_confirmed = false
 	last_message = "已进入漫游 · WASD 移动，鼠标转向，Esc 返回编辑"
 	ui.layout()
 
 func _stop_walk() -> void:
-	walking = false; movement = Vector2.ZERO; own.jumping = false; Input.mouse_mode = Input.MOUSE_MODE_VISIBLE; _overview()
+	walking = false; movement = Vector2.ZERO; auto_target.clear(); own.jumping = false; Input.mouse_mode = Input.MOUSE_MODE_VISIBLE; _overview()
 	capture_confirmed = false
 	if ui.root != null: ui.layout()
 
@@ -390,7 +462,7 @@ func _overview() -> void:
 				maximum = maximum.max(center + half)
 			if imported_only:
 				overview_target = (minimum + maximum) * 0.5
-				var distance := clampf(maxf(maximum.x - minimum.x, maximum.z - minimum.z) * 1.65, 45, 240)
+				var distance := clampf(maxf(maximum.x - minimum.x, maximum.z - minimum.z) * 1.65, 45, 600)
 				offset = Vector3(-0.8, 0.85, -0.4).normalized() * distance
 				camera.fov = 52
 	camera.position = overview_target + offset
@@ -405,6 +477,12 @@ func _input(event: InputEvent) -> void:
 			_stop_walk(); get_viewport().set_input_as_handled(); return
 		var focus := get_viewport().gui_get_focus_owner()
 		var typing := focus is LineEdit or focus is TextEdit
+		if event.ctrl_pressed and not typing and event.keycode in [KEY_0, KEY_8, KEY_9]:
+			if event.keycode == KEY_9:
+				if walking: camera.fov = 75
+				else: _overview()
+			else: _zoom(1 if event.keycode == KEY_0 else -1)
+			get_viewport().set_input_as_handled(); return
 		if event.keycode == KEY_TAB and not typing:
 			_walk(); get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_F and not typing and not walking:
@@ -413,17 +491,24 @@ func _input(event: InputEvent) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if walking:
 		if event is InputEventMouseMotion: yaw -= event.relative.x * 0.003; pitch = clampf(pitch - event.relative.y * 0.003, -1.3, 1.3)
+		if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]: _zoom(1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1)
 		return
 	if not interactive: return
 	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_RIGHT: orbiting = event.pressed
+		if event.button_index == MOUSE_BUTTON_RIGHT:
+			if event.pressed: orbiting = true; right_origin = event.position
+			else:
+				orbiting = false
+				if event.position.distance_to(right_origin) < 6: _show_context(event.position)
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			var id: String = view.pick(camera, event.position)
-			if not id.is_empty(): _select_id(id)
+			if event.alt_pressed:
+				var focus_hit := _context_at(event.position)
+				if not focus_hit.is_empty(): overview_target = focus_hit.engine; camera.look_at(overview_target)
+			else:
+				var id: String = view.pick(camera, event.position)
+				if not id.is_empty(): _select_id(id)
 		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
-			var offset := camera.position - overview_target
-			var factor := 0.88 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.12
-			camera.position = overview_target + offset.normalized() * clampf(offset.length() * factor, 2, 300)
+			_zoom(1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1)
 	if event is InputEventMouseMotion and orbiting:
 		if not Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT): orbiting = false; return
 		var offset := camera.position - overview_target
@@ -431,6 +516,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		var next := offset.rotated(camera.global_basis.x, -event.relative.y * 0.006)
 		if next.normalized().y > 0.05 and next.normalized().y < 0.96: offset = next
 		camera.position = overview_target + offset; camera.look_at(overview_target)
+
+func _zoom(direction: int) -> void:
+	if walking:
+		camera.fov = clampf(camera.fov - direction * 5.0, 35, 95)
+		return
+	var offset := camera.position - overview_target
+	if offset.length() < 0.1: return
+	camera.position = overview_target + offset.normalized() * clampf(offset.length() * (0.8 if direction > 0 else 1.25), 1, 900)
+	camera.look_at(overview_target)
 
 func _process(delta: float) -> void:
 	var online: bool = connection.online()
@@ -466,6 +560,21 @@ func _process(delta: float) -> void:
 	if walking and interactive and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var axes := Vector2(float(Input.is_physical_key_pressed(KEY_D)) - float(Input.is_physical_key_pressed(KEY_A)), float(Input.is_physical_key_pressed(KEY_W)) - float(Input.is_physical_key_pressed(KEY_S)))
 		movement = axes.rotated(yaw).limit_length()
+		if not auto_target.is_empty():
+			if axes.length() > 0.1:
+				auto_target.clear(); last_message = "已接管角色移动"
+			else:
+				var delta_to := Vector2(float(auto_target[0]) - own.position.x, float(auto_target[1]) + own.position.z)
+				var distance := delta_to.length()
+				if distance < 1.2:
+					auto_target.clear(); last_message = "已到达所选地点"
+				elif distance > auto_last_distance - 0.02:
+					auto_stalled += delta
+					if auto_stalled > 3.0: auto_target.clear(); last_message = "前方被建筑或地形阻挡，请手动绕行"
+				else: auto_stalled = 0.0
+				if not auto_target.is_empty():
+					movement = delta_to.normalized(); yaw = atan2(-movement.x, movement.y)
+				auto_last_distance = distance
 		own.jumping = Input.is_physical_key_pressed(KEY_SPACE)
 	if Time.get_ticks_msec() < test_movement_until and interactive: movement = test_movement
 	if OS.has_feature("web") and bool(JavaScriptBridge.eval("document.hidden")): movement = Vector2.ZERO; own.jumping = false

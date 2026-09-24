@@ -8,7 +8,7 @@
 
 | OpenSim 概念与源码 | Region Lab 实现 | 当前范围 |
 | --- | --- | --- |
-| [RegionInfo](../../OpenSim/Framework/RegionInfo.cs) | `region` | UUID、名称、尺寸、起点、归属；`RenameRegion` 和 `SetRegionSpawn` 可由区域所有者修改名称和安全出生点；固定单区域 256×256 米 |
+| [RegionInfo](../../OpenSim/Framework/RegionInfo.cs) | `region` | UUID、名称、尺寸、起点、归属；`RenameRegion`、`SetRegionSpawn` 和 `SetRegionSize` 可由区域所有者修改名称、出生点和 256／512 米边长；仍为单区域 |
 | [TerrainData](../../OpenSim/Framework/TerrainData.cs) | `terrain` | 高程数组、采样间距、行列数、保存恢复 |
 | [TerrainModule](../../OpenSim/Region/CoreModules/World/Terrain/TerrainModule.cs) | TerrainBrush、SculptTerrain | 四种笔刷、区域归属检查、图形与碰撞更新；未复现原协议参数及全部笔刷算法 |
 | [RegionSettings](../../OpenSim/Framework/RegionSettings.cs) | environment、EnvironmentView | 水位、太阳时刻、雾和地表显示；程序材质近似高度/坡度分层，未实现原纹理 UUID 或 EEP |
@@ -48,7 +48,8 @@ Godot 节点只保存运行时映射。NodePath、节点实例编号及引擎指
 ```text
 区域 [x, y, z]  → Godot (x, z, -y)
 Godot (x, y, z) → 区域 [x, -z, y]
-区域东北角 [256, 256, 0] → Godot (256, 0, -256)
+256 米区域东北角 [256, 256, 0] → Godot (256, 0, -256)
+512 米区域东北角 [512, 512, 0] → Godot (512, 0, -512)
 ```
 
 3DBAG 片区试点在导入前把 EPSG:7415 的米制 `(RD 东, RD 北, NAP 高)` 转为本地区域坐标。它减去固定 RD 原点，加上区域内偏移，并从高度减去一个固定 NAP 基准；各建筑之间的相对位置和尺寸保持不变。原始坐标系、原点、基准和建筑 ID 记录在[试点说明](delft-real-city-pilot.md)及其 manifest，Region Lab 存档本身仍只存局部 `[东, 北, 高]`，不表示完整的全球地理坐标系。
@@ -61,7 +62,7 @@ Godot (x, y, z) → 区域 [x, -z, y]
 
 ## 4. 地形模型
 
-种子地形采用 65×65 个高程样本、4 米间距和 64×64 个网格单元，覆盖 256×256 米。数组索引为 `north_index * columns + east_index`，包含最东和最北边界。采样分辨率与原版默认数据不同，未来导入需要显式重采样。
+种子地形采用 65×65 个高程样本、4 米间距和 64×64 个网格单元，覆盖 256×256 米。`SetRegionSize` 扩至 512 米时生成 129×129 样本，保留原采样并把边缘高度延伸到新区域；它不获取真实地形数据。数组索引为 `north_index * columns + east_index`，包含最东和最北边界。采样分辨率与原版默认数据不同，未来导入需要显式重采样。
 
 地形数据经过以下路径处理：
 

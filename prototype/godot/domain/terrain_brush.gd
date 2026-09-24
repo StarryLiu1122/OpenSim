@@ -8,8 +8,9 @@ static func apply(terrain: Dictionary, payload: Dictionary) -> Dictionary:
 		return {"error": "Invalid terrain brush fields."}
 	if not payload.mode is String or payload.mode not in ["raise", "lower", "flatten", "smooth"]:
 		return {"error": "Unknown terrain brush mode."}
-	if not Schema.vector(payload.center, 2, 0, 256) or not Schema.number(payload.radius, 4, 32) or not Schema.number(payload.strength, 0.05, 1.0) or not Schema.number(payload.target_height, -40, 80):
-		return {"error": "Invalid brush: center 0–256 m, radius 4–32 m, strength 0.05–1, target height -40–80 m."}
+	var extent := Vector2((terrain.columns - 1) * terrain.spacing, (terrain.rows - 1) * terrain.spacing)
+	if not Schema.vector(payload.center, 2, 0, 512) or payload.center[0] > extent.x or payload.center[1] > extent.y or not Schema.number(payload.radius, 4, 32) or not Schema.number(payload.strength, 0.05, 1.0) or not Schema.number(payload.target_height, -40, 80):
+		return {"error": "Invalid brush: center must remain inside the region, radius 4–32 m, strength 0.05–1, target height -40–80 m."}
 	var result: Dictionary = terrain.duplicate(true)
 	var width := int(terrain.columns)
 	var depth := int(terrain.rows)

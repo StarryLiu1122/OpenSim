@@ -55,8 +55,8 @@ static func validate(world: Variant) -> String:
 		return "Invalid region identity."
 	if not vector(region.size, 2, 16, 512) or not vector(region.spawn, 3, -100, 600):
 		return "Invalid region dimensions or spawn."
-	if region.size[0] != 256 or region.size[1] != 256:
-		return "This prototype validates only a 256 x 256 metre region."
+	if region.size[0] != region.size[1] or region.size[0] not in [256.0, 512.0]:
+		return "Region must be 256 x 256 or 512 x 512 metres."
 	if region.spawn[0] < 1 or region.spawn[0] > region.size[0] - 1 or region.spawn[1] < 1 or region.spawn[1] > region.size[1] - 1:
 		return "Spawn is outside the region."
 	var terrain: Variant = world.terrain

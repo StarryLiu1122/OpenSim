@@ -83,6 +83,7 @@ func run(suite: SceneTree) -> void:
 	_invalid_glb(suite)
 	_realistic_glb(suite)
 	_gltf_source(suite)
+	_obj_source(suite)
 	await _physics(suite, item, asset)
 	await _group_physics(suite)
 	var legacy: Variant = JSON.parse_string(JSON.parse_string(FileAccess.get_file_as_string("res://../fixtures/v3-region.snapshot.json")).world_json)
@@ -162,6 +163,27 @@ func _gltf_source(suite: SceneTree) -> void:
 	doc.buffers[0].uri = "../outside.bin"
 	file = FileAccess.open(directory + "/unsafe.gltf", FileAccess.WRITE); file.store_string(JSON.stringify(doc)); file.close()
 	suite.check(Assets.import_file({"path": directory + "/unsafe.gltf", "name": "unsafe", "license": "CC0-1.0", "attribution": "Region Lab contributors"}).has("error"), "glTF dependencies cannot escape the selected directory")
+
+func _obj_source(suite: SceneTree) -> void:
+	var directory: String = suite.output_dir + "/obj-source"
+	DirAccess.make_dir_recursive_absolute(directory)
+	var image := Image.create(4, 4, false, Image.FORMAT_RGBA8)
+	image.fill(Color("749dc1"))
+	image.save_png(directory + "/wall.png")
+	var file := FileAccess.open(directory + "/model.mtl", FileAccess.WRITE)
+	file.store_string("newmtl wall\nKd 1 1 1\nmap_Kd wall.png\n"); file.close()
+	file = FileAccess.open(directory + "/model.obj", FileAccess.WRITE)
+	file.store_string("mtllib model.mtl\nusemtl wall\nv -1 0 -1\nv 1 0 -1\nv 1 0 1\nv -1 0 1\nv -1 2 -1\nv 1 2 -1\nv 1 2 1\nv -1 2 1\nvt 0 0\nvt 1 0\nvt 1 1\nvt 0 1\nf 1/1 2/2 3/3 4/4\nf 5/1 8/2 7/3 6/4\nf 1/1 5/2 6/3 2/4\nf 2/1 6/2 7/3 3/4\nf 3/1 7/2 8/3 4/4\nf 4/1 8/2 5/3 1/4\n"); file.close()
+	var result := Assets.import_file({"path": directory + "/model.obj", "name": "Textured OBJ", "license": "CC0-1.0", "attribution": "Region Lab contributors"})
+	suite.check(not result.has("error") and result.get("triangles", 0) == 12, "OBJ quadrilaterals and same-directory MTL texture convert to validated GLB: " + str(result.get("error", "")))
+	if not result.has("error"):
+		var geometry := Assets.read(result.asset)
+		suite.check(not geometry.has("error") and geometry.surfaces[0].material.albedo.mime in ["image/png", "image/jpeg"], "OBJ texture survives embedded asset round trip")
+	file = FileAccess.open(directory + "/unsafe.mtl", FileAccess.WRITE)
+	file.store_string("newmtl wall\nmap_Kd ../outside.png\n"); file.close()
+	file = FileAccess.open(directory + "/unsafe.obj", FileAccess.WRITE)
+	file.store_string("mtllib unsafe.mtl\nv 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n"); file.close()
+	suite.check(Assets.import_file({"path": directory + "/unsafe.obj", "name": "Unsafe OBJ", "license": "CC0-1.0", "attribution": "Region Lab contributors"}).has("error"), "OBJ material dependencies cannot escape selected directory")
 
 func _glb(doc: Dictionary, bin: PackedByteArray) -> PackedByteArray:
 	var json := JSON.stringify(doc).to_utf8_buffer()

@@ -22,10 +22,18 @@ func _run() -> void:
 		return
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(manifest_path))
 	var entries: Variant = parsed.get("tiles", parsed.get("buildings", [])) if parsed is Dictionary else []
-	if not parsed is Dictionary or not entries is Array or entries.is_empty() or entries.size() > 16 or parsed.get("source_crs") not in ["EPSG:7415", "EPSG:3879+5773"]:
+	var crs := str(parsed.get("source_crs", "")) if parsed is Dictionary else ""
+	var crs_pattern := RegEx.new()
+	crs_pattern.compile("^(EPSG:[0-9]{4,6}(\\+[0-9]{4,6})?|LOCAL_METRES)$")
+	if not parsed is Dictionary or not entries is Array or entries.is_empty() or entries.size() > 16 or crs_pattern.search(crs) == null or not Schema.number(parsed.get("region_size", 256), 256, 512) or float(parsed.get("region_size", 256)) not in [256.0, 512.0]:
 		_fail("Invalid bounded city manifest.")
 		return
 	var service = Service.new(world_path)
+	if float(parsed.get("region_size", 256)) == 512.0:
+		var enlarged: Dictionary = service.request("SetRegionSize", {"size": 512})
+		if not enlarged.ok:
+			_fail("Cannot expand city region: " + JSON.stringify(enlarged.errors))
+			return
 	if parsed.has("region_name"):
 		var renamed: Dictionary = service.request("RenameRegion", {"name": parsed.region_name})
 		if not renamed.ok:

@@ -1,12 +1,13 @@
 extends RefCounted
 const Reader = preload("res://adapters/glb_reader.gd")
 const Packer = preload("res://adapters/gltf_packer.gd")
+const ObjPacker = preload("res://adapters/obj_packer.gd")
 const C = preload("res://domain/schema_v2.gd")
 static var _cache: Dictionary = {}
 
 static func import_file(payload: Dictionary) -> Dictionary:
-	if not C.exact_keys(payload, ["path", "name", "license", "attribution"]) or not payload.path is String or payload.path.get_extension().to_lower() not in ["glb", "gltf"]:
-		return {"error": "ImportGlb requires path, name, license and attribution; choose a .glb or .gltf file."}
+	if not C.exact_keys(payload, ["path", "name", "license", "attribution"]) or not payload.path is String or payload.path.get_extension().to_lower() not in ["glb", "gltf", "obj"]:
+		return {"error": "ImportGlb requires path, name, license and attribution; choose a .glb, .gltf or .obj file."}
 	for key in ["name", "license", "attribution"]:
 		if not _text(payload[key], 160):
 			return {"error": "Provide a nonempty name, license identifier and attribution (1–160 characters)."}
@@ -23,7 +24,8 @@ static func import_file(payload: Dictionary) -> Dictionary:
 
 static func read_source(path: String) -> Dictionary:
 	if path.get_extension().to_lower() == "gltf": return Packer.read(path)
-	if path.get_extension().to_lower() != "glb": return {"error": "Choose a .glb or .gltf file."}
+	if path.get_extension().to_lower() == "obj": return ObjPacker.read(path)
+	if path.get_extension().to_lower() != "glb": return {"error": "Choose a .glb, .gltf or .obj file."}
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null: return {"error": "Cannot open GLB: " + error_string(FileAccess.get_open_error())}
 	if file.get_length() > Reader.MAX_BYTES: return {"error": "GLB exceeds the 2 MiB import limit."}

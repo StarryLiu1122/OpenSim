@@ -60,6 +60,24 @@ func _run() -> void:
 		check(false, "client connects to isolated authority"); finish(); return
 	check(true, "client connects to isolated authority")
 	await capture("overview")
+	var context_point := root.get_visible_rect().size * 0.5
+	var context: Dictionary = app._context_at(context_point)
+	check(not context.is_empty(), "overview centre resolves a real terrain or object ray hit")
+	if not context.is_empty():
+		for pressed in [true, false]:
+			var right := InputEventMouseButton.new(); right.position = context_point; right.button_index = MOUSE_BUTTON_RIGHT; right.pressed = pressed
+			root.push_input(right, true); await process_frame
+		check(app.ui.context_menu.visible, "right click opens a location action menu")
+		app.ui.context_menu.hide()
+		if context.normal.y > 0.45:
+			app.context_hit = context
+			app._context_action(0)
+			check(app.walking and not app.auto_target.is_empty(), "Go Here starts bounded avatar movement toward clicked point")
+			app._stop_walk()
+	var old_distance: float = app.camera.position.distance_to(app.overview_target)
+	app._zoom(1)
+	check(app.camera.position.distance_to(app.overview_target) < old_distance, "camera zoom moves toward focus")
+	app._zoom(-1)
 	check(app.ui.walk_button.get_global_rect().end.x < root.size.x and app.ui.footer.get_global_rect().end.y <= root.size.y, "primary action and footer fit window")
 	check(app.ui.tabs.current_tab == 0 and not app.ui.tabs.get_child(3).visible, "advanced JSON is absent from initial workflow")
 	var state: Dictionary = app.connection.local.snapshot()
@@ -188,6 +206,34 @@ func _run() -> void:
 	root.size = Vector2i(1100, 700); await settle()
 	check(app.ui.header.get_global_rect().end.x <= root.get_visible_rect().size.x and app.ui.dock.get_global_rect().end.y < app.ui.footer.position.y, "minimum supported window keeps tools above footer")
 	await capture("compact")
+	if not context.is_empty() and context.normal.y > 0.45:
+		app.context_hit = context
+		var before_build: int = app.connection.local.snapshot().objects.size()
+		app._context_action(1)
+		for frame in range(600):
+			if app.connection.local.snapshot().objects.size() > before_build and app.connection.pending.is_empty(): break
+			await process_frame
+		check(app.connection.local.snapshot().objects.size() == before_build + 1, "right-click Build creates an object through the authority")
+		for frame in range(900):
+			if app.interactive and app.view.bodies.size() == app.connection.local.snapshot().objects.size() and app.rendered_revision == int(app.connection.local.snapshot().meta.revision): break
+			await process_frame
+		check(app.interactive and app.view.bodies.size() == app.connection.local.snapshot().objects.size(), "new context-built object finishes collision projection")
+	app.ui.tabs.current_tab = 0; await settle()
+	for frame in range(600):
+		if not app.ui.expand_button.disabled and app.connection.pending.is_empty(): break
+		await process_frame
+	await click(app.ui.expand_button)
+	for frame in range(1200):
+		if app.connection.local.snapshot().meta.region.size[0] == 512 and app.view._region_size == Vector2(512, 512) and app.interactive: break
+		await process_frame
+	check(app.connection.local.snapshot().meta.region.size == [512.0, 512.0] and app.view._region_size == Vector2(512, 512), "network button expands authority and rendered region to 512 metres")
+	var outer: Dictionary = app.Schema.box("Outer region marker", [400.0, 400.0, 2.0], [1.0, 1.0, 1.0], "#ffffff")
+	outer.owner_id = app.connection.welcome.actor_id
+	app._command("CreateObject", {"object": outer})
+	for frame in range(1200):
+		if app.connection.local.snapshot().objects.has(outer.id) and app.view.bodies.has(outer.id): break
+		await process_frame
+	check(app.connection.local.snapshot().objects.has(outer.id) and app.view.bodies.has(outer.id), "expanded network interest includes an object 400 metres from origin")
 	app.connection.disconnect_from(); await settle()
 	check(not app.interactive and app.ui.walk_button.disabled and app.ui.create_button.disabled, "disconnect disables movement and mutations")
 	await capture("disconnected")

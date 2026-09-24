@@ -28,6 +28,7 @@ var reset_button: Button
 var delete_button: Button
 var focus_button: Button
 var create_button: Button
+var expand_button: Button
 var import_button: Button
 var send_button: Button
 var connect_button: Button
@@ -41,6 +42,7 @@ var asset_picker: OptionButton
 var place_button: Button
 var asset_ids: Array = []
 var delete_dialog: ConfirmationDialog
+var context_menu: PopupMenu
 var delete_id := ""
 var crosshair: Label
 var tools_open := true
@@ -143,7 +145,7 @@ func build() -> void:
 	note(guide, "连接后，点击顶部「进入漫游」，\n或按 Tab 进入第一人称视角。")
 	label(guide, "W A S D  移动    /    鼠标转向", 14, ACCENT)
 	label(guide, "空格  跳跃         Esc  返回编辑", 14, ACCENT)
-	note(guide, "编辑时点击场景中的对象，或在右侧搜索。\n双击列表对象可定位；右键拖动环视，滚轮缩放。")
+	note(guide, "编辑时单击对象选择，右键点击地点可前往或建造。\n右键拖动环视，滚轮或 Ctrl+0 / Ctrl+8 缩放。")
 	button(guide, "知道了，收起指南", func(): help_open = false; layout())
 	dock = PanelContainer.new(); root.add_child(dock)
 	tabs = TabContainer.new(); dock.add_child(tabs)
@@ -158,8 +160,9 @@ func build() -> void:
 	app.object_list.item_activated.connect(func(index): app._select(index); app._focus_selected())
 	note(scene, "单击选择 · 双击定位 · 场景中也可直接点选")
 	create_button = button(scene, "＋ 新建方块", app._create)
-	import_button = button(scene, "导入 GLB 模型…" if OS.has_feature("web") else "导入 GLB / glTF 模型…", app._pick_file)
-	note(scene, "静态模型：最大 2 MiB。选择后填写来源与许可，再提交资产。" if OS.has_feature("web") else "静态 GLB / glTF：打包后最大 2 MiB。选择后填写来源与许可，再提交资产。")
+	expand_button = button(scene, "扩展区域至 512 × 512 米", app._expand_region)
+	import_button = button(scene, "导入 GLB 模型…" if OS.has_feature("web") else "导入 GLB / glTF / OBJ 模型…", app._pick_file)
+	note(scene, "静态模型：最大 2 MiB。选择后填写来源与许可，再提交资产。" if OS.has_feature("web") else "桌面支持 OBJ + MTL + PNG/JPEG；打包后的 GLB 最大 2 MiB。")
 	var inspector := page("属性")
 	selection_title = label(inspector, "尚未选择对象", 20)
 	selection_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -171,7 +174,7 @@ func build() -> void:
 	for axis in ["东  X", "北  Y", "高  Z"]:
 		var row := HBoxContainer.new(); inspector.add_child(row)
 		var caption := label(row, axis, 14, MUTED); caption.custom_minimum_size.x = 62
-		var value := SpinBox.new(); value.min_value = -64; value.max_value = 256; value.step = 0.1
+		var value := SpinBox.new(); value.min_value = -64; value.max_value = 512; value.step = 0.1
 		value.size_flags_horizontal = Control.SIZE_EXPAND_FILL; value.custom_minimum_size.y = 40
 		row.add_child(value); app.coordinates.append(value)
 		value.value_changed.connect(func(_value): app.draft_dirty = true)
@@ -212,8 +215,8 @@ func build() -> void:
 	asset_picker = OptionButton.new(); asset_picker.custom_minimum_size.y = 40; assets.add_child(asset_picker)
 	place_button = button(assets, "将模型放到角色前方", app._place_asset)
 	note(assets, "按模型原始尺寸放置。成功后可在属性页调整位置。")
-	button(assets, "选择新的 GLB…" if OS.has_feature("web") else "选择新的 GLB / glTF…", app._pick_file)
-	upload_note = note(assets, "先在场景页选择 GLB 文件。" if OS.has_feature("web") else "先在场景页选择 GLB 或 glTF 文件。")
+	button(assets, "选择新的 GLB…" if OS.has_feature("web") else "选择新的 GLB / glTF / OBJ…", app._pick_file)
+	upload_note = note(assets, "先在场景页选择 GLB 文件。" if OS.has_feature("web") else "先在场景页选择 GLB、glTF 或 OBJ 文件。")
 	upload_name = field(assets, "资产名称")
 	upload_license = field(assets, "授权许可", "例如 CC0-1.0，或实际授权条款")
 	upload_source = field(assets, "来源与署名", "作者、来源链接或授权说明")
@@ -241,6 +244,14 @@ func build() -> void:
 	delete_dialog.confirmed.connect(func():
 		if app.selected == delete_id: app._delete()
 		else: app.last_message = "选择已改变，未执行删除")
+	context_menu = PopupMenu.new(); root.add_child(context_menu)
+	context_menu.add_item("前往此处", 0)
+	context_menu.add_item("在此建造方块", 1)
+	context_menu.add_item("在此放置当前模型", 2)
+	context_menu.add_separator()
+	context_menu.add_item("聚焦此处", 3)
+	context_menu.add_item("选择此对象", 4)
+	context_menu.id_pressed.connect(app._context_action)
 	app.get_viewport().size_changed.connect(layout)
 	layout()
 
@@ -274,6 +285,15 @@ func request_delete() -> void:
 	delete_dialog.dialog_text = "删除「%s」？\n此操作会同步给其他用户，当前不提供撤销。" % objects[delete_id].name
 	delete_dialog.popup_centered(Vector2i(440, 180))
 
+func show_context_menu(point: Vector2, walkable: bool, has_object: bool, has_asset: bool) -> void:
+	var editable: bool = app.interactive and app.connection.welcome.get("role", "") != "observer" and app.connection.pending.is_empty()
+	context_menu.set_item_disabled(context_menu.get_item_index(0), not walkable)
+	context_menu.set_item_disabled(context_menu.get_item_index(1), not walkable or not editable)
+	context_menu.set_item_disabled(context_menu.get_item_index(2), not walkable or not editable or not has_asset)
+	context_menu.set_item_disabled(context_menu.get_item_index(4), not has_object)
+	var screen := app.get_window().position + Vector2i(point)
+	context_menu.popup(Rect2i(screen, Vector2i(240, 0)))
+
 func update() -> void:
 	var online: bool = app.connection.online()
 	var state: Dictionary = app.connection.local.snapshot()
@@ -303,6 +323,7 @@ func update() -> void:
 	walk_button.disabled = not app.interactive
 	walk_button.tooltip_text = "等待连接和场景资源就绪" if not app.interactive else "WASD 移动，鼠标转向，空格跳跃"
 	create_button.disabled = not editable or pending; import_button.disabled = not editable
+	expand_button.disabled = not editable or pending or float(state.get("meta", {}).get("region", {}).get("size", [256.0])[0]) >= 512
 	send_button.disabled = not editable or pending
 	upload_button.disabled = not editable or pending or app._upload_bytes.is_empty() or upload_name.text.strip_edges().is_empty() or upload_license.text.strip_edges().is_empty() or upload_source.text.strip_edges().is_empty()
 	place_button.disabled = not editable or pending or asset_ids.is_empty()
@@ -319,7 +340,7 @@ func update() -> void:
 	if chosen and app.connection.welcome.get("role", "") == "observer": selection_note.text = "只读会话 · 可以查看和漫游"
 	connect_button.disabled = app.connection.status == "Connecting"
 	disconnect_button.disabled = app.connection.peer == null
-	hint.text = "W A S D 移动  ·  鼠标转向  ·  空格跳跃  ·  Esc 返回编辑" if app.walking else "Tab 漫游  ·  点击选择  ·  F 定位  ·  右键环视 / 滚轮缩放"
+	hint.text = "W A S D 移动  ·  滚轮缩放视角  ·  空格跳跃  ·  Esc 返回编辑" if app.walking else "右键地点：前往 / 建造  ·  右键拖动环视  ·  滚轮缩放"
 	summary.text = "视野内 %d 个对象 / %d 个角色" % [objects.size(), app.remote.size() + int(online)] if online else "等待连接"
 	var status: String = app.connection.status
 	var translated := {"Disconnected": "尚未连接 · 在连接页填写地址与会话令牌", "Connecting": "正在连接世界…", "Synchronizing": "连接成功，正在同步场景…", "Connection timeout": "连接超时 · 检查服务是否启动及地址是否正确", "Connection failed": "连接失败 · 请在连接页检查地址", "Connected": "场景已就绪 · 点击「进入漫游」开始探索", "Waiting for durable commit": "正在保存修改，请等待服务端确认…", "Recovering stream gap": "正在恢复同步，请稍候…"}

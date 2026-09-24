@@ -41,6 +41,21 @@ func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary
 			if actor != next.region.owner_id or not Schema.exact_keys(payload, ["position"]) or not Schema.vector(payload.position, 3, -100, 600):
 				return {"error": "Only the region owner may set a valid spawn position."}
 			next.region.spawn = payload.position.duplicate()
+		"SetRegionSize":
+			if actor != next.region.owner_id or not Schema.exact_keys(payload, ["size"]) or not Schema.number(payload.size, 256, 512) or float(payload.size) not in [256.0, 512.0]:
+				return {"error": "Only the region owner may choose a 256 or 512 metre square region."}
+			var old: Dictionary = next.terrain
+			var columns := int(payload.size / old.spacing) + 1
+			if columns > 129:
+				return {"error": "Terrain sampling would exceed 129 columns."}
+			var heights: Array = []
+			for north in range(columns):
+				for east in range(columns):
+					var source_x := mini(east, int(old.columns) - 1)
+					var source_y := mini(north, int(old.rows) - 1)
+					heights.append(old.heights[source_y * int(old.columns) + source_x])
+			next.region.size = [float(payload.size), float(payload.size)]
+			next.terrain = {"columns": columns, "rows": columns, "spacing": old.spacing, "heights": heights}
 		"GroupObjects", "UpdateGroup", "DuplicateGroup", "UngroupObjects", "DeleteGroup":
 			extra = Groups.apply(next, operation, payload, actor)
 			if extra.has("error"):

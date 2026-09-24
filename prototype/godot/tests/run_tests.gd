@@ -22,6 +22,7 @@ func _run() -> void:
 			output_dir = arg.trim_prefix("--output-dir=")
 	DirAccess.make_dir_recursive_absolute(output_dir)
 	_test_schema()
+	_test_region_extent()
 	_test_commands()
 	_test_persistence()
 	await _test_physics()
@@ -40,6 +41,17 @@ func _run() -> void:
 	print("REPORT " + output_dir + "/report.json")
 	print("RESULT %d/%d passed" % [passed, cases.size()])
 	quit(0 if passed == cases.size() else 1)
+
+func _test_region_extent() -> void:
+	var service = Service.new(output_dir + "/wide-region.json")
+	var original: Dictionary = service.model.snapshot()
+	check(service.request("SetRegionSize", {"size": 512}).ok, "owner expands one region to 512 metres")
+	var wide: Dictionary = service.model.snapshot()
+	check(wide.region.size == [512.0, 512.0] and wide.terrain.columns == 129 and wide.terrain.heights[0] == original.terrain.heights[0] and Schema.validate(wide).is_empty(), "expanded terrain keeps existing samples and covers full 512 metres")
+	var remote := Schema.box("Outer block", [400.0, 400.0, 2.0], [2.0, 2.0, 2.0], "#ffffff")
+	check(service.request("CreateObject", {"object": remote}).ok and service.request("SetRegionSpawn", {"position": [400.0, 400.0, 3.0]}).ok, "objects and spawn can occupy the outer part of expanded region")
+	check(not service.request("SetRegionSize", {"size": 256}).ok and service.model.snapshot().region.size == [512.0, 512.0], "shrinking rejects objects outside the smaller boundary atomically")
+	check(service.request("SaveRegion").ok and service.request("LoadRegion").ok and service.model.snapshot().region.size == [512.0, 512.0], "expanded world persists and reloads")
 
 func _test_schema() -> void:
 	var world := Schema.seed()

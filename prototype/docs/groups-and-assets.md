@@ -26,7 +26,7 @@ Q_world = Q_group × Q_local
 Size_world = Size_local × scale
 ```
 
-局部尺寸允许 0.02–320 米作为存储中间范围，但实际投影后每轴必须为 0.2–32 米。局部位置限制为 -512–600 米。组旋转和局部旋转均要求归一化。
+局部尺寸允许 0.02–320 米作为存储中间范围，但实际投影后每轴必须为 0.2–32 米。局部位置限制为 -512–600 米。组旋转和局部旋转均要求归一化。区域尺寸允许 256×256 或 512×512 米；区域所有者可通过 `SetRegionSize` 的 `{ "size": 512 }` 扩大区域，原有采样保留、外侧地形从边缘采样延伸。
 
 `GetRegionSnapshot` 返回上述原始存储结构。进程内 `WorldModel.object(id)` 返回投影后的世界变换；UpdateObject 的变换输入也使用世界坐标。外部调用者读取快照时必须根据 group_id 合成，不能将成员局部位置直接画在区域中。
 
@@ -62,7 +62,7 @@ ImportGlb 仅允许区域所有者使用：
 }
 ```
 
-该样例是离线批处理的一项；使用 dispatch 时须另加标准协议封装。path 是当前进程可读的 `.glb` 或 `.gltf` 文件路径，不写入世界。`.gltf` 可以含 base64 数据 URI，或引用同一目录中的 BIN/PNG/JPEG 文件；拒绝 URL、子目录及上级目录引用，源 JSON 不超过 4 MiB。导入时先打包成受校验的 GLB；Web 客户端仍只选择单文件 GLB。name、license、attribution 均为 1–160 字符的非空文本；填写元数据不替代实际授权。
+该样例是离线批处理的一项；使用 dispatch 时须另加标准协议封装。path 是当前进程可读的 `.glb`、`.gltf` 或 `.obj` 文件路径，不写入世界。`.gltf` 可以含 base64 数据 URI，或引用同一目录中的 BIN/PNG/JPEG 文件；OBJ 可以引用同一目录中的 MTL 和 PNG/JPEG 漫反射贴图。拒绝 URL、子目录及上级目录引用，源文本不超过 4 MiB。导入时先打包成受校验的 GLB；Web 客户端仍只选择单文件 GLB。name、license、attribution 均为 1–160 字符的非空文本；填写元数据不替代实际授权。
 
 成功后 `payload.id` 为资产 ID。导入同一内容返回原 ID 和 `reused=true`，不增加修订，原元数据保持不变。导入只登记资产，随后使用 CreateObject 创建实例。实例 asset_id 引用该 ID，group_id 初始为空，material 必须为 plain，state 必须为 `{}`；建议颜色为 `#FFFFFF`、尺寸取资产 bounds。RemoveAsset 的 payload 为 `{id}`，仅能移除未被任何对象引用的导入资产。
 

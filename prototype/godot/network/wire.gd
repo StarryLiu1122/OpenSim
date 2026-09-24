@@ -2,7 +2,7 @@ extends RefCounted
 const Schema = preload("res://domain/world_schema.gd")
 const VERSION := "0.3"
 const MAX_PACKET := 3 * 1024 * 1024
-const MUTATIONS := ["CreateObject", "UpdateObject", "DeleteObject", "SculptTerrain", "UpdateEnvironment", "SetObjectState", "GroupObjects", "UpdateGroup", "DuplicateGroup", "UngroupObjects", "DeleteGroup", "RemoveAsset", "UploadAsset", "PlaceInventoryItem"]
+const MUTATIONS := ["CreateObject", "UpdateObject", "DeleteObject", "SculptTerrain", "UpdateEnvironment", "SetRegionSize", "SetObjectState", "GroupObjects", "UpdateGroup", "DuplicateGroup", "UngroupObjects", "DeleteGroup", "RemoveAsset", "UploadAsset", "PlaceInventoryItem"]
 
 static func canonical(value: Variant) -> String:
 	return JSON.stringify(_numbers(value), "", true, true)

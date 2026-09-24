@@ -189,8 +189,9 @@ func _action(action: String) -> void:
 			ui.inspector_tabs.current_tab = 3
 		"create":
 			var p := WorldView.to_world(orbit_target)
-			p[0] = clampf(p[0] + randf_range(-3, 3), 2, 254)
-			p[1] = clampf(p[1] - 8, 2, 254)
+			var extent: Array = service.model.snapshot().region.size
+			p[0] = clampf(p[0] + randf_range(-3, 3), 2, float(extent[0]) - 2)
+			p[1] = clampf(p[1] - 8, 2, float(extent[1]) - 2)
 			p[2] = world_view.ground_height(p[0], p[1]) + 1
 			var asset_id: String = ui.chosen_asset_id()
 			var kind: String = Schema.kind(asset_id)
@@ -199,8 +200,9 @@ func _action(action: String) -> void:
 				for asset in service.model.snapshot().assets:
 					if asset.id == asset_id:
 						dimensions = asset.bounds.duplicate()
-			p[0] = clampf(p[0], dimensions[0] / 2.0, 256.0 - dimensions[0] / 2.0)
-			p[1] = clampf(p[1], dimensions[1] / 2.0, 256.0 - dimensions[1] / 2.0)
+			var region_size: Array = service.model.snapshot().region.size
+			p[0] = clampf(p[0], dimensions[0] / 2.0, float(region_size[0]) - dimensions[0] / 2.0)
+			p[1] = clampf(p[1], dimensions[1] / 2.0, float(region_size[1]) - dimensions[1] / 2.0)
 			p[2] = world_view.ground_height(p[0], p[1]) + dimensions[2] / 2.0
 			var item := Schema.primitive(kind if not kind.is_empty() else "box", ("新" + ui.asset_picker.get_item_text(ui.asset_picker.selected)).left(80), p, dimensions, "#50A696")
 			item.asset_id = asset_id
@@ -375,8 +377,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			var right := camera.global_basis.x
 			var forward := Vector3(camera.global_basis.z.x, 0, camera.global_basis.z.z).normalized()
 			orbit_target += (-right * event.relative.x - forward * event.relative.y) * orbit_distance * 0.0015
-			orbit_target.x = clampf(orbit_target.x, 0, 256)
-			orbit_target.z = clampf(orbit_target.z, -256, 0)
+			var region_size: Array = service.model.snapshot().region.size
+			orbit_target.x = clampf(orbit_target.x, 0, float(region_size[0]))
+			orbit_target.z = clampf(orbit_target.z, -float(region_size[1]), 0)
 			_update_camera()
 
 func _verify_render() -> void:

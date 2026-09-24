@@ -8,6 +8,7 @@ var bodies: Dictionary = {}
 var _records: Dictionary = {}
 var selected := ""
 var _terrain: Dictionary
+var _region_size := Vector2(256, 256)
 var _brush: MeshInstance3D
 var _brush_key := ""
 
@@ -28,11 +29,13 @@ func rebuild(world: Dictionary) -> void:
 	_brush = null
 	_brush_key = ""
 	_terrain = {}
+	_region_size = Vector2(world.region.size[0], world.region.size[1])
 	sync_terrain(world.terrain, world.region.size)
 	_build_boundary(world.region.size)
 	sync_objects(world.objects, world.groups, world.assets)
 
 func sync_terrain(terrain: Dictionary, region_size: Array) -> bool:
+	_region_size = Vector2(region_size[0], region_size[1])
 	if _terrain == terrain:
 		return false
 	for node_name in ["TerrainVisual", "TerrainPhysics"]:
@@ -154,7 +157,7 @@ func show_brush(center: Vector2, radius: float, enabled: bool = true) -> void:
 	for i in range(65):
 		var angle := TAU * i / 64.0
 		var point := center + Vector2(cos(angle), sin(angle)) * radius
-		point = point.clamp(Vector2.ZERO, Vector2(256, 256))
+		point = point.clamp(Vector2.ZERO, _region_size)
 		lines.surface_add_vertex(Vector3(point.x, ground_height(point.x, point.y) + 0.12, -point.y))
 	lines.surface_end()
 	_brush.mesh = lines
