@@ -45,6 +45,8 @@ var delete_dialog: ConfirmationDialog
 var context_menu: PopupMenu
 var delete_id := ""
 var crosshair: Label
+var interaction_panel: PanelContainer
+var interaction_prompt: Label
 var tools_open := true
 var help_open := true
 
@@ -130,6 +132,11 @@ func build() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE; root.theme = theme()
 	crosshair = label(root, "+", 22, Color("e8eff5aa"))
 	crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	interaction_panel = PanelContainer.new(); interaction_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE; root.add_child(interaction_panel)
+	interaction_panel.add_theme_stylebox_override("panel", box(Color("192b39e8"), Color("70dfce88")))
+	interaction_prompt = label(interaction_panel, "", 15, ACCENT); interaction_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	interaction_prompt.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	interaction_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE; interaction_panel.visible = false
 	header = PanelContainer.new(); root.add_child(header)
 	var top := HBoxContainer.new(); top.add_theme_constant_override("separation", 16); header.add_child(top)
 	var brand := column(top, 0)
@@ -143,9 +150,9 @@ func build() -> void:
 	var guide := column(welcome, 10)
 	label(guide, "从这里开始探索", 24)
 	note(guide, "连接后，点击顶部「进入漫游」，\n或按 Tab 进入第一人称视角。")
-	label(guide, "W A S D  移动    /    鼠标转向", 14, ACCENT)
-	label(guide, "空格  跳跃         Esc  返回编辑", 14, ACCENT)
-	note(guide, "编辑时单击对象选择，右键点击地点可前往或建造。\n右键拖动环视，滚轮或 Ctrl+0 / Ctrl+8 缩放。")
+	label(guide, "W A S D 移动  ·  Shift 快跑", 14, ACCENT)
+	label(guide, "空格跳跃  ·  E 使用门/灯  ·  Esc 返回编辑", 14, ACCENT)
+	note(guide, "编辑时双击对象定位，双击地面前往；右键地点可建造。\n右键拖动环视，中键拖动平移，滚轮缩放，Home 重置镜头。")
 	button(guide, "知道了，收起指南", func(): help_open = false; layout())
 	dock = PanelContainer.new(); root.add_child(dock)
 	tabs = TabContainer.new(); dock.add_child(tabs)
@@ -251,6 +258,7 @@ func build() -> void:
 	context_menu.add_separator()
 	context_menu.add_item("聚焦此处", 3)
 	context_menu.add_item("选择此对象", 4)
+	context_menu.add_item("打开门 / 灯", 5)
 	context_menu.id_pressed.connect(app._context_action)
 	app.get_viewport().size_changed.connect(layout)
 	layout()
@@ -267,6 +275,8 @@ func layout() -> void:
 	tools_button.visible = not app.walking; help_button.visible = not app.walking
 	tools_button.text = "收起工具" if tools_open else "展开工具"
 	crosshair.position = size * 0.5 - Vector2(7, 16); crosshair.visible = app.walking
+	interaction_panel.position = Vector2((size.x - 300) * 0.5, size.y - 158)
+	interaction_panel.size = Vector2(300, 46)
 
 func show_inspector() -> void:
 	tools_open = true; tabs.current_tab = 1; help_open = false; layout()
@@ -285,12 +295,14 @@ func request_delete() -> void:
 	delete_dialog.dialog_text = "删除「%s」？\n此操作会同步给其他用户，当前不提供撤销。" % objects[delete_id].name
 	delete_dialog.popup_centered(Vector2i(440, 180))
 
-func show_context_menu(point: Vector2, walkable: bool, has_object: bool, has_asset: bool) -> void:
+func show_context_menu(point: Vector2, walkable: bool, has_object: bool, has_asset: bool, can_toggle: bool, active: bool) -> void:
 	var editable: bool = app.interactive and app.connection.welcome.get("role", "") != "observer" and app.connection.pending.is_empty()
 	context_menu.set_item_disabled(context_menu.get_item_index(0), not walkable)
 	context_menu.set_item_disabled(context_menu.get_item_index(1), not walkable or not editable)
 	context_menu.set_item_disabled(context_menu.get_item_index(2), not walkable or not editable or not has_asset)
 	context_menu.set_item_disabled(context_menu.get_item_index(4), not has_object)
+	context_menu.set_item_text(context_menu.get_item_index(5), "关闭门 / 灯" if active else "打开门 / 灯")
+	context_menu.set_item_disabled(context_menu.get_item_index(5), not can_toggle or not editable)
 	var screen := app.get_window().position + Vector2i(point)
 	context_menu.popup(Rect2i(screen, Vector2i(240, 0)))
 
@@ -321,7 +333,7 @@ func update() -> void:
 	badge.add_theme_color_override("font_color", ACCENT if app.interactive else Color("efc680"))
 	walk_button.text = "返回编辑  ·  Esc" if app.walking else "进入漫游  ·  Tab"
 	walk_button.disabled = not app.interactive
-	walk_button.tooltip_text = "等待连接和场景资源就绪" if not app.interactive else "WASD 移动，鼠标转向，空格跳跃"
+	walk_button.tooltip_text = "等待连接和场景资源就绪" if not app.interactive else "WASD 移动，Shift 快跑，空格跳跃，E 使用附近的门或灯"
 	create_button.disabled = not editable or pending; import_button.disabled = not editable
 	expand_button.disabled = not editable or pending or float(state.get("meta", {}).get("region", {}).get("size", [256.0])[0]) >= 512
 	send_button.disabled = not editable or pending
@@ -340,7 +352,7 @@ func update() -> void:
 	if chosen and app.connection.welcome.get("role", "") == "observer": selection_note.text = "只读会话 · 可以查看和漫游"
 	connect_button.disabled = app.connection.status == "Connecting"
 	disconnect_button.disabled = app.connection.peer == null
-	hint.text = "W A S D 移动  ·  滚轮缩放视角  ·  空格跳跃  ·  Esc 返回编辑" if app.walking else "右键地点：前往 / 建造  ·  右键拖动环视  ·  滚轮缩放"
+	hint.text = "WASD 移动  ·  Shift 快跑  ·  E 使用  ·  Esc 返回编辑" if app.walking else "双击前往/定位  ·  右键菜单  ·  中键平移  ·  滚轮缩放"
 	summary.text = "视野内 %d 个对象 / %d 个角色" % [objects.size(), app.remote.size() + int(online)] if online else "等待连接"
 	var status: String = app.connection.status
 	var translated := {"Disconnected": "尚未连接 · 在连接页填写地址与会话令牌", "Connecting": "正在连接世界…", "Synchronizing": "连接成功，正在同步场景…", "Connection timeout": "连接超时 · 检查服务是否启动及地址是否正确", "Connection failed": "连接失败 · 请在连接页检查地址", "Connected": "场景已就绪 · 点击「进入漫游」开始探索", "Waiting for durable commit": "正在保存修改，请等待服务端确认…", "Recovering stream gap": "正在恢复同步，请稍候…"}

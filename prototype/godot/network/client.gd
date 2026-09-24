@@ -60,6 +60,7 @@ var draft_source: Dictionary = {}
 var overview_target := Vector3(124, 2, -139)
 var overview_spawn: Array = [124.0, 139.0, 2.0]
 var orbiting := false
+var panning := false
 var right_origin := Vector2.ZERO
 var context_hit: Dictionary = {}
 var auto_target: Array = []
@@ -124,7 +125,7 @@ func _ui() -> void:
 	ui.build()
 	get_window().focus_exited.connect(func():
 		if walking: _stop_walk()
-		orbiting = false)
+		orbiting = false; panning = false)
 
 func _sync_web_scale() -> void:
 	if not OS.has_feature("web"): return
@@ -314,7 +315,9 @@ func _context_at(point: Vector2) -> Dictionary:
 func _show_context(point: Vector2) -> void:
 	context_hit = _context_at(point)
 	if context_hit.is_empty(): return
-	ui.show_context_menu(point, context_hit.normal.y > 0.45, not context_hit.id.is_empty(), ui.asset_picker.selected >= 0 and not ui.asset_ids.is_empty())
+	var item: Dictionary = connection.local.snapshot().get("objects", {}).get(context_hit.id, {})
+	var can_toggle: bool = not item.is_empty() and item.get("state", {}).has("active") and item.get("owner_id", "") == connection.welcome.get("actor_id", "")
+	ui.show_context_menu(point, context_hit.normal.y > 0.45, not context_hit.id.is_empty(), ui.asset_picker.selected >= 0 and not ui.asset_ids.is_empty(), can_toggle, bool(item.get("state", {}).get("active", false)))
 
 func _context_action(id: int) -> void:
 	if context_hit.is_empty(): return
@@ -341,6 +344,36 @@ func _context_action(id: int) -> void:
 			camera.look_at(overview_target)
 		4:
 			if not context_hit.id.is_empty(): _select_id(context_hit.id)
+		5:
+			if not context_hit.id.is_empty(): _toggle_object(context_hit.id)
+
+func _toggle_object(id: String) -> void:
+	var item: Dictionary = connection.local.snapshot().get("objects", {}).get(id, {})
+	if item.is_empty() or not item.get("state", {}).has("active"): return
+	if not connection.pending.is_empty():
+		last_message = "上一项修改尚未保存，请稍候"
+		return
+	if item.get("owner_id", "") != connection.welcome.get("actor_id", ""):
+		last_message = "只有物体所有者可以使用这扇门或灯"
+		return
+	_command("SetObjectState", {"id": id, "active": not item.state.active})
+
+func _nearby_interaction() -> Dictionary:
+	if not walking or not interactive: return {}
+	var start := camera.global_position
+	var ray := PhysicsRayQueryParameters3D.create(start, start - camera.global_basis.z * 3.5, 2)
+	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
+	if hit.is_empty(): return {}
+	var id := str(hit.collider.get_meta("world_id", ""))
+	var item: Dictionary = connection.local.snapshot().get("objects", {}).get(id, {})
+	if item.is_empty() or not item.get("state", {}).has("active"): return {}
+	return {"id": id, "name": str(item.name), "active": bool(item.state.active), "owned": item.owner_id == connection.welcome.get("actor_id", "")}
+
+func _interact_nearby() -> void:
+	var target := _nearby_interaction()
+	if target.is_empty(): last_message = "附近没有可使用的门或灯"; return
+	if not target.owned: last_message = "只有物体所有者可以使用这扇门或灯"; return
+	_toggle_object(target.id)
 
 func _place_at(hit: Array, asset_id: String) -> void:
 	var bounds: Array = [1.0, 1.0, 1.0]
@@ -431,14 +464,14 @@ func _walk() -> void:
 		return
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus != null: focus.release_focus()
-	walking = true; orbiting = false; Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	walking = true; orbiting = false; panning = false; Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	camera.fov = 75
 	capture_requested_at = Time.get_ticks_msec(); capture_confirmed = false
 	last_message = "已进入漫游 · WASD 移动，鼠标转向，Esc 返回编辑"
 	ui.layout()
 
 func _stop_walk() -> void:
-	walking = false; movement = Vector2.ZERO; auto_target.clear(); own.jumping = false; Input.mouse_mode = Input.MOUSE_MODE_VISIBLE; _overview()
+	walking = false; movement = Vector2.ZERO; auto_target.clear(); own.jumping = false; own.sprinting = false; Input.mouse_mode = Input.MOUSE_MODE_VISIBLE; _overview()
 	capture_confirmed = false
 	if ui.root != null: ui.layout()
 
@@ -485,8 +518,12 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled(); return
 		if event.keycode == KEY_TAB and not typing:
 			_walk(); get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_E and walking:
+			_interact_nearby(); get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_F and not typing and not walking:
 			_focus_selected(); get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_HOME and not typing and not walking:
+			_overview(); get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if walking:
@@ -495,6 +532,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if not interactive: return
 	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_MIDDLE: panning = event.pressed
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			if event.pressed: orbiting = true; right_origin = event.position
 			else:
@@ -506,9 +544,19 @@ func _unhandled_input(event: InputEvent) -> void:
 				if not focus_hit.is_empty(): overview_target = focus_hit.engine; camera.look_at(overview_target)
 			else:
 				var id: String = view.pick(camera, event.position)
-				if not id.is_empty(): _select_id(id)
+				if not id.is_empty():
+					_select_id(id)
+					if event.double_click and selected == id: _focus_selected()
+				elif event.double_click:
+					context_hit = _context_at(event.position)
+					if not context_hit.is_empty() and context_hit.normal.y > 0.45: _context_action(0)
 		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 			_zoom(1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1)
+	if event is InputEventMouseMotion and panning:
+		var distance := camera.position.distance_to(overview_target)
+		var shift: Vector3 = (-camera.global_basis.x * event.relative.x + camera.global_basis.y * event.relative.y) * clampf(distance / 650.0, 0.015, 1.2)
+		camera.position += shift; overview_target += shift
+		return
 	if event is InputEventMouseMotion and orbiting:
 		if not Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT): orbiting = false; return
 		var offset := camera.position - overview_target
@@ -550,6 +598,7 @@ func _process(delta: float) -> void:
 		if walking: _stop_walk()
 	movement = Vector2.ZERO
 	own.jumping = false
+	own.sprinting = false
 	if walking:
 		var captured := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 		if OS.has_feature("web"): captured = bool(JavaScriptBridge.eval("document.pointerLockElement !== null"))
@@ -576,14 +625,20 @@ func _process(delta: float) -> void:
 					movement = delta_to.normalized(); yaw = atan2(-movement.x, movement.y)
 				auto_last_distance = distance
 		own.jumping = Input.is_physical_key_pressed(KEY_SPACE)
+		own.sprinting = connection.welcome.get("capabilities", []).has("sprint_input") and Input.is_physical_key_pressed(KEY_SHIFT) and axes.length() > 0.1 and auto_target.is_empty()
 	if Time.get_ticks_msec() < test_movement_until and interactive: movement = test_movement
-	if OS.has_feature("web") and bool(JavaScriptBridge.eval("document.hidden")): movement = Vector2.ZERO; own.jumping = false
+	if OS.has_feature("web") and bool(JavaScriptBridge.eval("document.hidden")): movement = Vector2.ZERO; own.jumping = false; own.sprinting = false
 	own.controls = movement; own.yaw = yaw; own.input_at = Time.get_ticks_msec()
 	send_elapsed += delta
 	if send_elapsed >= 0.05 and interactive:
 		send_elapsed = fmod(send_elapsed, 0.05); input_sequence += 1
-		connection.send(Wire.packet("input", {"sequence": input_sequence, "axis": [movement.x, movement.y], "yaw": yaw, "jump": own.jumping}))
+		var controls_packet := {"sequence": input_sequence, "axis": [movement.x, movement.y], "yaw": yaw, "jump": own.jumping}
+		if connection.welcome.get("capabilities", []).has("sprint_input"): controls_packet.sprint = own.sprinting
+		connection.send(Wire.packet("input", controls_packet))
 	if walking: camera.position = own.position + Vector3(0, 1.65, 0); camera.rotation = Vector3(pitch, yaw, 0)
+	var nearby := _nearby_interaction()
+	ui.interaction_prompt.text = "E · %s %s" % ["关闭" if nearby.get("active", false) else "打开", str(nearby.get("name", ""))] if nearby.get("owned", false) else ""
+	ui.interaction_panel.visible = not ui.interaction_prompt.text.is_empty()
 	_interpolate()
 	ui.update()
 	statistics.text = "修订 %d  /  序列 %d  /  对象 %d\n角色 %d  /  收到 %.1f KiB  /  校正 %.3f m" % [rendered_revision, connection.local.sequence, view.bodies.size(), remote.size() + int(online), connection.bytes_received / 1024.0, last_correction]

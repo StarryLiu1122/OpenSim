@@ -78,6 +78,44 @@ func _run() -> void:
 	app._zoom(1)
 	check(app.camera.position.distance_to(app.overview_target) < old_distance, "camera zoom moves toward focus")
 	app._zoom(-1)
+	var original_target: Vector3 = app.overview_target
+	var pan_press := InputEventMouseButton.new(); pan_press.position = context_point; pan_press.button_index = MOUSE_BUTTON_MIDDLE; pan_press.pressed = true
+	root.push_input(pan_press, true); await process_frame
+	var pan_motion := InputEventMouseMotion.new(); pan_motion.position = context_point + Vector2(70, 30); pan_motion.relative = Vector2(70, 30)
+	root.push_input(pan_motion, true); await process_frame
+	pan_press.pressed = false; root.push_input(pan_press, true); await settle()
+	check(app.overview_target.distance_to(original_target) > 0.5, "middle drag pans the editing camera")
+	await key(KEY_HOME)
+	check(app.overview_target.is_equal_approx(original_target), "Home restores the scene overview")
+	var ground_point := Vector2(-1, -1)
+	for y_ratio in [0.62, 0.68, 0.74]:
+		for x_ratio in [0.35, 0.45, 0.55, 0.65]:
+			var candidate_point := Vector2(root.size.x * x_ratio, root.size.y * y_ratio)
+			var ground_hit: Dictionary = app._context_at(candidate_point)
+			if not ground_hit.is_empty() and ground_hit.id.is_empty() and ground_hit.normal.y > 0.45:
+				ground_point = candidate_point; break
+		if ground_point.x >= 0: break
+	if ground_point.x >= 0:
+		var double_ground := InputEventMouseButton.new(); double_ground.position = ground_point; double_ground.button_index = MOUSE_BUTTON_LEFT; double_ground.pressed = true; double_ground.double_click = true
+		root.push_input(double_ground, true); await process_frame
+		check(app.walking and not app.auto_target.is_empty(), "double-clicking terrain starts Go Here movement")
+		double_ground.pressed = false; root.push_input(double_ground, true); app._stop_walk(); await settle()
+	else: check(false, "double-clicking terrain starts Go Here movement")
+	var object_point := Vector2(-1, -1)
+	var object_id := ""
+	for candidate in app.connection.local.snapshot().objects.values():
+		if not app.view.bodies.has(candidate.id): continue
+		var projected: Vector2 = app.camera.unproject_position(app.view.bodies[candidate.id].position)
+		if projected.x < 430 or projected.x > root.size.x - 380 or projected.y < 110 or projected.y > root.size.y - 120: continue
+		if app.view.pick(app.camera, projected) == candidate.id:
+			object_point = projected; object_id = candidate.id; break
+	if not object_id.is_empty():
+		var double_object := InputEventMouseButton.new(); double_object.position = object_point; double_object.button_index = MOUSE_BUTTON_LEFT; double_object.pressed = true; double_object.double_click = true
+		root.push_input(double_object, true); await process_frame
+		check(app.selected == object_id and app.overview_target.is_equal_approx(app.view.bodies[object_id].position), "double-clicking an object selects and frames it")
+		double_object.pressed = false; root.push_input(double_object, true); await settle()
+	else: check(false, "double-clicking an object selects and frames it")
+	app.selected = ""; app.view.select(""); app.ui.tabs.current_tab = 0; await settle()
 	check(app.ui.walk_button.get_global_rect().end.x < root.size.x and app.ui.footer.get_global_rect().end.y <= root.size.y, "primary action and footer fit window")
 	check(app.ui.tabs.current_tab == 0 and not app.ui.tabs.get_child(3).visible, "advanced JSON is absent from initial workflow")
 	var state: Dictionary = app.connection.local.snapshot()
@@ -133,6 +171,41 @@ func _run() -> void:
 	move = move.duplicate(); move.pressed = false; Input.parse_input_event(move)
 	await settle()
 	check(app.own.position.distance_to(before) > 1.0, "W key advances the real network avatar after entering roam")
+	var shift := InputEventKey.new(); shift.keycode = KEY_SHIFT; shift.physical_keycode = KEY_SHIFT; shift.pressed = true
+	Input.parse_input_event(shift)
+	move.pressed = true; Input.parse_input_event(move)
+	await create_timer(0.55).timeout
+	check(app.own.sprinting and Vector2(app.own.velocity.x, app.own.velocity.z).length() > 6.5, "Shift increases the avatar's actual movement speed")
+	var authority_velocity: Array = app.connection.local.snapshot().avatars.get(app.connection.welcome.avatar_id, {}).get("velocity", [0.0, 0.0, 0.0])
+	check(Vector2(authority_velocity[0], authority_velocity[1]).length() > 6.5, "authoritative avatar also receives sprint speed")
+	move.pressed = false; Input.parse_input_event(move)
+	shift.pressed = false; Input.parse_input_event(shift)
+	await settle()
+	var feet: Array = app.View.to_world(app.own.position)
+	var forward := Vector2(0, 2.8).rotated(app.yaw)
+	var door: Dictionary = app.Schema.primitive("door", "互动验收门", [feet[0] + forward.x, feet[1] + forward.y, feet[2] + 1.1], [1.0, 0.2, 2.2], "#77aaaa")
+	door.owner_id = app.connection.welcome.actor_id
+	app._command("CreateObject", {"object": door})
+	for frame in range(600):
+		if app.connection.local.snapshot().objects.has(door.id) and app.view.bodies.has(door.id) and app.interactive: break
+		await process_frame
+	check(app._nearby_interaction().get("id", "") == door.id and app.ui.interaction_panel.visible, "nearby owned door shows a contextual E prompt")
+	await capture("nearby-door")
+	await key(KEY_E)
+	for frame in range(600):
+		if app.connection.local.snapshot().objects.get(door.id, {}).get("state", {}).get("active", false): break
+		await process_frame
+	check(app.connection.local.snapshot().objects.get(door.id, {}).get("state", {}).get("active", false), "E opens a nearby door through the authority")
+	app.context_hit = {"id": door.id}
+	app._context_action(5)
+	for frame in range(600):
+		if not app.connection.local.snapshot().objects.get(door.id, {}).get("state", {}).get("active", true): break
+		await process_frame
+	check(not app.connection.local.snapshot().objects.get(door.id, {}).get("state", {}).get("active", true), "context action closes an owned door through the authority")
+	app._command("DeleteObject", {"id": door.id})
+	for frame in range(600):
+		if not app.connection.local.snapshot().objects.has(door.id): break
+		await process_frame
 	await capture("walking")
 	await key(KEY_ESCAPE)
 	check(not app.walking and app.ui.dock.visible and Input.mouse_mode == Input.MOUSE_MODE_VISIBLE, "Escape restores editing and pointer")

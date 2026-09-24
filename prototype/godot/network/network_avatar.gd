@@ -2,6 +2,7 @@ extends CharacterBody3D
 const View = preload("res://adapters/world_view.gd")
 var controls := Vector2.ZERO
 var jumping := false
+var sprinting := false
 var yaw := 0.0
 var input_seq := 0
 var input_at := 0
@@ -32,10 +33,11 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if not enabled: return
-	if Time.get_ticks_msec() - input_at > 250: controls = Vector2.ZERO; jumping = false
+	if Time.get_ticks_msec() - input_at > 250: controls = Vector2.ZERO; jumping = false; sprinting = false
 	if not is_on_floor(): velocity.y -= 20.0 * delta
-	velocity.x = move_toward(velocity.x, controls.x * 6.0, 35.0 * delta)
-	velocity.z = move_toward(velocity.z, -controls.y * 6.0, 35.0 * delta)
+	var speed := 9.0 if sprinting and is_on_floor() else 6.0
+	velocity.x = move_toward(velocity.x, controls.x * speed, 35.0 * delta)
+	velocity.z = move_toward(velocity.z, -controls.y * speed, 35.0 * delta)
 	if jumping and is_on_floor(): velocity.y = 7.0
 	jumping = false
 	move_and_slide()

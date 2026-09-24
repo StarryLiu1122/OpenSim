@@ -623,7 +623,7 @@ func _receive(client: Dictionary, packet: Dictionary) -> void:
 		spawn[0] += slot * 1.0
 		avatar.spawn = View.to_engine(spawn); avatar.position = avatar.spawn
 		client.avatar = avatar
-		_send(client, Wire.packet("welcome", {"world_id": Schema.REGION_ID, "region_id": Schema.REGION_ID, "world_epoch": epoch, "principal_id": client.principal.id, "actor_id": client.principal.actor, "role": client.principal.role, "avatar_id": client.principal.id, "send_hz": 20, "physics_hz": 60}))
+		_send(client, Wire.packet("welcome", {"world_id": Schema.REGION_ID, "region_id": Schema.REGION_ID, "world_epoch": epoch, "principal_id": client.principal.id, "actor_id": client.principal.actor, "role": client.principal.role, "avatar_id": client.principal.id, "send_hz": 20, "physics_hz": 60, "capabilities": ["sprint_input"]}))
 		_sync(client, true); return
 	match packet.type:
 		"ack":
@@ -636,10 +636,11 @@ func _receive(client: Dictionary, packet: Dictionary) -> void:
 				client.centre = packet.centre; client.radius = float(packet.radius); _sync(client)
 		"input":
 			if client.principal.role == "agent": return
-			if not Schema.exact_keys(packet, ["fp_version", "type", "sequence", "axis", "yaw", "jump"]) or not Schema.vector(packet.axis, 2, -1, 1) or not Schema.number(packet.yaw, -100, 100) or not packet.jump is bool or not _integer(packet.sequence, 1, 1000000000): return
+			if not Schema.exact_keys(packet, ["fp_version", "type", "sequence", "axis", "yaw", "jump"]) and not Schema.exact_keys(packet, ["fp_version", "type", "sequence", "axis", "yaw", "jump", "sprint"]): return
+			if not Schema.vector(packet.axis, 2, -1, 1) or not Schema.number(packet.yaw, -100, 100) or not packet.jump is bool or not packet.get("sprint", false) is bool or not _integer(packet.sequence, 1, 1000000000): return
 			if packet.sequence <= client.avatar.input_seq: return
 			client.avatar.input_seq = int(packet.sequence); client.avatar.input_at = Time.get_ticks_msec()
-			client.avatar.controls = Vector2(packet.axis[0], packet.axis[1]).limit_length(); client.avatar.yaw = packet.yaw; client.avatar.jumping = packet.jump
+			client.avatar.controls = Vector2(packet.axis[0], packet.axis[1]).limit_length(); client.avatar.yaw = packet.yaw; client.avatar.jumping = packet.jump; client.avatar.sprinting = packet.get("sprint", false)
 		"query_result":
 			if not Schema.exact_keys(packet, ["fp_version", "type", "request_id"]) or not Schema.is_uuid(packet.request_id): return
 			var receipt: Dictionary = receipts.get(packet.request_id, failures.get(packet.request_id, {}))
