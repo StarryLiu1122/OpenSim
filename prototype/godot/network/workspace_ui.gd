@@ -14,6 +14,7 @@ var badge: Label
 var region_label: Label
 var summary: Label
 var source_credit: LinkButton
+var source_credit_url := ""
 var hint: Label
 var selection_title: Label
 var selection_note: Label
@@ -228,11 +229,11 @@ func build() -> void:
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	summary = label(line, "", 13, ACCENT)
 	source_credit = LinkButton.new()
-	source_credit.text = "© 3DBAG by tudelft3d and 3DGI"
-	source_credit.tooltip_text = "https://docs.3dbag.nl/en/copyright/ · 已三角化、平移和演示着色"
+	source_credit.text = "来源与许可"
 	source_credit.add_theme_font_size_override("font_size", 12)
 	source_credit.add_theme_color_override("font_color", ACCENT)
-	source_credit.pressed.connect(func(): OS.shell_open("https://docs.3dbag.nl/en/copyright/"))
+	source_credit.pressed.connect(func():
+		if not source_credit_url.is_empty(): OS.shell_open(source_credit_url))
 	source_credit.visible = false
 	line.add_child(source_credit)
 	delete_dialog = ConfirmationDialog.new(); root.add_child(delete_dialog)
@@ -277,10 +278,18 @@ func update() -> void:
 	var online: bool = app.connection.online()
 	var state: Dictionary = app.connection.local.snapshot()
 	source_credit.visible = false
+	var credits := {}
 	for asset in state.get("assets", {}).values():
-		if "© 3DBAG by tudelft3d and 3DGI" in str(asset.get("attribution", "")):
-			source_credit.visible = true
-			break
+		if asset.get("kind", "") == "mesh":
+			credits[str(asset.get("attribution", ""))] = str(asset.get("license", ""))
+	if not credits.is_empty():
+		var credit: String = str(credits.keys()[0])
+		var credit_lines := PackedStringArray()
+		for entry in credits: credit_lines.append(str(entry) + " · " + str(credits[entry]))
+		source_credit.visible = true
+		source_credit.text = ("© City of Helsinki" if "City of Helsinki" in credit else credit.split(";")[0]) if credits.size() == 1 else "来源与许可（%d）" % credits.size()
+		source_credit.tooltip_text = "\n".join(credit_lines)
+		source_credit_url = ("https://docs.3dbag.nl/en/copyright/" if "3DBAG" in credit else ("https://www.hel.fi/en/decision-making/information-on-helsinki/maps-and-geospatial-data/helsinki-3d" if "City of Helsinki" in credit else "")) if credits.size() == 1 else ""
 	region_label.text = "V6  /  " + str(state.get("meta", {}).get("region", {}).get("name", "共享三维世界")) if online else "V6  /  共享三维世界"
 	var editable: bool = app.interactive and app.connection.welcome.get("role", "") != "observer"
 	var objects: Dictionary = state.get("objects", {})

@@ -8,6 +8,8 @@ V5 网络客户端现采用独立工作区：顶部提供连接状态与醒目�
 
 Region Lab 是基于 Godot 的单区域原型，支持对象组合、静态 GLB、六类内置对象、程序材质、地形、环境、门灯交互和角色漫游。新世界提供庭院、湖岸及可进入的展馆。区域尺寸为 256×256 米；离线模式为本机单用户，网络模式由独立权威服务和多个只读投影客户端组成。
 
+真实地点演示可直接双击 `打开赫尔辛基实景街区.cmd`，打开[125×125 米的航拍纹理街区](docs/helsinki-textured-city-pilot.md)；较小的测绘建筑样例见[代尔夫特片区](docs/delft-real-city-pilot.md)。
+
 Region Lab 是世界模型与智能体协作平台的区域基础。总体定位见 [项目 README](../README.md)，原始目标与技术核实见 [对齐说明](../docs/plans/platform-integration-alignment.md)。原版 FP 0.2 网关和现代 FP 0.3 服务分别运行；尚未接入外部智能体平台。网络验收与性能状态见 [V5 记录](../docs/comparisons/v5-completion.md)。
 
 ## 1. 环境要求

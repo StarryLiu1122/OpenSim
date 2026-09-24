@@ -4,12 +4,17 @@ param(
     [string]$Store = '',
     [string]$HostExecutable = '',
     [string]$Directory = '',
+    [string]$Manifest = '',
+    [string]$Label = 'Delft',
     [int]$Port = 20810
 )
 $ErrorActionPreference = 'Stop'
 $prototypeRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 if (!$Directory) { $Directory = Join-Path $prototypeRoot 'runtime/delft-julianalaan' }
 $Directory = [IO.Path]::GetFullPath($Directory)
+if (!$Manifest) { $Manifest = Join-Path $prototypeRoot 'fixtures/geodata/delft-julianalaan/manifest.json' }
+$Manifest = [IO.Path]::GetFullPath($Manifest)
+if (!(Test-Path -LiteralPath $Manifest -PathType Leaf)) { throw "Missing city manifest: $Manifest" }
 $world = Join-Path $Directory 'world.json'
 $instance = Join-Path $Directory 'network'
 $configPath = Join-Path $instance 'private-config.json'
@@ -32,8 +37,8 @@ foreach ($executable in @($Godot, $Store, $HostExecutable)) {
 }
 if (!(Test-Path -LiteralPath $world -PathType Leaf)) {
     New-Item -ItemType Directory -Path $Directory -Force | Out-Null
-    & $Godot --headless --path (Join-Path $prototypeRoot 'godot') --log-file (Join-Path $Directory 'build.log') --script res://tools/build_city_pilot.gd -- ('--manifest=' + (Join-Path $prototypeRoot 'fixtures/geodata/delft-julianalaan/manifest.json')) ('--world-file=' + $world) ('--report=' + (Join-Path $Directory 'build-report.json'))
-    if ($LASTEXITCODE -ne 0 -or !(Test-Path -LiteralPath $world -PathType Leaf)) { throw 'Could not build the Delft world.' }
+    & $Godot --headless --path (Join-Path $prototypeRoot 'godot') --log-file (Join-Path $Directory 'build.log') --script res://tools/build_city_pilot.gd -- ('--manifest=' + $Manifest) ('--world-file=' + $world) ('--report=' + (Join-Path $Directory 'build-report.json'))
+    if ($LASTEXITCODE -ne 0 -or !(Test-Path -LiteralPath $world -PathType Leaf)) { throw "Could not build the $Label world." }
 }
 if (!(Test-Path -LiteralPath $configPath)) {
     & (Join-Path $PSScriptRoot 'Initialize-Network.ps1') -Directory $instance -Godot $Godot -Store $Store -HostExecutable $HostExecutable -SeedWorld $world -Port $Port
@@ -55,4 +60,4 @@ if (Test-Path -LiteralPath $processFile) {
 }
 if (!$running) { & (Join-Path $PSScriptRoot 'Start-Network.ps1') -Directory $instance }
 & (Join-Path $PSScriptRoot 'Start-NetworkClient.ps1') -Directory $instance -Profile editor-a
-Write-Output "Delft pilot: $world"
+Write-Output "$Label pilot: $world"

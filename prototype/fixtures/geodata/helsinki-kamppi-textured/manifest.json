@@ -1,0 +1,348 @@
+{
+  "source_url": "https://3d.hel.ninja/data/mesh/Helsinki3D-MESH_2017_OBJ_2km-250m_ZIP/Helsinki3D_2017_OBJ_672494x2.zip",
+  "source_crs": "EPSG:3879+5773",
+  "region_name": "赫尔辛基实景街区",
+  "spawn": [
+    128.0,
+    107.0,
+    5.5
+  ],
+  "source_tile": "672495a3",
+  "source_lod": 19,
+  "source_bounds": [
+    5312.5,
+    4093.75,
+    5437.5,
+    4218.75
+  ],
+  "region_offset": [
+    64.0,
+    32.0
+  ],
+  "height_baseline_source": -0.274018652,
+  "license": "CC-BY-4.0",
+  "attribution": "City of Helsinki, Helsinki 3D Mesh 2017; hel.fi/3d",
+  "changes": "16 original L19 OBJ/JPEG tiles converted to local-coordinate embedded GLBs; texture pixels unchanged",
+  "tiles": [
+    {
+      "name": "赫尔辛基街区 2-3",
+      "file": "helsinki-2-3.glb",
+      "position": [
+        79.625,
+        47.625,
+        8.7442114575
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        17.458592788999997
+      ],
+      "triangles": 1574,
+      "sha256": "dc9f721cfe742eaf4d99b924970329be7af6aab807dd1714cd50353673c729bd",
+      "source_obj": "Tile_+028_+017_L19_000032.obj",
+      "source_obj_sha256": "f8a522f8c5e6cd348daa082b6a7e8000d739d8838aa9aa04904f7d2c1c0e4722",
+      "source_jpeg": "Tile_+028_+017_L19_000032_0.jpg",
+      "source_jpeg_sha256": "9c449cd6d19672393822ff624c91c8172f4d3c49e892dcade5b61828f012fe53"
+    },
+    {
+      "name": "赫尔辛基街区 3-3",
+      "file": "helsinki-3-3.glb",
+      "position": [
+        110.875,
+        47.625,
+        8.8708868855
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        17.718745533
+      ],
+      "triangles": 1787,
+      "sha256": "151ebd6cf04c17d3822cc5908f175767b888485a71f20ae2828f128a2aff8029",
+      "source_obj": "Tile_+028_+017_L19_000033.obj",
+      "source_obj_sha256": "b4c30a1f57abb13fa5a4d19375b63d01b51cc7c6e4ffb05f422169e521145f2b",
+      "source_jpeg": "Tile_+028_+017_L19_000033_0.jpg",
+      "source_jpeg_sha256": "1bd499f1cb2655ece67aa083b6ffec78a5569d9846e97ca3b21aec9c14c4c009"
+    },
+    {
+      "name": "赫尔辛基街区 4-3",
+      "file": "helsinki-4-3.glb",
+      "position": [
+        142.125,
+        47.625,
+        7.763614325999999
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        15.527228652
+      ],
+      "triangles": 999,
+      "sha256": "5b2c25dceec55f6b89e89b6d8ccf0bc5341706c717ea7536e0d68237e7eb46ac",
+      "source_obj": "Tile_+028_+017_L19_000122.obj",
+      "source_obj_sha256": "a5fc1e3710e34d74d5a8a5585ef4b37bf03a1add03d33fa098186dd87223541d",
+      "source_jpeg": "Tile_+028_+017_L19_000122_0.jpg",
+      "source_jpeg_sha256": "a21d5b8b1e86ba3445e49088efe198ef196d70e42f9c92745af03b1610c08f42"
+    },
+    {
+      "name": "赫尔辛基街区 5-3",
+      "file": "helsinki-5-3.glb",
+      "position": [
+        173.375,
+        47.625,
+        7.403186679
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        14.800703146
+      ],
+      "triangles": 1992,
+      "sha256": "004e894742f246c09b98e28ea00e94f4f837faebbdc21d31d5618d53e7102f79",
+      "source_obj": "Tile_+028_+017_L19_000123.obj",
+      "source_obj_sha256": "c4a9a22df6b30557edeec2ebf9e88c6cf126bf20d3a66ed2c198a693a6592ca7",
+      "source_jpeg": "Tile_+028_+017_L19_000123_0.jpg",
+      "source_jpeg_sha256": "48ff338ffef195eb7889014f04efded9ffcb70501a53c6619bc0e3ba28b07740"
+    },
+    {
+      "name": "赫尔辛基街区 2-4",
+      "file": "helsinki-2-4.glb",
+      "position": [
+        79.625,
+        78.875,
+        14.359600742
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        22.029429620000002
+      ],
+      "triangles": 2275,
+      "sha256": "556bef183c01c884a59728b2cfc7bc314c27ecd99c9223c6d856c07b80162520",
+      "source_obj": "Tile_+028_+017_L19_000210.obj",
+      "source_obj_sha256": "65e67cb74a26676f3d5545cc706e944440e0c1adb4d8e9b7f8308b0f30425a5c",
+      "source_jpeg": "Tile_+028_+017_L19_000210_0.jpg",
+      "source_jpeg_sha256": "8ff4502f901a1abec2a0b503bf5fba896b555851f355de203e3628f3609f4e61"
+    },
+    {
+      "name": "赫尔辛基街区 3-4",
+      "file": "helsinki-3-4.glb",
+      "position": [
+        110.875,
+        78.875,
+        12.765875867000002
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        19.24428077
+      ],
+      "triangles": 2375,
+      "sha256": "d4819c5fa04bcfd760f2097ff977f8ad54ec25b1b979868453ec7988cb78626b",
+      "source_obj": "Tile_+028_+017_L19_000211.obj",
+      "source_obj_sha256": "d9162e043efa5dc8c0fdcbba716632ad678300199929dd2fd4f3d48d5a47365b",
+      "source_jpeg": "Tile_+028_+017_L19_000211_0.jpg",
+      "source_jpeg_sha256": "fc31af044acba82497f4519a702048065bb7ea0806a9ada8397973aba1880069"
+    },
+    {
+      "name": "赫尔辛基街区 4-4",
+      "file": "helsinki-4-4.glb",
+      "position": [
+        142.125,
+        78.875,
+        13.768214932000001
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        21.62597124
+      ],
+      "triangles": 2949,
+      "sha256": "55fe8afdfcd8b70c5cda3402d375730811d6549f09a96ac07300d70474df694f",
+      "source_obj": "Tile_+028_+017_L19_000300.obj",
+      "source_obj_sha256": "8dfd023914e22e0ae9220094c998c135755fc5b273ba836d512065613c33c5ec",
+      "source_jpeg": "Tile_+028_+017_L19_000300_0.jpg",
+      "source_jpeg_sha256": "a23fc0066e4f7b767fd686c67652d19979f3821924d71faf2467305c8aa4b561"
+    },
+    {
+      "name": "赫尔辛基街区 5-4",
+      "file": "helsinki-5-4.glb",
+      "position": [
+        173.375,
+        78.875,
+        8.364745927
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        10.995863649999999
+      ],
+      "triangles": 2034,
+      "sha256": "a04dd3ce1b6ef875bf0c207818a96716f128d28ac85e53be6b2e1927ee7497a7",
+      "source_obj": "Tile_+028_+017_L19_000301.obj",
+      "source_obj_sha256": "3b25158e27fff499f37212b5872bc077df2bbf0faf303b5960b3865c5ae4e1f6",
+      "source_jpeg": "Tile_+028_+017_L19_000301_0.jpg",
+      "source_jpeg_sha256": "54c57c41da3def13d6b235a7548d8dacf620d1712681afd0c5c4dd2316971f4d"
+    },
+    {
+      "name": "赫尔辛基街区 2-5",
+      "file": "helsinki-2-5.glb",
+      "position": [
+        79.625,
+        110.125,
+        15.521309767
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        24.09178697
+      ],
+      "triangles": 2512,
+      "sha256": "576c835426f26c384a699363a3cdb58527dbe9b676612134afe53a36ef8b8a3c",
+      "source_obj": "Tile_+028_+017_L19_000212.obj",
+      "source_obj_sha256": "35f5f193f6757d831c58af3dae7a471d51f071c3a91f08926b87ba25701f5d6d",
+      "source_jpeg": "Tile_+028_+017_L19_000212_0.jpg",
+      "source_jpeg_sha256": "1feed91470074a935cefce07dc441e6d283398c4c115ba8bbbf309bdca376c52"
+    },
+    {
+      "name": "赫尔辛基街区 3-5",
+      "file": "helsinki-3-5.glb",
+      "position": [
+        110.875,
+        110.125,
+        14.032600737000001
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        21.001395029999998
+      ],
+      "triangles": 2732,
+      "sha256": "30219bfa97ec96bcc75e0b0cb5db01bd9d5ad01d0a5f43aae3f91194c6f8c789",
+      "source_obj": "Tile_+028_+017_L19_000213.obj",
+      "source_obj_sha256": "d64f222097ede787a1c353ac3a6b14813698764cf962f1f11bfd5953b8dcf0c9",
+      "source_jpeg": "Tile_+028_+017_L19_000213_0.jpg",
+      "source_jpeg_sha256": "d19fde4f2b06d3e6abee68fa46c8ace755671619c97a0264e8b5ffddabc414ba"
+    },
+    {
+      "name": "赫尔辛基街区 4-5",
+      "file": "helsinki-4-5.glb",
+      "position": [
+        142.125,
+        110.125,
+        13.888332682
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        21.57183294
+      ],
+      "triangles": 2547,
+      "sha256": "f67a989eeaaac515684342a63a88708299d499f73eaaaf8418a291c065710589",
+      "source_obj": "Tile_+028_+017_L19_000302.obj",
+      "source_obj_sha256": "805a746a980207a7461e527d948b3c1a9fe89d5faa62eddb580826d507f90850",
+      "source_jpeg": "Tile_+028_+017_L19_000302_0.jpg",
+      "source_jpeg_sha256": "d966e9966de61af00aff459a8a288944796c14fcef669090da34b84746609235"
+    },
+    {
+      "name": "赫尔辛基街区 5-5",
+      "file": "helsinki-5-5.glb",
+      "position": [
+        173.375,
+        110.125,
+        7.4397129269999995
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        9.10472885
+      ],
+      "triangles": 1333,
+      "sha256": "510b177b43c3c09a2b7cb9f4718416ba06687d4fd37a36a7953d580181b0b7b4",
+      "source_obj": "Tile_+028_+017_L19_000303.obj",
+      "source_obj_sha256": "7a3fc8b62bd258524aa9510baa09480b5300f67b5aa778f0b8cd1317ed2c8174",
+      "source_jpeg": "Tile_+028_+017_L19_000303_0.jpg",
+      "source_jpeg_sha256": "b17da2b84269235d1302885b32bdc09a53058b6eb353794a7fc3e2eb3c9f34cd"
+    },
+    {
+      "name": "赫尔辛基街区 2-6",
+      "file": "helsinki-2-6.glb",
+      "position": [
+        79.625,
+        141.375,
+        14.726026502000002
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        22.2968719
+      ],
+      "triangles": 1869,
+      "sha256": "151cff7c684a0ea01a4528f94794a4e63c3d40d82b72a5b43936f43b7cda624c",
+      "source_obj": "Tile_+028_+017_L19_000230.obj",
+      "source_obj_sha256": "13c3bc7381de8f06c95eb4c3cbd32d6d130835329218ed0047d9f14e68e9b2b0",
+      "source_jpeg": "Tile_+028_+017_L19_000230_0.jpg",
+      "source_jpeg_sha256": "b669c0ed2f6902cbdbd538822372f7bfec32d7f087ba18ce1881a9add5de9109"
+    },
+    {
+      "name": "赫尔辛基街区 3-6",
+      "file": "helsinki-3-6.glb",
+      "position": [
+        110.875,
+        141.375,
+        14.068043152
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        21.1116198
+      ],
+      "triangles": 1912,
+      "sha256": "9b9d6f5ef31856a6418e86162d7dd6bcec79d6ff6ff1f1a30401cfc058d375ce",
+      "source_obj": "Tile_+028_+017_L19_000231.obj",
+      "source_obj_sha256": "abe25c4cb00ebdaf4195a11f115367139017cc7dd2842693dfa4593a092fe8c4",
+      "source_jpeg": "Tile_+028_+017_L19_000231_0.jpg",
+      "source_jpeg_sha256": "81aa7e6b936c98c0674776f0ff84ce45d510e776e69470a3f01a9dde446992e0"
+    },
+    {
+      "name": "赫尔辛基街区 4-6",
+      "file": "helsinki-4-6.glb",
+      "position": [
+        142.125,
+        141.375,
+        14.025072292
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        21.44200152
+      ],
+      "triangles": 1971,
+      "sha256": "9c772f576caf51e530660703ac52b9749d5ef7be06c9af9846c4e6d41bddbca0",
+      "source_obj": "Tile_+028_+017_L19_000320.obj",
+      "source_obj_sha256": "838dcd86d1d8d4c28fdcfaaf817a921e1f69d89ded1acb54cd8b118a50aacc9c",
+      "source_jpeg": "Tile_+028_+017_L19_000320_0.jpg",
+      "source_jpeg_sha256": "df6a84ed253960822aae16bb4be82227cdfd55d8db94bd809f0d5f7ab3c6dac6"
+    },
+    {
+      "name": "赫尔辛基街区 5-6",
+      "file": "helsinki-5-6.glb",
+      "position": [
+        173.375,
+        141.375,
+        12.739538092
+      ],
+      "bounds": [
+        31.75,
+        31.75,
+        19.68070072
+      ],
+      "triangles": 1843,
+      "sha256": "1ad9d3930b72a6833c1ddd1f322dc7ad7afb935fad298c137f7da764bab75afa",
+      "source_obj": "Tile_+028_+017_L19_000321.obj",
+      "source_obj_sha256": "d1c68fa883e0d9eb5531a910ae9217a7d0ebc7623df23f01474ec31c25a7a6ae",
+      "source_jpeg": "Tile_+028_+017_L19_000321_0.jpg",
+      "source_jpeg_sha256": "c92f0cab1400ad79f4ade1921484202381654969560256621b52ddab74c3d143"
+    }
+  ]
+}

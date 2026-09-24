@@ -109,6 +109,12 @@ func _test_commands() -> void:
 	check(service.request("Undo").ok and not service.model.object(item.id).is_empty(), "undo restores same object identity")
 	check(not service.dispatch({"operation": "CreateObject"}).ok, "malformed envelope rejected")
 	check(not service.request("LaunchScript").ok, "unknown operation rejected")
+	check(service.request("RenameRegion", {"name": "赫尔辛基实景街区"}).ok and service.model.snapshot().region.name == "赫尔辛基实景街区", "owner can name a seeded real-world region")
+	check(service.request("SetRegionSpawn", {"position": [128.0, 107.0, 5.5]}).ok and service.model.snapshot().region.spawn == [128.0, 107.0, 5.5], "owner can place a safe scene spawn")
+	var named: Dictionary = service.model.snapshot()
+	check(not service.request("SetRegionSpawn", {"position": [300.0, 107.0, 5.5]}).ok and service.model.snapshot() == named, "out-of-region spawn is rejected atomically")
+	service.actor = Schema.uuid()
+	check(not service.request("RenameRegion", {"name": "unowned"}).ok and not service.request("SetRegionSpawn", {"position": [128.0, 107.0, 8.0]}).ok, "only the region owner can rename or move spawn")
 
 func _write(path: String, contents: String) -> void:
 	var file := FileAccess.open(path, FileAccess.WRITE)

@@ -390,7 +390,7 @@ func _overview() -> void:
 				maximum = maximum.max(center + half)
 			if imported_only:
 				overview_target = (minimum + maximum) * 0.5
-				var distance := clampf(maxf(maximum.x - minimum.x, maximum.z - minimum.z) * 1.65, 45, 150)
+				var distance := clampf(maxf(maximum.x - minimum.x, maximum.z - minimum.z) * 1.65, 45, 240)
 				offset = Vector3(-0.8, 0.85, -0.4).normalized() * distance
 				camera.fov = 52
 	camera.position = overview_target + offset
@@ -423,7 +423,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 			var offset := camera.position - overview_target
 			var factor := 0.88 if event.button_index == MOUSE_BUTTON_WHEEL_UP else 1.12
-			camera.position = overview_target + offset.normalized() * clampf(offset.length() * factor, 2, 180)
+			camera.position = overview_target + offset.normalized() * clampf(offset.length() * factor, 2, 300)
 	if event is InputEventMouseMotion and orbiting:
 		if not Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT): orbiting = false; return
 		var offset := camera.position - overview_target

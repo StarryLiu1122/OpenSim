@@ -33,6 +33,14 @@ func mutate(operation: String, payload: Dictionary, actor: String) -> Dictionary
 	var changed_samples := 0
 	var extra: Dictionary = {}
 	match operation:
+		"RenameRegion":
+			if actor != next.region.owner_id or not Schema.exact_keys(payload, ["name"]) or not payload.name is String or payload.name.strip_edges().is_empty() or payload.name.length() > 80:
+				return {"error": "Only the region owner may set a 1–80 character region name."}
+			next.region.name = payload.name
+		"SetRegionSpawn":
+			if actor != next.region.owner_id or not Schema.exact_keys(payload, ["position"]) or not Schema.vector(payload.position, 3, -100, 600):
+				return {"error": "Only the region owner may set a valid spawn position."}
+			next.region.spawn = payload.position.duplicate()
 		"GroupObjects", "UpdateGroup", "DuplicateGroup", "UngroupObjects", "DeleteGroup":
 			extra = Groups.apply(next, operation, payload, actor)
 			if extra.has("error"):

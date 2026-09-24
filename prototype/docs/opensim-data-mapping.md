@@ -8,7 +8,7 @@
 
 | OpenSim 概念与源码 | Region Lab 实现 | 当前范围 |
 | --- | --- | --- |
-| [RegionInfo](../../OpenSim/Framework/RegionInfo.cs) | `region` | UUID、名称、尺寸、起点、归属；固定单区域 256×256 米 |
+| [RegionInfo](../../OpenSim/Framework/RegionInfo.cs) | `region` | UUID、名称、尺寸、起点、归属；`RenameRegion` 和 `SetRegionSpawn` 可由区域所有者修改名称和安全出生点；固定单区域 256×256 米 |
 | [TerrainData](../../OpenSim/Framework/TerrainData.cs) | `terrain` | 高程数组、采样间距、行列数、保存恢复 |
 | [TerrainModule](../../OpenSim/Region/CoreModules/World/Terrain/TerrainModule.cs) | TerrainBrush、SculptTerrain | 四种笔刷、区域归属检查、图形与碰撞更新；未复现原协议参数及全部笔刷算法 |
 | [RegionSettings](../../OpenSim/Framework/RegionSettings.cs) | environment、EnvironmentView | 水位、太阳时刻、雾和地表显示；程序材质近似高度/坡度分层，未实现原纹理 UUID 或 EEP |
@@ -52,6 +52,8 @@ Godot (x, y, z) → 区域 [x, -z, y]
 ```
 
 3DBAG 片区试点在导入前把 EPSG:7415 的米制 `(RD 东, RD 北, NAP 高)` 转为本地区域坐标。它减去固定 RD 原点，加上区域内偏移，并从高度减去一个固定 NAP 基准；各建筑之间的相对位置和尺寸保持不变。原始坐标系、原点、基准和建筑 ID 记录在[试点说明](delft-real-city-pilot.md)及其 manifest，Region Lab 存档本身仍只存局部 `[东, 北, 高]`，不表示完整的全球地理坐标系。
+
+[赫尔辛基实景街区](helsinki-textured-city-pilot.md)采用相同的局部坐标原则，但来源是 EPSG:3879+5773 的 OBJ/JPEG 航拍网格。转换保留 125×125 米连续片区中的几何、相对位置和实拍纹理，把每个 31.25 米样块封装为可验证的 GLB。区域名称和出生点通过 `WorldService` 的 `RenameRegion`、`SetRegionSpawn` 命令设置；它们不改变区域 UUID、尺寸或全球地理坐标语义。
 
 旋转采用基变换 `B_engine = C × B_region × inverse(C)`。UI 当前只编辑绕区域 Z 轴的水平角；未修改旋转时保留原四元数。
 

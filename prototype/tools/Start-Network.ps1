@@ -52,5 +52,5 @@ while([DateTime]::UtcNow -lt $deadline -and !$gateway.HasExited) {
     Start-Sleep -Milliseconds 100;$gateway.Refresh()
 }
 if(!$gatewayReady){if(!$gateway.HasExited){$gateway.Kill()};if(!$server.HasExited){$server.Kill()};throw "Gateway failed. Read $Directory/gateway.stderr.log"}
-@{server_pid=$server.Id;gateway_pid=$gateway.Id;server_started=$server.StartTime.ToUniversalTime().ToString('O');gateway_started=$gateway.StartTime.ToUniversalTime().ToString('O');instance=$Directory} | ConvertTo-Json | Set-Content (Join-Path $Directory 'processes.json') -Encoding utf8NoBOM
+[IO.File]::WriteAllText((Join-Path $Directory 'processes.json'), (@{server_pid=$server.Id;gateway_pid=$gateway.Id;server_started=$server.StartTime.ToUniversalTime().ToString('O');gateway_started=$gateway.StartTime.ToUniversalTime().ToString('O');instance=$Directory} | ConvertTo-Json), (New-Object System.Text.UTF8Encoding($false)))
 Write-Output "Authority $($server.Id), gateway $($gateway.Id). Open http://127.0.0.1:$($config.http_port)/ after exporting the Web client."

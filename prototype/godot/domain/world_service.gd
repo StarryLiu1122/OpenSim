@@ -90,7 +90,7 @@ func _execute(operation: String, id: String, payload: Dictionary) -> Dictionary:
 			destination.append(current)
 			dirty = true
 			return _result(operation, id, true, {})
-		"CreateObject", "UpdateObject", "DeleteObject", "SculptTerrain", "UpdateEnvironment", "SetObjectState", "GroupObjects", "UpdateGroup", "DuplicateGroup", "UngroupObjects", "DeleteGroup", "RemoveAsset":
+		"CreateObject", "UpdateObject", "DeleteObject", "SculptTerrain", "UpdateEnvironment", "RenameRegion", "SetRegionSpawn", "SetObjectState", "GroupObjects", "UpdateGroup", "DuplicateGroup", "UngroupObjects", "DeleteGroup", "RemoveAsset":
 			return _mutate(operation, id, operation, payload)
 	return _result(operation, id, false, {}, "UNKNOWN_OPERATION", "Unsupported operation.")
 
