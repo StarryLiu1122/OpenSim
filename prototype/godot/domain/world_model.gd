@@ -15,6 +15,9 @@ func snapshot() -> Dictionary:
 func revision() -> int:
 	return int(_world.revision)
 
+func region_size() -> float:
+	return float(_world.region.size[0])
+
 func replace(candidate: Dictionary) -> String:
 	var error := Schema.validate(candidate)
 	if error.is_empty():

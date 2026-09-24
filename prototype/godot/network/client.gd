@@ -17,6 +17,7 @@ var collision_projection_ready := false
 var render_generation := 0
 var interactive := false
 var walking := false
+var flying := false
 var yaw := 0.0
 var pitch := 0.0
 var input_sequence := 0
@@ -297,10 +298,13 @@ func _delete() -> void:
 	if not selected.is_empty(): _command("DeleteObject", {"id": selected})
 
 func _create() -> void:
-	var item := Schema.box("共享方块", [132.0, 122.0, 1.0], [1.0, 1.0, 1.0], "#78a5b5")
-	item.owner_id = connection.welcome.get("actor_id", "")
-	var request := _command("CreateObject", {"object": item})
-	if not request.is_empty(): created_requests[request] = item.id
+	if not interactive: return
+	var point: Array = View.to_world(own.position + Vector3(0, 0, -3).rotated(Vector3.UP, yaw))
+	var region: Array = connection.local.snapshot().meta.region.size
+	point[0] = clampf(float(point[0]), 0.5, float(region[0]) - 0.5)
+	point[1] = clampf(float(point[1]), 0.5, float(region[1]) - 0.5)
+	point[2] = view.ground_height(point[0], point[1])
+	_place_at(point, "")
 
 func _context_at(point: Vector2) -> Dictionary:
 	var origin := camera.project_ray_origin(point)
@@ -471,7 +475,7 @@ func _walk() -> void:
 	ui.layout()
 
 func _stop_walk() -> void:
-	walking = false; movement = Vector2.ZERO; auto_target.clear(); own.jumping = false; own.sprinting = false; Input.mouse_mode = Input.MOUSE_MODE_VISIBLE; _overview()
+	walking = false; flying = false; movement = Vector2.ZERO; auto_target.clear(); own.jumping = false; own.sprinting = false; own.flying = false; own.lift = 0.0; Input.mouse_mode = Input.MOUSE_MODE_VISIBLE; _overview()
 	capture_confirmed = false
 	if ui.root != null: ui.layout()
 
@@ -520,6 +524,12 @@ func _input(event: InputEvent) -> void:
 			_walk(); get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_E and walking:
 			_interact_nearby(); get_viewport().set_input_as_handled()
+		elif event.keycode == KEY_F and walking:
+			if connection.welcome.get("capabilities", []).has("flight_input"):
+				flying = not flying; auto_target.clear()
+				last_message = "已进入飞行 · 空格上升，Ctrl 下降，F 落地" if flying else "已退出飞行 · 正在按重力下降"
+			else: last_message = "当前服务不支持飞行"
+			get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_F and not typing and not walking:
 			_focus_selected(); get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_HOME and not typing and not walking:
@@ -599,6 +609,9 @@ func _process(delta: float) -> void:
 	movement = Vector2.ZERO
 	own.jumping = false
 	own.sprinting = false
+	own.flying = flying and walking and interactive
+	own.lift = 0.0
+	own.world_size = view._region_size.x
 	if walking:
 		var captured := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 		if OS.has_feature("web"): captured = bool(JavaScriptBridge.eval("document.pointerLockElement !== null"))
@@ -624,16 +637,19 @@ func _process(delta: float) -> void:
 				if not auto_target.is_empty():
 					movement = delta_to.normalized(); yaw = atan2(-movement.x, movement.y)
 				auto_last_distance = distance
-		own.jumping = Input.is_physical_key_pressed(KEY_SPACE)
+		if flying:
+			own.lift = float(Input.is_physical_key_pressed(KEY_SPACE)) - float(Input.is_physical_key_pressed(KEY_CTRL))
+		else: own.jumping = Input.is_physical_key_pressed(KEY_SPACE)
 		own.sprinting = connection.welcome.get("capabilities", []).has("sprint_input") and Input.is_physical_key_pressed(KEY_SHIFT) and axes.length() > 0.1 and auto_target.is_empty()
 	if Time.get_ticks_msec() < test_movement_until and interactive: movement = test_movement
-	if OS.has_feature("web") and bool(JavaScriptBridge.eval("document.hidden")): movement = Vector2.ZERO; own.jumping = false; own.sprinting = false
+	if OS.has_feature("web") and bool(JavaScriptBridge.eval("document.hidden")): movement = Vector2.ZERO; own.jumping = false; own.sprinting = false; own.lift = 0.0
 	own.controls = movement; own.yaw = yaw; own.input_at = Time.get_ticks_msec()
 	send_elapsed += delta
 	if send_elapsed >= 0.05 and interactive:
 		send_elapsed = fmod(send_elapsed, 0.05); input_sequence += 1
 		var controls_packet := {"sequence": input_sequence, "axis": [movement.x, movement.y], "yaw": yaw, "jump": own.jumping}
 		if connection.welcome.get("capabilities", []).has("sprint_input"): controls_packet.sprint = own.sprinting
+		if connection.welcome.get("capabilities", []).has("flight_input"): controls_packet.merge({"fly": own.flying, "lift": own.lift})
 		connection.send(Wire.packet("input", controls_packet))
 	if walking: camera.position = own.position + Vector3(0, 1.65, 0); camera.rotation = Vector3(pitch, yaw, 0)
 	var nearby := _nearby_interaction()

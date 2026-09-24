@@ -152,6 +152,7 @@ func build() -> void:
 	note(guide, "连接后，点击顶部「进入漫游」，\n或按 Tab 进入第一人称视角。")
 	label(guide, "W A S D 移动  ·  Shift 快跑", 14, ACCENT)
 	label(guide, "空格跳跃  ·  E 使用门/灯  ·  Esc 返回编辑", 14, ACCENT)
+	label(guide, "F 飞行/落地  ·  空格上升  ·  Ctrl 下降", 14, ACCENT)
 	note(guide, "编辑时双击对象定位，双击地面前往；右键地点可建造。\n右键拖动环视，中键拖动平移，滚轮缩放，Home 重置镜头。")
 	button(guide, "知道了，收起指南", func(): help_open = false; layout())
 	dock = PanelContainer.new(); root.add_child(dock)
@@ -166,7 +167,7 @@ func build() -> void:
 	scene.add_child(app.object_list); app.object_list.item_selected.connect(app._select)
 	app.object_list.item_activated.connect(func(index): app._select(index); app._focus_selected())
 	note(scene, "单击选择 · 双击定位 · 场景中也可直接点选")
-	create_button = button(scene, "＋ 新建方块", app._create)
+	create_button = button(scene, "＋ 在角色附近新建方块", app._create)
 	expand_button = button(scene, "扩展区域至 512 × 512 米", app._expand_region)
 	import_button = button(scene, "导入 GLB 模型…" if OS.has_feature("web") else "导入 GLB / glTF / OBJ 模型…", app._pick_file)
 	note(scene, "静态模型：最大 2 MiB。选择后填写来源与许可，再提交资产。" if OS.has_feature("web") else "桌面支持 OBJ + MTL + PNG/JPEG；打包后的 GLB 最大 2 MiB。")
@@ -329,11 +330,11 @@ func update() -> void:
 	var chosen := not item.is_empty()
 	var pending: bool = not app.connection.pending.is_empty()
 	var owner_editable: bool = editable and chosen and item.get("owner_id", "") == app.connection.welcome.get("actor_id", "")
-	badge.text = "正在漫游" if app.walking else ("已连接 · 可探索" if app.interactive else ("场景加载中" if online else "未连接"))
+	badge.text = ("正在飞行" if app.flying else "正在漫游") if app.walking else ("已连接 · 可探索" if app.interactive else ("场景加载中" if online else "未连接"))
 	badge.add_theme_color_override("font_color", ACCENT if app.interactive else Color("efc680"))
 	walk_button.text = "返回编辑  ·  Esc" if app.walking else "进入漫游  ·  Tab"
 	walk_button.disabled = not app.interactive
-	walk_button.tooltip_text = "等待连接和场景资源就绪" if not app.interactive else "WASD 移动，Shift 快跑，空格跳跃，E 使用附近的门或灯"
+	walk_button.tooltip_text = "等待连接和场景资源就绪" if not app.interactive else "WASD 移动，Shift 快跑，F 飞行，E 使用附近的门或灯"
 	create_button.disabled = not editable or pending; import_button.disabled = not editable
 	expand_button.disabled = not editable or pending or float(state.get("meta", {}).get("region", {}).get("size", [256.0])[0]) >= 512
 	send_button.disabled = not editable or pending
@@ -352,7 +353,7 @@ func update() -> void:
 	if chosen and app.connection.welcome.get("role", "") == "observer": selection_note.text = "只读会话 · 可以查看和漫游"
 	connect_button.disabled = app.connection.status == "Connecting"
 	disconnect_button.disabled = app.connection.peer == null
-	hint.text = "WASD 移动  ·  Shift 快跑  ·  E 使用  ·  Esc 返回编辑" if app.walking else "双击前往/定位  ·  右键菜单  ·  中键平移  ·  滚轮缩放"
+	hint.text = ("WASD 飞行  ·  空格上升  ·  Ctrl 下降  ·  F 落地" if app.flying else "WASD 移动  ·  Shift 快跑  ·  F 飞行  ·  E 使用") if app.walking else "双击前往/定位  ·  右键菜单  ·  中键平移  ·  滚轮缩放"
 	summary.text = "视野内 %d 个对象 / %d 个角色" % [objects.size(), app.remote.size() + int(online)] if online else "等待连接"
 	var status: String = app.connection.status
 	var translated := {"Disconnected": "尚未连接 · 在连接页填写地址与会话令牌", "Connecting": "正在连接世界…", "Synchronizing": "连接成功，正在同步场景…", "Connection timeout": "连接超时 · 检查服务是否启动及地址是否正确", "Connection failed": "连接失败 · 请在连接页检查地址", "Connected": "场景已就绪 · 点击「进入漫游」开始探索", "Waiting for durable commit": "正在保存修改，请等待服务端确认…", "Recovering stream gap": "正在恢复同步，请稍候…"}

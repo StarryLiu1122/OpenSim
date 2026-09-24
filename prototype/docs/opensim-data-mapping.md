@@ -14,7 +14,7 @@
 | [RegionSettings](../../OpenSim/Framework/RegionSettings.cs) | environment、EnvironmentView | 水位、太阳时刻、雾和地表显示；程序材质近似高度/坡度分层，未实现原纹理 UUID 或 EEP |
 | [Scene](../../OpenSim/Region/Framework/Scenes/Scene.cs) | WorldModel、WorldService、main.gd | 世界状态、编辑命令及运行装配 |
 | [SceneObjectGroup](../../OpenSim/Region/Framework/Scenes/SceneObjectGroup.cs)、[SceneObjectPart](../../OpenSim/Region/Framework/Scenes/SceneObjectPart.cs) | `groups[]` + `objects[]` | 根与子部件、局部变换、组操作；仅为 linkset 子集，未实现附件或完整 prim 参数 |
-| [ScenePresence](../../OpenSim/Region/Framework/Scenes/ScenePresence.cs) | Avatar、CharacterBody3D | 本地角色、相机、步行／快跑输入及碰撞；移动速度不写入世界存档，未实现账户会话与外观库存 |
+| [ScenePresence](../../OpenSim/Region/Framework/Scenes/ScenePresence.cs) | Avatar、CharacterBody3D | 本地角色、相机、步行／快跑／飞行输入及碰撞；飞行与速度不写入世界存档，未实现账户会话与外观库存 |
 | [AssetBase](../../OpenSim/Framework/AssetBase.cs) | `assets[]` | 六项内置目录及内嵌静态 GLB，通过 asset_id 复用；不兼容 OpenSim mesh asset 编码 |
 | [InventoryItemBase](../../OpenSim/Framework/InventoryItemBase.cs)、[TaskInventoryItem](../../OpenSim/Framework/TaskInventoryItem.cs) | 后续库存实体 | 当前不包含库存记录、父对象关系和权限位 |
 | [PhysicsScene](../../OpenSim/Region/PhysicsModules/SharedBase/PhysicsScene.cs) | WorldView、Avatar、Jolt | 静态对象、门状态碰撞、三角网格地形和角色；未实现车辆、约束和动态物体编辑 |

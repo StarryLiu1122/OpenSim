@@ -292,6 +292,26 @@ func _run() -> void:
 			await process_frame
 		check(app.interactive and app.view.bodies.size() == app.connection.local.snapshot().objects.size(), "new context-built object finishes collision projection")
 	app.ui.tabs.current_tab = 0; await settle()
+	var before_quick_create: Array = app.connection.local.snapshot().objects.keys()
+	await click(app.ui.create_button)
+	var quick_id := ""
+	for frame in range(600):
+		for id in app.connection.local.snapshot().objects:
+			if id not in before_quick_create: quick_id = id; break
+		if not quick_id.is_empty() and app.connection.pending.is_empty(): break
+		await process_frame
+	var avatar_point: Array = app.View.to_world(app.own.position)
+	var quick: Dictionary = app.connection.local.snapshot().objects.get(quick_id, {})
+	check(not quick.is_empty() and Vector2(float(quick.position[0]) - float(avatar_point[0]), float(quick.position[1]) - float(avatar_point[1])).length() <= 5.0, "new box appears near the avatar instead of a fixed coordinate")
+	if not quick_id.is_empty():
+		app._command("DeleteObject", {"id": quick_id})
+		for frame in range(600):
+			if not app.connection.local.snapshot().objects.has(quick_id): break
+			await process_frame
+	for frame in range(240):
+		if app.pending_selection.is_empty() and app.connection.pending.is_empty(): break
+		await process_frame
+	app.ui.tabs.current_tab = 0; await settle()
 	for frame in range(600):
 		if not app.ui.expand_button.disabled and app.connection.pending.is_empty(): break
 		await process_frame
@@ -307,6 +327,26 @@ func _run() -> void:
 		if app.connection.local.snapshot().objects.has(outer.id) and app.view.bodies.has(outer.id): break
 		await process_frame
 	check(app.connection.local.snapshot().objects.has(outer.id) and app.view.bodies.has(outer.id), "expanded network interest includes an object 400 metres from origin")
+	await click(app.ui.walk_button)
+	await key(KEY_F)
+	check(app.flying and app.ui.badge.text == "正在飞行", "F enters flight with a visible mode indicator")
+	var flight_start: float = app.own.position.y
+	var ascend := InputEventKey.new(); ascend.keycode = KEY_SPACE; ascend.physical_keycode = KEY_SPACE; ascend.pressed = true
+	Input.parse_input_event(ascend)
+	await create_timer(1.1).timeout
+	ascend.pressed = false; Input.parse_input_event(ascend)
+	var flight_peak: float = app.own.position.y
+	var authority_altitude: float = float(app.connection.local.snapshot().avatars.get(app.connection.welcome.avatar_id, {}).get("position", [0.0, 0.0, 0.0])[2])
+	check(flight_peak > flight_start + 2.0 and authority_altitude > flight_start + 2.0, "Space ascends under local and authoritative flight physics")
+	await capture("flying")
+	var descend := InputEventKey.new(); descend.keycode = KEY_CTRL; descend.physical_keycode = KEY_CTRL; descend.pressed = true
+	Input.parse_input_event(descend)
+	await create_timer(0.7).timeout
+	descend.pressed = false; Input.parse_input_event(descend)
+	check(app.own.lift < 0 and app.own.position.y < flight_peak - 0.5, "Ctrl descends while flying")
+	await key(KEY_F)
+	check(not app.flying, "F exits flight and restores gravity")
+	await key(KEY_ESCAPE)
 	app.connection.disconnect_from(); await settle()
 	check(not app.interactive and app.ui.walk_button.disabled and app.ui.create_button.disabled, "disconnect disables movement and mutations")
 	await capture("disconnected")
