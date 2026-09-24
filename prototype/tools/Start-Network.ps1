@@ -4,11 +4,37 @@ $ErrorActionPreference = 'Stop'
 $Directory = [IO.Path]::GetFullPath($Directory)
 $path = Join-Path $Directory 'private-config.json'
 $config = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+$recordPath = Join-Path $Directory 'processes.json'
+if (Test-Path -LiteralPath $recordPath) {
+    $record = Get-Content -LiteralPath $recordPath -Raw | ConvertFrom-Json
+    $recordedServer = Get-Process -Id $record.server_pid -ErrorAction SilentlyContinue
+    if ($recordedServer) {
+        try {
+            if ([IO.Path]::GetFullPath($recordedServer.Path) -eq [IO.Path]::GetFullPath($config.godot) -and
+                $recordedServer.StartTime.ToUniversalTime().Ticks -eq ([DateTimeOffset]$record.server_started).UtcTicks) {
+                throw 'Previous server process still exists; inspect it before starting another writer.'
+            }
+        } catch {
+            if ($_.Exception.Message -eq 'Previous server process still exists; inspect it before starting another writer.') { throw }
+            throw 'Cannot verify the recorded server process; inspect it before restarting.'
+        }
+    }
+}
 $ready = Join-Path $config.storage 'server-ready.json'
 if (Test-Path -LiteralPath $ready) {
     $old = Get-Content -LiteralPath $ready -Raw | ConvertFrom-Json
     $running = Get-Process -Id $old.pid -ErrorAction SilentlyContinue
-    if ($running) { throw 'Previous server process still exists; inspect it before starting another writer.' }
+    if ($running) {
+        $sameExecutable = $false
+        try { $sameExecutable = [IO.Path]::GetFullPath($running.Path) -eq [IO.Path]::GetFullPath($config.godot) } catch { throw 'Cannot verify the process holding the previous server PID; inspect it before restarting.' }
+        if ($sameExecutable) {
+            if (!(Test-Path -LiteralPath $recordPath)) { throw 'A Godot process holds the previous server PID without a complete process record; inspect it before restarting.' }
+            $record = Get-Content -LiteralPath $recordPath -Raw | ConvertFrom-Json
+            if ($record.server_pid -eq $old.pid -and $running.StartTime.ToUniversalTime().Ticks -eq ([DateTimeOffset]$record.server_started).UtcTicks) {
+                throw 'Previous server process still exists; inspect it before starting another writer.'
+            }
+        }
+    }
     Remove-Item -LiteralPath $ready
 }
 $importLog=Join-Path $Directory 'project-import.log'
