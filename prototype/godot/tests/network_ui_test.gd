@@ -60,6 +60,15 @@ func _run() -> void:
 		check(false, "client connects to isolated authority"); finish(); return
 	check(true, "client connects to isolated authority")
 	await capture("overview")
+	await click(app.ui.guide_start_button)
+	check(app.walking and not app.ui.welcome.visible and not app.ui.dock.visible, "welcome action enters a clear exploration view")
+	await settle()
+	check(app.ui.return_button.visible and app.ui.return_button.get_global_rect().end.x <= root.size.x - 8, "exploration return action remains inside the window")
+	app._stop_walk()
+	await click(app.ui.tools_button)
+	check(not app.ui.dock.visible, "build tools can be collapsed to expose the scene")
+	await click(app.ui.tools_button)
+	check(app.ui.dock.visible, "build tools reopen without losing the workspace")
 	var context_point := root.get_visible_rect().size * 0.5
 	var context: Dictionary = app._context_at(context_point)
 	check(not context.is_empty(), "overview centre resolves a real terrain or object ray hit")

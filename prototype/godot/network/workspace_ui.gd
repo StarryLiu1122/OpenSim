@@ -1,11 +1,13 @@
 extends RefCounted
 ## Presentation only. Commands and authoritative state remain in the client/service.
-const INK := Color("e8eff5")
-const MUTED := Color("a4b5c5")
-const ACCENT := Color("70dfce")
+const INK := Color("f5f1e9")
+const MUTED := Color("b3bdc4")
+const ACCENT := Color("f2c574")
+const SURFACE := Color("101c29ed")
 var app: Node
 var root: Control
 var header: PanelContainer
+var action_bar: PanelContainer
 var dock: PanelContainer
 var welcome: PanelContainer
 var footer: PanelContainer
@@ -20,6 +22,8 @@ var selection_title: Label
 var selection_note: Label
 var search: LineEdit
 var walk_button: Button
+var return_button: Button
+var guide_start_button: Button
 var tools_button: Button
 var help_button: Button
 var apply_button: Button
@@ -57,7 +61,8 @@ func box(color: Color, border: Color = Color("2c4152"), radius: int = 12) -> Sty
 	var style := StyleBoxFlat.new()
 	style.bg_color = color; style.border_color = border
 	style.set_border_width_all(1); style.set_corner_radius_all(radius)
-	style.content_margin_left = 14; style.content_margin_right = 14
+	style.anti_aliasing = true
+	style.content_margin_left = 16; style.content_margin_right = 16
 	style.content_margin_top = 10; style.content_margin_bottom = 10
 	return style
 
@@ -69,24 +74,29 @@ func theme() -> Theme:
 	for kind in ["Button", "OptionButton", "LineEdit", "TextEdit", "SpinBox"]:
 		result.set_color("font_color", kind, INK)
 		result.set_color("font_hover_color", kind, Color.WHITE)
-		result.set_color("font_disabled_color", kind, Color("728393"))
+		result.set_color("font_disabled_color", kind, Color("84919c"))
 		result.set_color("font_placeholder_color", kind, MUTED)
 		result.set_color("caret_color", kind, ACCENT)
-		result.set_stylebox("normal", kind, box(Color("203342")))
-		result.set_stylebox("hover", kind, box(Color("2b4658"), ACCENT))
-		result.set_stylebox("pressed", kind, box(Color("36596a"), ACCENT))
+		result.set_stylebox("normal", kind, box(Color("213142f2"), Color("415160")))
+		result.set_stylebox("hover", kind, box(Color("32465b"), ACCENT))
+		result.set_stylebox("pressed", kind, box(Color("425c69"), ACCENT))
 		result.set_stylebox("focus", kind, box(Color(0, 0, 0, 0), ACCENT))
-		result.set_stylebox("disabled", kind, box(Color("192936")))
+		result.set_stylebox("disabled", kind, box(Color("1b2935d9"), Color("30404a")))
 		result.set_stylebox("read_only", kind, box(Color("192936")))
-	result.set_stylebox("panel", "PanelContainer", box(Color("132431f5")))
+	result.set_stylebox("panel", "PanelContainer", box(SURFACE, Color("52616b88"), 16))
 	result.set_stylebox("panel", "TabContainer", box(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0))
-	result.set_stylebox("tab_selected", "TabContainer", box(Color("294a59"), Color("477c83"), 6))
-	result.set_stylebox("tab_unselected", "TabContainer", box(Color("172a38"), Color("172a38"), 6))
+	var selected_tab := box(Color("46505a"), ACCENT, 9)
+	var quiet_tab := box(Color("1c2a36"), Color("1c2a36"), 9)
+	for tab_style in [selected_tab, quiet_tab]:
+		tab_style.content_margin_left = 7
+		tab_style.content_margin_right = 7
+	result.set_stylebox("tab_selected", "TabContainer", selected_tab)
+	result.set_stylebox("tab_unselected", "TabContainer", quiet_tab)
 	result.set_color("font_selected_color", "TabContainer", ACCENT)
 	result.set_color("font_unselected_color", "TabContainer", MUTED)
-	result.set_stylebox("panel", "ItemList", box(Color("101e2a")))
-	result.set_stylebox("selected", "ItemList", box(Color("2a515d"), ACCENT, 6))
-	result.set_stylebox("selected_focus", "ItemList", box(Color("2a515d"), ACCENT, 6))
+	result.set_stylebox("panel", "ItemList", box(Color("0c1722bb"), Color("40515b")))
+	result.set_stylebox("selected", "ItemList", box(Color("405160"), ACCENT, 8))
+	result.set_stylebox("selected_focus", "ItemList", box(Color("405160"), ACCENT, 8))
 	result.set_color("font_color", "ItemList", INK)
 	result.set_constant("v_separation", "ItemList", 12)
 	return result
@@ -126,6 +136,12 @@ func page(title: String) -> VBoxContainer:
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED; tabs.add_child(scroll)
 	return column(scroll)
 
+func start_exploring() -> void:
+	app._walk()
+	if app.walking:
+		help_open = false
+		layout()
+
 func build() -> void:
 	var layer := CanvasLayer.new(); app.add_child(layer)
 	root = Control.new(); layer.add_child(root); root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -133,30 +149,44 @@ func build() -> void:
 	crosshair = label(root, "+", 22, Color("e8eff5aa"))
 	crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	interaction_panel = PanelContainer.new(); interaction_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE; root.add_child(interaction_panel)
-	interaction_panel.add_theme_stylebox_override("panel", box(Color("192b39e8"), Color("70dfce88")))
+	interaction_panel.add_theme_stylebox_override("panel", box(Color("18283aee"), ACCENT))
 	interaction_prompt = label(interaction_panel, "", 15, ACCENT); interaction_prompt.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	interaction_prompt.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	interaction_prompt.mouse_filter = Control.MOUSE_FILTER_IGNORE; interaction_panel.visible = false
 	header = PanelContainer.new(); root.add_child(header)
-	var top := HBoxContainer.new(); top.add_theme_constant_override("separation", 16); header.add_child(top)
-	var brand := column(top, 0)
-	label(brand, "REGION LAB", 22)
+	header.add_theme_stylebox_override("panel", box(SURFACE, Color("f2c57477"), 14))
+	var identity := HBoxContainer.new(); identity.add_theme_constant_override("separation", 12); header.add_child(identity)
+	var brand := column(identity, 1)
+	label(brand, "REGION LAB", 19)
 	region_label = label(brand, "V6  /  共享三维世界", 12, MUTED)
-	badge = label(top, "未连接", 14, ACCENT)
-	walk_button = button(top, "进入漫游  ·  Tab", app._walk, true)
-	tools_button = button(top, "工具面板", func(): tools_open = not tools_open; layout())
-	help_button = button(top, "操作指南", func(): help_open = not help_open; layout())
+	region_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	badge = label(identity, "未连接", 12, ACCENT)
+	action_bar = PanelContainer.new(); root.add_child(action_bar)
+	action_bar.add_theme_stylebox_override("panel", box(SURFACE, Color("52616b88"), 14))
+	var actions := HBoxContainer.new(); actions.add_theme_constant_override("separation", 8); action_bar.add_child(actions)
+	walk_button = button(actions, "进入漫游  ·  Tab", app._walk, true)
+	tools_button = button(actions, "建造工具", func(): tools_open = not tools_open; layout())
+	help_button = button(actions, "帮助", func(): help_open = not help_open; layout())
+	return_button = button(root, "返回编辑  ·  Esc", app._walk, true)
+	return_button.visible = false
 	welcome = PanelContainer.new(); root.add_child(welcome)
-	var guide := column(welcome, 10)
-	label(guide, "从这里开始探索", 24)
-	note(guide, "连接后，点击顶部「进入漫游」，\n或按 Tab 进入第一人称视角。")
-	label(guide, "W A S D 移动  ·  Shift 快跑", 14, ACCENT)
-	label(guide, "空格跳跃  ·  E 使用门/灯  ·  Esc 返回编辑", 14, ACCENT)
-	label(guide, "F 飞行/落地  ·  空格上升  ·  Ctrl 下降", 14, ACCENT)
-	note(guide, "编辑时双击对象定位，双击地面前往；右键地点可建造。\n右键拖动环视，中键拖动平移，滚轮缩放，Home 重置镜头。")
-	button(guide, "知道了，收起指南", func(): help_open = false; layout())
+	welcome.add_theme_stylebox_override("panel", box(Color("101c29f2"), Color("f2c57499"), 16))
+	var guide := column(welcome, 9)
+	label(guide, "欢迎来到世界", 23)
+	note(guide, "先走进场景，或打开建造工具。随时按 Esc 返回编辑。")
+	guide_start_button = button(guide, "开始探索  →", start_exploring, true)
+	button(guide, "打开建造工具", func(): tools_open = true; help_open = false; tabs.current_tab = 0; layout())
+	label(guide, "探索快捷键", 13, ACCENT)
+	note(guide, "WASD 移动  ·  Shift 快跑  ·  F 飞行\n空格跳跃 / 上升  ·  Ctrl 下降  ·  E 互动")
+	note(guide, "编辑时右键地点可前往或建造；滚轮缩放，双击定位。")
 	dock = PanelContainer.new(); root.add_child(dock)
-	tabs = TabContainer.new(); dock.add_child(tabs)
+	dock.add_theme_stylebox_override("panel", box(Color("101c29f1"), Color("52616b99"), 16))
+	var workbench := column(dock, 9)
+	var workbench_head := HBoxContainer.new(); workbench.add_child(workbench_head)
+	var workbench_title := label(workbench_head, "创作工作台", 17)
+	workbench_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label(workbench_head, "编辑模式", 12, ACCENT)
+	tabs = TabContainer.new(); tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL; workbench.add_child(tabs)
 	var scene := page("场景")
 	label(scene, "世界中的对象", 20)
 	search = LineEdit.new(); search.placeholder_text = "搜索对象名称…"; search.clear_button_enabled = true
@@ -231,12 +261,13 @@ func build() -> void:
 	upload_button = button(assets, "提交模型资产", app._submit_upload, true)
 	note(assets, "列表显示当前视野引用的模型和本次会话已提交的模型。新模型提交后请放入场景，便于再次连接时选用。")
 	footer = PanelContainer.new(); root.add_child(footer)
+	footer.add_theme_stylebox_override("panel", box(Color("101c29d8"), Color("52616b66"), 12))
 	var bottom := column(footer, 3)
 	app.notice = label(bottom, "准备连接共享世界", 15)
 	app.notice.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	app.notice.tooltip_text = ""
 	var line := HBoxContainer.new(); bottom.add_child(line)
-	hint = label(line, "Tab 进入漫游  ·  点击对象选择  ·  F 定位  ·  右键环视 / 滚轮缩放", 13, MUTED)
+	hint = label(line, "Tab 探索  ·  点击选择  ·  F 定位  ·  右键菜单", 12, MUTED)
 	hint.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	summary = label(line, "", 13, ACCENT)
 	source_credit = LinkButton.new()
@@ -267,14 +298,24 @@ func build() -> void:
 func layout() -> void:
 	app._sync_web_scale()
 	var size: Vector2 = app.get_viewport().get_visible_rect().size
-	header.position = Vector2(20, 16); header.size = Vector2(size.x - 40, 72)
-	dock.position = Vector2(size.x - 364, 104); dock.size = Vector2(344, maxf(240, size.y - 214))
-	welcome.position = Vector2(24, 120); welcome.size = Vector2(352, 0)
-	footer.position = Vector2(20, size.y - 94); footer.size = Vector2(size.x - 40, 76)
+	if app.walking: help_open = false
+	header.position = Vector2(20, 16); header.size = Vector2(320, 64)
+	action_bar.position = Vector2(size.x - 410, 16)
+	action_bar.size = Vector2(390, 64)
+	action_bar.visible = not app.walking
+	return_button.position = Vector2(size.x - 190, 24)
+	return_button.size = Vector2(170, 48)
+	return_button.visible = app.walking
+	dock.position = Vector2(size.x - 366, 96); dock.size = Vector2(346, maxf(240, size.y - 174))
+	welcome.position = Vector2(20, 96); welcome.size = Vector2(320, 0)
+	var footer_width := minf(size.x - 40, 920) if app.walking else size.x - 40
+	footer.position = Vector2((size.x - footer_width) * 0.5, size.y - 70)
+	footer.size = Vector2(footer_width, 58)
 	dock.visible = tools_open and not app.walking
-	welcome.visible = help_open and not app.walking and size.x >= 1000
+	welcome.visible = help_open and not app.walking and size.x >= 960
 	tools_button.visible = not app.walking; help_button.visible = not app.walking
-	tools_button.text = "收起工具" if tools_open else "展开工具"
+	tools_button.text = "关闭工具" if tools_open else "建造工具"
+	help_button.text = "关闭帮助" if help_open else "帮助"
 	crosshair.position = size * 0.5 - Vector2(7, 16); crosshair.visible = app.walking
 	interaction_panel.position = Vector2((size.x - 300) * 0.5, size.y - 158)
 	interaction_panel.size = Vector2(300, 46)
@@ -320,7 +361,7 @@ func update() -> void:
 		var credit_lines := PackedStringArray()
 		for entry in credits: credit_lines.append(str(entry) + " · " + str(credits[entry]))
 		source_credit.visible = true
-		source_credit.text = ("© City of Helsinki" if "City of Helsinki" in credit else credit.split(";")[0]) if credits.size() == 1 else "来源与许可（%d）" % credits.size()
+		source_credit.text = ("© City of Helsinki" if "City of Helsinki" in credit else "来源与许可") if credits.size() == 1 else "来源与许可（%d）" % credits.size()
 		source_credit.tooltip_text = "\n".join(credit_lines)
 		source_credit_url = ("https://docs.3dbag.nl/en/copyright/" if "3DBAG" in credit else ("https://www.hel.fi/en/decision-making/information-on-helsinki/maps-and-geospatial-data/helsinki-3d" if "City of Helsinki" in credit else "")) if credits.size() == 1 else ""
 	region_label.text = "V6  /  " + str(state.get("meta", {}).get("region", {}).get("name", "共享三维世界")) if online else "V6  /  共享三维世界"
@@ -334,6 +375,8 @@ func update() -> void:
 	badge.add_theme_color_override("font_color", ACCENT if app.interactive else Color("efc680"))
 	walk_button.text = "返回编辑  ·  Esc" if app.walking else "进入漫游  ·  Tab"
 	walk_button.disabled = not app.interactive
+	return_button.disabled = not app.interactive
+	guide_start_button.disabled = not app.interactive
 	walk_button.tooltip_text = "等待连接和场景资源就绪" if not app.interactive else "WASD 移动，Shift 快跑，F 飞行，E 使用附近的门或灯"
 	create_button.disabled = not editable or pending; import_button.disabled = not editable
 	expand_button.disabled = not editable or pending or float(state.get("meta", {}).get("region", {}).get("size", [256.0])[0]) >= 512
