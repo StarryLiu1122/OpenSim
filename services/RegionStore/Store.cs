@@ -452,7 +452,7 @@ internal sealed class Store : IDisposable
     {
         if (new FileInfo(path).Length > 16 * 1024 * 1024) throw new StoreError("BUNDLE_SIZE_LIMIT");
         using var archive = ZipFile.OpenRead(path);
-        if (archive.Entries.Count < 2 || archive.Entries.Count > 19) throw new StoreError("BUNDLE_ENTRY_LIMIT");
+        if (archive.Entries.Count < 2 || archive.Entries.Count > 67) throw new StoreError("BUNDLE_ENTRY_LIMIT");
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
         long total = 0;
         foreach (var entry in archive.Entries)

@@ -12,6 +12,7 @@ const BOX_ASSET := "22222222-2222-4222-8222-222222222222"
 const REGION_ID := "33333333-3333-4333-8333-333333333333"
 const MAX_OBJECTS := 500
 const MAX_FILE_BYTES := 8 * 1024 * 1024
+const MAX_IMPORTED_ASSETS := 64
 
 static func uuid() -> String:
 	var bytes := Crypto.new().generate_random_bytes(16)
@@ -73,8 +74,8 @@ static func validate(world: Variant) -> String:
 	var environment_error := validate_environment(world.environment)
 	if not environment_error.is_empty():
 		return environment_error
-	if not world.assets is Array or world.assets.size() < KINDS.size() or world.assets.size() > KINDS.size() + 16 or world.assets.slice(0, KINDS.size()) != catalog():
-		return "The asset catalog must begin with the six fixed built-ins and contain at most 16 imported assets."
+	if not world.assets is Array or world.assets.size() < KINDS.size() or world.assets.size() > KINDS.size() + MAX_IMPORTED_ASSETS or world.assets.slice(0, KINDS.size()) != catalog():
+		return "The asset catalog must begin with the six fixed built-ins and contain at most 64 imported assets."
 	var mesh_ids: Array = []
 	for asset in world.assets.slice(KINDS.size()):
 		var loaded := MeshAssets.read(asset)

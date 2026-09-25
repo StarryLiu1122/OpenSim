@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "batch_id": "synthetic-helsinki-water-001",
+  "source_id": "region-lab-test-fixture",
+  "model_id": "synthetic-water-demo",
+  "model_version": "0.1.0",
+  "source_crs": "EPSG:3879+5773",
+  "horizontal_unit": "metre",
+  "vertical_unit": "metre",
+  "observed_at": "2026-09-25T08:00:00Z",
+  "generated_at": "2026-09-25T08:05:00Z",
+  "predicted_for": "2026-09-25T09:00:00Z",
+  "samples": [
+    {"id": "central-street", "east": 5375.0, "north": 4125.0, "water_surface_height": 1.0}
+  ]
+}

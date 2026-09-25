@@ -73,5 +73,5 @@ static func _text(value: Variant, limit: int) -> bool:
 
 static func _remember(digest: String, geometry: Dictionary) -> void:
 	_cache[digest] = geometry.duplicate(true)
-	if _cache.size() > 16:
+	if _cache.size() > 64:
 		_cache.erase(_cache.keys()[0])

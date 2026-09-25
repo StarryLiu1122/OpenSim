@@ -44,9 +44,9 @@ flowchart LR
 | --- | --- |
 | `schema_version` | 当前为 3；格式 1/2 由专用旧版校验器验证后迁移，其它版本拒绝读取 |
 | `revision` | 0–1,000,000,000 的整数 |
-| `region` | `id/name/size/spawn/owner_id`；尺寸当前固定 256×256 米 |
+| `region` | `id/name/size/spawn/owner_id`；尺寸可为 256×256 或 512×512 米 |
 | `terrain` | `columns/rows/spacing/heights`；覆盖范围必须与区域一致，高程 -40–80 米 |
-| `assets` | 前六项为固定内置目录，之后最多 16 个内嵌 mesh 记录 |
+| `assets` | 前六项为固定内置目录，之后最多 64 个内嵌 mesh 记录；完整快照仍限 8 MiB |
 | `environment` | `sun_hour/water_enabled/water_height/fog_density/terrain_grid` |
 | `groups` | 最多 128 组，每组 2–100 个成员；根、归属、局部与世界变换均须合法 |
 | `objects` | 最多 500 个对象或组成员；ID 唯一，变换和归属须合法 |

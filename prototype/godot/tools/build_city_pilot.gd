@@ -25,7 +25,7 @@ func _run() -> void:
 	var crs := str(parsed.get("source_crs", "")) if parsed is Dictionary else ""
 	var crs_pattern := RegEx.new()
 	crs_pattern.compile("^(EPSG:[0-9]{4,6}(\\+[0-9]{4,6})?|LOCAL_METRES)$")
-	if not parsed is Dictionary or not entries is Array or entries.is_empty() or entries.size() > 16 or crs_pattern.search(crs) == null or not Schema.number(parsed.get("region_size", 256), 256, 512) or float(parsed.get("region_size", 256)) not in [256.0, 512.0]:
+	if not parsed is Dictionary or not entries is Array or entries.is_empty() or entries.size() > Schema.MAX_IMPORTED_ASSETS or crs_pattern.search(crs) == null or not Schema.number(parsed.get("region_size", 256), 256, 512) or float(parsed.get("region_size", 256)) not in [256.0, 512.0]:
 		_fail("Invalid bounded city manifest.")
 		return
 	var service = Service.new(world_path)

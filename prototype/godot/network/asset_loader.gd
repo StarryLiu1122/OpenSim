@@ -20,7 +20,7 @@ func reset() -> void:
 
 func set_required(records: Dictionary) -> void:
 	required = records.duplicate(true)
-	# Retain only the current interest set; at most the world's 16 x 2 MiB limit.
+	# Retain only the current interest set; the world catalog is capped at 64 imports.
 	for id in cache.keys():
 		if not required.has(id): cache.erase(id)
 	for id in attempts.keys():

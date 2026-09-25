@@ -1,4 +1,4 @@
-"""Convert one 4x4 Helsinki 2017 reality-mesh L19 block into bounded textured GLBs.
+"""Convert a 4x4 or 8x8 Helsinki 2017 L19 block into bounded textured GLBs.
 
 Input is a directory of matching OBJ/JPEG files from an official Helsinki OBJ ZIP.
 The converter changes coordinates and container format only; textures remain the
@@ -21,7 +21,6 @@ SOURCE_URL = (
 ROOT_EAST = 5250.0
 ROOT_NORTH = 4000.0
 CELL = 31.25
-COUNT = 4
 
 
 def add_buffer(binary, views, content):
@@ -132,9 +131,9 @@ def parse_obj(data):
     return vertices, uv, groups, lower, upper
 
 
-def convert(source, destination, grid_x=2, grid_y=3):
-    if not 0 <= grid_x <= 4 or not 0 <= grid_y <= 4:
-        raise ValueError("4x4 selection must lie within one 8x8 source tile")
+def convert(source, destination, grid_x=2, grid_y=3, count=4):
+    if count not in (4, 8) or not 0 <= grid_x <= 8 - count or not 0 <= grid_y <= 8 - count:
+        raise ValueError("selection must be a 4x4 or 8x8 block within one source tile")
     if destination.exists() and any(destination.iterdir()):
         raise ValueError("use a fresh empty output directory")
     selected = {}
@@ -146,7 +145,7 @@ def convert(source, destination, grid_x=2, grid_y=3):
         vertices, uv, groups, lower, upper = parse_obj(raw)
         gx = round((lower[0] - ROOT_EAST) / CELL)
         gy = round((lower[1] - ROOT_NORTH) / CELL)
-        if not (grid_x <= gx < grid_x + COUNT and grid_y <= gy < grid_y + COUNT):
+        if not (grid_x <= gx < grid_x + count and grid_y <= gy < grid_y + count):
             continue
         if (gx, gy) in selected:
             raise ValueError("duplicate source tile location")
@@ -155,25 +154,27 @@ def convert(source, destination, grid_x=2, grid_y=3):
         if len(image) > 1024 * 1024 or not image.startswith(b"\xff\xd8"):
             raise ValueError("missing or oversized JPEG texture")
         selected[gx, gy] = (obj, raw, jpg, image, vertices, uv, groups, lower, upper)
-    if len(selected) != COUNT * COUNT:
-        raise ValueError(f"expected 16 contiguous tiles, found {len(selected)}")
+    if len(selected) != count * count:
+        raise ValueError(f"expected {count * count} contiguous tiles, found {len(selected)}")
     baseline = min(item[7][2] for item in selected.values())
     destination.mkdir(parents=True)
+    offset = (64.0, 32.0) if count == 4 else (128.0, 128.0)
     manifest = {
         "source_url": SOURCE_URL, "source_crs": "EPSG:3879+5773",
         "region_name": "赫尔辛基实景街区",
-        "spawn": [128.0, 107.0, 5.5],
+        "spawn": [128.0, 107.0, 5.5] if count == 4 else [253.0, 253.0, 7.5],
+        "region_size": 256 if count == 4 else 512,
         "source_tile": source.name, "source_lod": 19,
         "source_bounds": [ROOT_EAST + grid_x * CELL, ROOT_NORTH + grid_y * CELL,
-                          ROOT_EAST + (grid_x + COUNT) * CELL,
-                          ROOT_NORTH + (grid_y + COUNT) * CELL],
-        "region_offset": [64.0, 32.0], "height_baseline_source": baseline,
+                          ROOT_EAST + (grid_x + count) * CELL,
+                          ROOT_NORTH + (grid_y + count) * CELL],
+        "region_offset": list(offset), "height_baseline_source": baseline,
         "license": "CC-BY-4.0", "attribution": "City of Helsinki, Helsinki 3D Mesh 2017; hel.fi/3d",
-        "changes": "16 original L19 OBJ/JPEG tiles converted to local-coordinate embedded GLBs; texture pixels unchanged",
+        "changes": f"{count * count} original L19 OBJ/JPEG tiles converted to local-coordinate embedded GLBs; texture pixels unchanged",
         "tiles": [],
     }
-    for gy in range(grid_y, grid_y + COUNT):
-        for gx in range(grid_x, grid_x + COUNT):
+    for gy in range(grid_y, grid_y + count):
+        for gx in range(grid_x, grid_x + count):
             obj, raw, jpg, image, vertices, uv, groups, lower, upper = selected[gx, gy]
             bounds = [upper[i] - lower[i] for i in range(3)]
             if any(v < 0.2 or v > 32 for v in bounds):
@@ -184,8 +185,8 @@ def convert(source, destination, grid_x=2, grid_y=3):
             output.write_bytes(content)
             manifest["tiles"].append({
                 "name": f"赫尔辛基街区 {gx}-{gy}", "file": output.name,
-                "position": [64.0 + center[0] - manifest["source_bounds"][0],
-                             32.0 + center[1] - manifest["source_bounds"][1],
+                "position": [offset[0] + center[0] - manifest["source_bounds"][0],
+                             offset[1] + center[1] - manifest["source_bounds"][1],
                              center[2] - baseline],
                 "bounds": [bounds[0], bounds[1], bounds[2]],
                 "triangles": sum(map(len, groups)), "sha256": hashlib.sha256(content).hexdigest(),
@@ -202,6 +203,7 @@ if __name__ == "__main__":
     parser.add_argument("destination", type=Path)
     parser.add_argument("--grid-x", type=int, default=2)
     parser.add_argument("--grid-y", type=int, default=3)
+    parser.add_argument("--count", type=int, choices=(4, 8), default=4)
     args = parser.parse_args()
-    result = convert(args.source, args.destination, args.grid_x, args.grid_y)
+    result = convert(args.source, args.destination, args.grid_x, args.grid_y, args.count)
     print(f"Converted {len(result['tiles'])} textured Helsinki tiles; bounds {result['source_bounds']}.")

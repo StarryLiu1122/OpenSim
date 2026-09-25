@@ -33,7 +33,7 @@ func _run() -> void:
 		return
 	var world: Dictionary = app.connection.local.snapshot()
 	var spawn_clear := true
-	if expected == 16:
+	if expected == 16 or expected == 64:
 		var spawn: Array = world.meta.region.spawn
 		var x := float(spawn[0])
 		var z := -float(spawn[1])
@@ -49,7 +49,7 @@ func _run() -> void:
 			if child is MeshInstance3D and child.material_override is StandardMaterial3D and child.material_override.albedo_texture != null:
 				textured += 1
 	var ok: bool = world.objects.size() == expected and meshes == expected and app.view.bodies.size() == expected and app.connection.assets.ready() and app.ui.source_credit.visible
-	if expected == 16: ok = ok and textured == 16 and spawn_clear and app.ui.source_credit.text == "© City of Helsinki"
+	if expected == 16 or expected == 64: ok = ok and textured == expected and spawn_clear and app.ui.source_credit.text == "© City of Helsinki"
 	for item in world.objects.values():
 		ok = ok and str(item.name).begins_with(prefix)
 	if not ok:
@@ -57,7 +57,7 @@ func _run() -> void:
 		push_error("Unexpected city world, model geometry, or asset readiness.")
 		quit(1)
 		return
-	if expected == 16:
+	if expected == 16 or expected == 64:
 		app._walk()
 		if not app.walking:
 			push_error("Real-city walkthrough did not start.")
