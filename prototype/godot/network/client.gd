@@ -489,14 +489,18 @@ func _overview() -> void:
 			var minimum := Vector3(INF, INF, INF)
 			var maximum := Vector3(-INF, -INF, -INF)
 			var imported_only := true
+			var imported_count := 0
 			for item in objects:
 				if not Schema.kind(item.asset_id).is_empty():
 					imported_only = false
-					break
+					continue
+				imported_count += 1
 				var center := View.to_engine(item.position)
 				var half := Vector3(item.size[0], item.size[2], item.size[1]) * 0.5
-				minimum = minimum.min(center - half)
-				maximum = maximum.max(center + half)
+				var basis := View.rotation_to_engine(item.rotation)
+				var extent := basis.x.abs() * half.x + basis.y.abs() * half.y + basis.z.abs() * half.z
+				minimum = minimum.min(center - extent)
+				maximum = maximum.max(center + extent)
 			if imported_only:
 				overview_target = (minimum + maximum) * 0.5
 				var scene_span := maxf(maximum.x - minimum.x, maximum.z - minimum.z)
@@ -511,6 +515,21 @@ func _overview() -> void:
 				else:
 					offset = Vector3(-0.8, 0.85, -0.4).normalized() * clampf(scene_span * 1.65, 45, 600)
 				camera.fov = 52
+			elif imported_count >= 8:
+				var span := maxf(maximum.x - minimum.x, maximum.z - minimum.z)
+				var cross_span := minf(maximum.x - minimum.x, maximum.z - minimum.z)
+				if span >= 40 and span >= cross_span * 2.0:
+					# An assembled street with builtin road pieces is best viewed
+					# from its open end, looking between the two inward-facing rows.
+					overview_target = (minimum + maximum) * 0.5
+					overview_target.y = minimum.y + 2.0
+					if maximum.x - minimum.x >= maximum.z - minimum.z:
+						offset = Vector3(-span * 0.65, span * 0.25, 0)
+						yaw = -PI * 0.5
+					else:
+						offset = Vector3(0, span * 0.25, span * 0.65)
+						yaw = 0.0
+					pitch = 0.0
 	camera.position = overview_target + offset
 	camera.look_at(overview_target)
 

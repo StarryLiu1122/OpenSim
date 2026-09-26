@@ -1,4 +1,4 @@
-# 高清建筑模型体验区
+# 高清建筑与街道体验区
 
 本目录保存一个可离线打开的静态城市建筑场景。两栋两层公寓使用同一份带 PBR 材质的 GLB，左侧公寓前另有一扇涂鸦金属卷帘窗；它们是建筑素材演示，**并不对应某个真实地址**。
 
@@ -19,3 +19,20 @@
 ![网络客户端实际渲染画面](../../../docs/images/polyhaven-urban-apartment.png)
 
 该模型是本项目当前导入预算内的清晰近景样例：贴图上限仍为 1024 像素，不能把它当成原始 8K 资产或完整实景扫描。真实地点需要另选带明确地理出处及许可的数据。
+
+## 80 米街道演示
+
+双击 [`prototype/打开高清街区体验.cmd`](../../../打开高清街区体验.cmd)，打开独立的 `runtime/polyhaven-street-v4/` 世界和本机服务。首次构建完成后，界面左上角显示“高清街区体验区”；点击“进入漫游”或按 **Tab**，从西端沿道路按 **W** 前进，按住 **Shift** 快跑，按 **F** 切换飞行，按 **Esc** 回到俯瞰。右键地面可选择前往，也可以在编辑权限下放置物体。
+
+街道长约 80 米，两侧共有 16 栋建筑，复用三份带 1K PBR 贴图的 GLB；道路、人行道、标线、路灯及简化背面窗门由 123 个内置对象构成。原公寓之外，还从同一 CC0 模块集组装了赤陶色住宅和绿色店铺，转换脚本为 [`Build-PolyHavenApartmentVariants.py`](../../../tools/Build-PolyHavenApartmentVariants.py)。[`Build-PolyHavenStreetManifest.py`](../../../tools/Build-PolyHavenStreetManifest.py) 可复现包含校验和、位置和旋转的 [`street-manifest.json`](street-manifest.json)。`build_city_pilot.gd` 通过 WorldService 平整局部地形、放置对象、导入三份模型并保存，不会改动赫尔辛基或两栋公寓样例的存档。
+
+| 文件 | 大小 | SHA-256 |
+| --- | ---: | --- |
+| `terracotta-residence.glb` | 1,855,600 B | `1d988e7d48e4d86457834a0ba4ddc959f175da38a83bd501866a885f32452eb0` |
+| `sage-shopfront.glb` | 1,811,980 B | `692c611274d07395343ce2bc7a7949e7c4ae47606cebecce033183db49443c8c` |
+
+![80 米街道的真实客户端俯瞰画面](../../../docs/images/polyhaven-street-80m-overview.png)
+
+![在道路西端进入漫游的真实客户端画面](../../../docs/images/polyhaven-street-80m-walk.png)
+
+这是一条为演示而拼装的街景。建筑不是某个地址的测绘件，背面窗门是简化装饰，室内不可进入；它适合展示导入、近看纹理和沿街漫游。要展示真实地点与较大地理范围，可使用本分支的[赫尔辛基 250 米航拍街区](../../../docs/helsinki-textured-city-pilot.md)。

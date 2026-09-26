@@ -83,17 +83,21 @@ func _ready() -> void:
 
 func _frame_imported_scene() -> void:
 	var objects: Array = service.model.snapshot().objects
-	if objects.size() < 2:
+	var imported: Array = []
+	for item in objects:
+		if Schema.kind(item.asset_id).is_empty():
+			imported.append(item)
+	if imported.is_empty():
 		return
 	var minimum := Vector3(INF, INF, INF)
 	var maximum := Vector3(-INF, -INF, -INF)
-	for item in objects:
-		if not Schema.kind(item.asset_id).is_empty():
-			return
+	for item in imported:
 		var center := WorldView.to_engine(item.position)
 		var half := Vector3(item.size[0], item.size[2], item.size[1]) * 0.5
-		minimum = minimum.min(center - half)
-		maximum = maximum.max(center + half)
+		var basis := WorldView.rotation_to_engine(item.rotation)
+		var extent := basis.x.abs() * half.x + basis.y.abs() * half.y + basis.z.abs() * half.z
+		minimum = minimum.min(center - extent)
+		maximum = maximum.max(center + extent)
 	orbit_target = (minimum + maximum) * 0.5
 	var scene_span := maxf(maximum.x - minimum.x, maximum.z - minimum.z)
 	var small_scene := scene_span <= 24
@@ -103,7 +107,7 @@ func _frame_imported_scene() -> void:
 	var xx := 0.0
 	var zz := 0.0
 	var xz := 0.0
-	for item in objects:
+	for item in imported:
 		var point := WorldView.to_engine(item.position) - orbit_target
 		xx += point.x * point.x
 		zz += point.z * point.z

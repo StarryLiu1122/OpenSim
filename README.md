@@ -30,11 +30,15 @@ dotnet build .\services\RegionHost\RegionHost.csproj -c Release
 
 再次进入时重新运行一键入口即可。若提示端口被占用，先检查 `20830–20832` 是否已有这个场景的服务在运行；不要同时启动两个写入同一运行目录的服务。启动和存档问题见[完整运行指南](prototype/docs/network-quickstart.md)。
 
-要近距离查看门窗、墙面和金属涂鸦材质，可双击 [`prototype/打开高清建筑模型体验.cmd`](prototype/打开高清建筑模型体验.cmd)。它打开独立的两栋公寓样例，不会覆盖赫尔辛基存档；[实际客户端画面](prototype/docs/images/polyhaven-urban-apartment.png)及[素材来源与处理说明](prototype/fixtures/geodata/polyhaven-urban-apartment/README.md)可供核对。这个样例展示现实风格建筑素材，**不对应真实地址**。
+想在更完整的街道里近看建筑贴图，可双击 [`prototype/打开高清街区体验.cmd`](prototype/打开高清街区体验.cmd)。它打开约 **80 米长**、两侧共 16 栋建筑的独立街景，含人行道、斑马线和路灯；从街道西端出生，按 Tab 后可沿路漫游。[实际俯瞰画面](prototype/docs/images/polyhaven-street-80m-overview.png)与[街面漫游画面](prototype/docs/images/polyhaven-street-80m-walk.png)可预览。建筑由 [Poly Haven 的 CC0 素材](prototype/fixtures/geodata/polyhaven-urban-apartment/README.md)拼装，**不对应真实地址**；需要真实地理范围时请使用上面的赫尔辛基入口。
 
-使用后可停止该场景的本地服务：
+较小的两栋公寓近景样例仍可双击 [`prototype/打开高清建筑模型体验.cmd`](prototype/打开高清建筑模型体验.cmd)，其中还有一扇涂鸦卷帘窗。[实际客户端画面](prototype/docs/images/polyhaven-urban-apartment.png)可供核对。
+
+使用后可停止街道或两栋公寓样例的本地服务：
 
 ```powershell
+.\prototype\tools\Stop-Network.ps1 -Directory .\prototype\runtime\polyhaven-street-v4\network
+# 如果还打开了两栋公寓样例，再运行：
 .\prototype\tools\Stop-Network.ps1 -Directory .\prototype\runtime\polyhaven-urban-apartment-v2\network
 ```
 

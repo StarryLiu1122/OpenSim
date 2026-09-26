@@ -1,0 +1,2345 @@
+{
+  "source_url": "https://polyhaven.com/a/modular_urban_apartments_facade",
+  "source_crs": "LOCAL_METRES",
+  "region_name": "高清街区体验区 · 80 米街道",
+  "spawn": [
+    94,
+    110,
+    1.8
+  ],
+  "region_size": 256,
+  "license": "CC0-1.0",
+  "attribution": "Poly Haven; Modular Urban Apartments Facade by James Ray Cock; assembled street demonstration",
+  "description": "80 m assembled demonstration street; not a real location or surveyed model",
+  "terrain_flatten": {
+    "centers": [
+      [
+        88,
+        104
+      ],
+      [
+        104,
+        104
+      ],
+      [
+        120,
+        104
+      ],
+      [
+        136,
+        104
+      ],
+      [
+        152,
+        104
+      ],
+      [
+        168,
+        104
+      ],
+      [
+        88,
+        120
+      ],
+      [
+        104,
+        120
+      ],
+      [
+        120,
+        120
+      ],
+      [
+        136,
+        120
+      ],
+      [
+        152,
+        120
+      ],
+      [
+        168,
+        120
+      ]
+    ],
+    "radius": 32,
+    "passes": 2,
+    "target_height": 0
+  },
+  "primitives": [
+    {
+      "name": "沥青色路面 1",
+      "kind": "box",
+      "position": [
+        100,
+        110,
+        -0.06
+      ],
+      "bounds": [
+        20,
+        8,
+        0.2
+      ],
+      "color": "#333A3D",
+      "material": "concrete"
+    },
+    {
+      "name": "南侧人行道 1",
+      "kind": "box",
+      "position": [
+        100,
+        104.5,
+        0.04
+      ],
+      "bounds": [
+        20,
+        3,
+        0.2
+      ],
+      "color": "#BDBBB1",
+      "material": "concrete"
+    },
+    {
+      "name": "北侧人行道 1",
+      "kind": "box",
+      "position": [
+        100,
+        115.5,
+        0.04
+      ],
+      "bounds": [
+        20,
+        3,
+        0.2
+      ],
+      "color": "#BDBBB1",
+      "material": "concrete"
+    },
+    {
+      "name": "沥青色路面 2",
+      "kind": "box",
+      "position": [
+        120,
+        110,
+        -0.06
+      ],
+      "bounds": [
+        20,
+        8,
+        0.2
+      ],
+      "color": "#333A3D",
+      "material": "concrete"
+    },
+    {
+      "name": "南侧人行道 2",
+      "kind": "box",
+      "position": [
+        120,
+        104.5,
+        0.04
+      ],
+      "bounds": [
+        20,
+        3,
+        0.2
+      ],
+      "color": "#BDBBB1",
+      "material": "concrete"
+    },
+    {
+      "name": "北侧人行道 2",
+      "kind": "box",
+      "position": [
+        120,
+        115.5,
+        0.04
+      ],
+      "bounds": [
+        20,
+        3,
+        0.2
+      ],
+      "color": "#BDBBB1",
+      "material": "concrete"
+    },
+    {
+      "name": "沥青色路面 3",
+      "kind": "box",
+      "position": [
+        140,
+        110,
+        -0.06
+      ],
+      "bounds": [
+        20,
+        8,
+        0.2
+      ],
+      "color": "#333A3D",
+      "material": "concrete"
+    },
+    {
+      "name": "南侧人行道 3",
+      "kind": "box",
+      "position": [
+        140,
+        104.5,
+        0.04
+      ],
+      "bounds": [
+        20,
+        3,
+        0.2
+      ],
+      "color": "#BDBBB1",
+      "material": "concrete"
+    },
+    {
+      "name": "北侧人行道 3",
+      "kind": "box",
+      "position": [
+        140,
+        115.5,
+        0.04
+      ],
+      "bounds": [
+        20,
+        3,
+        0.2
+      ],
+      "color": "#BDBBB1",
+      "material": "concrete"
+    },
+    {
+      "name": "沥青色路面 4",
+      "kind": "box",
+      "position": [
+        160,
+        110,
+        -0.06
+      ],
+      "bounds": [
+        20,
+        8,
+        0.2
+      ],
+      "color": "#333A3D",
+      "material": "concrete"
+    },
+    {
+      "name": "南侧人行道 4",
+      "kind": "box",
+      "position": [
+        160,
+        104.5,
+        0.04
+      ],
+      "bounds": [
+        20,
+        3,
+        0.2
+      ],
+      "color": "#BDBBB1",
+      "material": "concrete"
+    },
+    {
+      "name": "北侧人行道 4",
+      "kind": "box",
+      "position": [
+        160,
+        115.5,
+        0.04
+      ],
+      "bounds": [
+        20,
+        3,
+        0.2
+      ],
+      "color": "#BDBBB1",
+      "material": "concrete"
+    },
+    {
+      "name": "中心虚线 1",
+      "kind": "box",
+      "position": [
+        97,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        3,
+        0.2,
+        0.2
+      ],
+      "color": "#E7DDC0",
+      "material": "plain"
+    },
+    {
+      "name": "中心虚线 2",
+      "kind": "box",
+      "position": [
+        106,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        3,
+        0.2,
+        0.2
+      ],
+      "color": "#E7DDC0",
+      "material": "plain"
+    },
+    {
+      "name": "中心虚线 3",
+      "kind": "box",
+      "position": [
+        115,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        3,
+        0.2,
+        0.2
+      ],
+      "color": "#E7DDC0",
+      "material": "plain"
+    },
+    {
+      "name": "中心虚线 4",
+      "kind": "box",
+      "position": [
+        124,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        3,
+        0.2,
+        0.2
+      ],
+      "color": "#E7DDC0",
+      "material": "plain"
+    },
+    {
+      "name": "中心虚线 5",
+      "kind": "box",
+      "position": [
+        133,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        3,
+        0.2,
+        0.2
+      ],
+      "color": "#E7DDC0",
+      "material": "plain"
+    },
+    {
+      "name": "中心虚线 6",
+      "kind": "box",
+      "position": [
+        142,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        3,
+        0.2,
+        0.2
+      ],
+      "color": "#E7DDC0",
+      "material": "plain"
+    },
+    {
+      "name": "中心虚线 7",
+      "kind": "box",
+      "position": [
+        151,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        3,
+        0.2,
+        0.2
+      ],
+      "color": "#E7DDC0",
+      "material": "plain"
+    },
+    {
+      "name": "中心虚线 8",
+      "kind": "box",
+      "position": [
+        160,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        3,
+        0.2,
+        0.2
+      ],
+      "color": "#E7DDC0",
+      "material": "plain"
+    },
+    {
+      "name": "西端斑马线 1",
+      "kind": "box",
+      "position": [
+        92,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        0.5,
+        7.5,
+        0.2
+      ],
+      "color": "#E8E8DB",
+      "material": "plain"
+    },
+    {
+      "name": "西端斑马线 2",
+      "kind": "box",
+      "position": [
+        93,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        0.5,
+        7.5,
+        0.2
+      ],
+      "color": "#E8E8DB",
+      "material": "plain"
+    },
+    {
+      "name": "西端斑马线 3",
+      "kind": "box",
+      "position": [
+        94,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        0.5,
+        7.5,
+        0.2
+      ],
+      "color": "#E8E8DB",
+      "material": "plain"
+    },
+    {
+      "name": "西端斑马线 4",
+      "kind": "box",
+      "position": [
+        95,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        0.5,
+        7.5,
+        0.2
+      ],
+      "color": "#E8E8DB",
+      "material": "plain"
+    },
+    {
+      "name": "西端斑马线 5",
+      "kind": "box",
+      "position": [
+        96,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        0.5,
+        7.5,
+        0.2
+      ],
+      "color": "#E8E8DB",
+      "material": "plain"
+    },
+    {
+      "name": "东端斑马线 1",
+      "kind": "box",
+      "position": [
+        165,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        0.5,
+        7.5,
+        0.2
+      ],
+      "color": "#E8E8DB",
+      "material": "plain"
+    },
+    {
+      "name": "东端斑马线 2",
+      "kind": "box",
+      "position": [
+        166,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        0.5,
+        7.5,
+        0.2
+      ],
+      "color": "#E8E8DB",
+      "material": "plain"
+    },
+    {
+      "name": "东端斑马线 3",
+      "kind": "box",
+      "position": [
+        167,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        0.5,
+        7.5,
+        0.2
+      ],
+      "color": "#E8E8DB",
+      "material": "plain"
+    },
+    {
+      "name": "东端斑马线 4",
+      "kind": "box",
+      "position": [
+        168,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        0.5,
+        7.5,
+        0.2
+      ],
+      "color": "#E8E8DB",
+      "material": "plain"
+    },
+    {
+      "name": "东端斑马线 5",
+      "kind": "box",
+      "position": [
+        169,
+        110,
+        -0.04
+      ],
+      "bounds": [
+        0.5,
+        7.5,
+        0.2
+      ],
+      "color": "#E8E8DB",
+      "material": "plain"
+    },
+    {
+      "name": "北侧街灯 1",
+      "kind": "lamp",
+      "position": [
+        95,
+        115.5,
+        2.25
+      ],
+      "bounds": [
+        0.6,
+        0.6,
+        4.5
+      ],
+      "color": "#3F4B4D",
+      "material": "metal"
+    },
+    {
+      "name": "北侧街灯 2",
+      "kind": "lamp",
+      "position": [
+        119,
+        115.5,
+        2.25
+      ],
+      "bounds": [
+        0.6,
+        0.6,
+        4.5
+      ],
+      "color": "#3F4B4D",
+      "material": "metal"
+    },
+    {
+      "name": "北侧街灯 3",
+      "kind": "lamp",
+      "position": [
+        143,
+        115.5,
+        2.25
+      ],
+      "bounds": [
+        0.6,
+        0.6,
+        4.5
+      ],
+      "color": "#3F4B4D",
+      "material": "metal"
+    },
+    {
+      "name": "北侧街灯 4",
+      "kind": "lamp",
+      "position": [
+        168,
+        115.5,
+        2.25
+      ],
+      "bounds": [
+        0.6,
+        0.6,
+        4.5
+      ],
+      "color": "#3F4B4D",
+      "material": "metal"
+    },
+    {
+      "name": "南侧街灯 1",
+      "kind": "lamp",
+      "position": [
+        107,
+        104.5,
+        2.25
+      ],
+      "bounds": [
+        0.6,
+        0.6,
+        4.5
+      ],
+      "color": "#3F4B4D",
+      "material": "metal"
+    },
+    {
+      "name": "南侧街灯 2",
+      "kind": "lamp",
+      "position": [
+        132,
+        104.5,
+        2.25
+      ],
+      "bounds": [
+        0.6,
+        0.6,
+        4.5
+      ],
+      "color": "#3F4B4D",
+      "material": "metal"
+    },
+    {
+      "name": "南侧街灯 3",
+      "kind": "lamp",
+      "position": [
+        156,
+        104.5,
+        2.25
+      ],
+      "bounds": [
+        0.6,
+        0.6,
+        4.5
+      ],
+      "color": "#3F4B4D",
+      "material": "metal"
+    },
+    {
+      "name": "north-01 后窗 1-1",
+      "kind": "box",
+      "position": [
+        94.5,
+        120.31,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-01 后窗 1-2",
+      "kind": "box",
+      "position": [
+        97.5,
+        120.31,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-01 后窗 2-1",
+      "kind": "box",
+      "position": [
+        94.5,
+        120.31,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-01 后窗 2-2",
+      "kind": "box",
+      "position": [
+        97.5,
+        120.31,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-01 后门",
+      "kind": "box",
+      "position": [
+        96.0,
+        120.31,
+        1.05
+      ],
+      "bounds": [
+        1.2,
+        0.2,
+        2.1
+      ],
+      "color": "#725A4A",
+      "material": "wood"
+    },
+    {
+      "name": "north-02 后窗 1-1",
+      "kind": "box",
+      "position": [
+        103.5,
+        121.77,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-02 后窗 1-2",
+      "kind": "box",
+      "position": [
+        106.5,
+        121.77,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-02 后窗 2-1",
+      "kind": "box",
+      "position": [
+        103.5,
+        121.77,
+        4.7
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-02 后窗 2-2",
+      "kind": "box",
+      "position": [
+        106.5,
+        121.77,
+        4.7
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-02 后门",
+      "kind": "box",
+      "position": [
+        105.0,
+        121.77,
+        1.05
+      ],
+      "bounds": [
+        1.2,
+        0.2,
+        2.1
+      ],
+      "color": "#725A4A",
+      "material": "wood"
+    },
+    {
+      "name": "north-03 后窗 1-1",
+      "kind": "box",
+      "position": [
+        112.0,
+        122.71,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-03 后窗 1-2",
+      "kind": "box",
+      "position": [
+        115.0,
+        122.71,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-03 后窗 1-3",
+      "kind": "box",
+      "position": [
+        118.0,
+        122.71,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-03 后窗 2-1",
+      "kind": "box",
+      "position": [
+        112.0,
+        122.71,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-03 后窗 2-2",
+      "kind": "box",
+      "position": [
+        115.0,
+        122.71,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-03 后窗 2-3",
+      "kind": "box",
+      "position": [
+        118.0,
+        122.71,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-04 后窗 1-1",
+      "kind": "box",
+      "position": [
+        123.5,
+        120.31,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-04 后窗 1-2",
+      "kind": "box",
+      "position": [
+        126.5,
+        120.31,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-04 后窗 2-1",
+      "kind": "box",
+      "position": [
+        123.5,
+        120.31,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-04 后窗 2-2",
+      "kind": "box",
+      "position": [
+        126.5,
+        120.31,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-04 后门",
+      "kind": "box",
+      "position": [
+        125.0,
+        120.31,
+        1.05
+      ],
+      "bounds": [
+        1.2,
+        0.2,
+        2.1
+      ],
+      "color": "#725A4A",
+      "material": "wood"
+    },
+    {
+      "name": "north-05 后窗 1-1",
+      "kind": "box",
+      "position": [
+        133.0,
+        122.71,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-05 后窗 1-2",
+      "kind": "box",
+      "position": [
+        136.0,
+        122.71,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-05 后窗 1-3",
+      "kind": "box",
+      "position": [
+        139.0,
+        122.71,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-05 后窗 2-1",
+      "kind": "box",
+      "position": [
+        133.0,
+        122.71,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-05 后窗 2-2",
+      "kind": "box",
+      "position": [
+        136.0,
+        122.71,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-05 后窗 2-3",
+      "kind": "box",
+      "position": [
+        139.0,
+        122.71,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-06 后窗 1-1",
+      "kind": "box",
+      "position": [
+        145.5,
+        121.77,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-06 后窗 1-2",
+      "kind": "box",
+      "position": [
+        148.5,
+        121.77,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-06 后窗 2-1",
+      "kind": "box",
+      "position": [
+        145.5,
+        121.77,
+        4.7
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-06 后窗 2-2",
+      "kind": "box",
+      "position": [
+        148.5,
+        121.77,
+        4.7
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-06 后门",
+      "kind": "box",
+      "position": [
+        147.0,
+        121.77,
+        1.05
+      ],
+      "bounds": [
+        1.2,
+        0.2,
+        2.1
+      ],
+      "color": "#725A4A",
+      "material": "wood"
+    },
+    {
+      "name": "north-07 后窗 1-1",
+      "kind": "box",
+      "position": [
+        155.5,
+        120.31,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-07 后窗 1-2",
+      "kind": "box",
+      "position": [
+        158.5,
+        120.31,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-07 后窗 2-1",
+      "kind": "box",
+      "position": [
+        155.5,
+        120.31,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-07 后窗 2-2",
+      "kind": "box",
+      "position": [
+        158.5,
+        120.31,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-07 后门",
+      "kind": "box",
+      "position": [
+        157.0,
+        120.31,
+        1.05
+      ],
+      "bounds": [
+        1.2,
+        0.2,
+        2.1
+      ],
+      "color": "#725A4A",
+      "material": "wood"
+    },
+    {
+      "name": "north-08 后窗 1-1",
+      "kind": "box",
+      "position": [
+        163.0,
+        122.71,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-08 后窗 1-2",
+      "kind": "box",
+      "position": [
+        166.0,
+        122.71,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-08 后窗 1-3",
+      "kind": "box",
+      "position": [
+        169.0,
+        122.71,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-08 后窗 2-1",
+      "kind": "box",
+      "position": [
+        163.0,
+        122.71,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-08 后窗 2-2",
+      "kind": "box",
+      "position": [
+        166.0,
+        122.71,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "north-08 后窗 2-3",
+      "kind": "box",
+      "position": [
+        169.0,
+        122.71,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-01 后窗 1-1",
+      "kind": "box",
+      "position": [
+        93.0,
+        97.29,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-01 后窗 1-2",
+      "kind": "box",
+      "position": [
+        96.0,
+        97.29,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-01 后窗 1-3",
+      "kind": "box",
+      "position": [
+        99.0,
+        97.29,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-01 后窗 2-1",
+      "kind": "box",
+      "position": [
+        93.0,
+        97.29,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-01 后窗 2-2",
+      "kind": "box",
+      "position": [
+        96.0,
+        97.29,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-01 后窗 2-3",
+      "kind": "box",
+      "position": [
+        99.0,
+        97.29,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-02 后窗 1-1",
+      "kind": "box",
+      "position": [
+        103.5,
+        99.69,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-02 后窗 1-2",
+      "kind": "box",
+      "position": [
+        106.5,
+        99.69,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-02 后窗 2-1",
+      "kind": "box",
+      "position": [
+        103.5,
+        99.69,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-02 后窗 2-2",
+      "kind": "box",
+      "position": [
+        106.5,
+        99.69,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-02 后门",
+      "kind": "box",
+      "position": [
+        105.0,
+        99.69,
+        1.05
+      ],
+      "bounds": [
+        1.2,
+        0.2,
+        2.1
+      ],
+      "color": "#725A4A",
+      "material": "wood"
+    },
+    {
+      "name": "south-03 后窗 1-1",
+      "kind": "box",
+      "position": [
+        113.5,
+        98.23,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-03 后窗 1-2",
+      "kind": "box",
+      "position": [
+        116.5,
+        98.23,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-03 后窗 2-1",
+      "kind": "box",
+      "position": [
+        113.5,
+        98.23,
+        4.7
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-03 后窗 2-2",
+      "kind": "box",
+      "position": [
+        116.5,
+        98.23,
+        4.7
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-03 后门",
+      "kind": "box",
+      "position": [
+        115.0,
+        98.23,
+        1.05
+      ],
+      "bounds": [
+        1.2,
+        0.2,
+        2.1
+      ],
+      "color": "#725A4A",
+      "material": "wood"
+    },
+    {
+      "name": "south-04 后窗 1-1",
+      "kind": "box",
+      "position": [
+        122.0,
+        97.29,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-04 后窗 1-2",
+      "kind": "box",
+      "position": [
+        125.0,
+        97.29,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-04 后窗 1-3",
+      "kind": "box",
+      "position": [
+        128.0,
+        97.29,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-04 后窗 2-1",
+      "kind": "box",
+      "position": [
+        122.0,
+        97.29,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-04 后窗 2-2",
+      "kind": "box",
+      "position": [
+        125.0,
+        97.29,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-04 后窗 2-3",
+      "kind": "box",
+      "position": [
+        128.0,
+        97.29,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-05 后窗 1-1",
+      "kind": "box",
+      "position": [
+        134.5,
+        99.69,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-05 后窗 1-2",
+      "kind": "box",
+      "position": [
+        137.5,
+        99.69,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-05 后窗 2-1",
+      "kind": "box",
+      "position": [
+        134.5,
+        99.69,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-05 后窗 2-2",
+      "kind": "box",
+      "position": [
+        137.5,
+        99.69,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-05 后门",
+      "kind": "box",
+      "position": [
+        136.0,
+        99.69,
+        1.05
+      ],
+      "bounds": [
+        1.2,
+        0.2,
+        2.1
+      ],
+      "color": "#725A4A",
+      "material": "wood"
+    },
+    {
+      "name": "south-06 后窗 1-1",
+      "kind": "box",
+      "position": [
+        145.5,
+        98.23,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-06 后窗 1-2",
+      "kind": "box",
+      "position": [
+        148.5,
+        98.23,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-06 后窗 2-1",
+      "kind": "box",
+      "position": [
+        145.5,
+        98.23,
+        4.7
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-06 后窗 2-2",
+      "kind": "box",
+      "position": [
+        148.5,
+        98.23,
+        4.7
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-06 后门",
+      "kind": "box",
+      "position": [
+        147.0,
+        98.23,
+        1.05
+      ],
+      "bounds": [
+        1.2,
+        0.2,
+        2.1
+      ],
+      "color": "#725A4A",
+      "material": "wood"
+    },
+    {
+      "name": "south-07 后窗 1-1",
+      "kind": "box",
+      "position": [
+        154.0,
+        97.29,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-07 后窗 1-2",
+      "kind": "box",
+      "position": [
+        157.0,
+        97.29,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-07 后窗 1-3",
+      "kind": "box",
+      "position": [
+        160.0,
+        97.29,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-07 后窗 2-1",
+      "kind": "box",
+      "position": [
+        154.0,
+        97.29,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-07 后窗 2-2",
+      "kind": "box",
+      "position": [
+        157.0,
+        97.29,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-07 后窗 2-3",
+      "kind": "box",
+      "position": [
+        160.0,
+        97.29,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-08 后窗 1-1",
+      "kind": "box",
+      "position": [
+        164.5,
+        99.69,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-08 后窗 1-2",
+      "kind": "box",
+      "position": [
+        167.5,
+        99.69,
+        1.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-08 后窗 2-1",
+      "kind": "box",
+      "position": [
+        164.5,
+        99.69,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-08 后窗 2-2",
+      "kind": "box",
+      "position": [
+        167.5,
+        99.69,
+        4.65
+      ],
+      "bounds": [
+        1.25,
+        0.2,
+        1.4
+      ],
+      "color": "#3F5760",
+      "material": "metal"
+    },
+    {
+      "name": "south-08 后门",
+      "kind": "box",
+      "position": [
+        166.0,
+        99.69,
+        1.05
+      ],
+      "bounds": [
+        1.2,
+        0.2,
+        2.1
+      ],
+      "color": "#725A4A",
+      "material": "wood"
+    }
+  ],
+  "buildings": [
+    {
+      "id": "north-01",
+      "name": "North 01 · 灰泥公寓",
+      "file": "urban-apartment.glb",
+      "sha256": "25252fd292eaf51da0cfba75061d886ea57105b542d277f3a2a2a40330d522e9",
+      "position": [
+        96.0,
+        118.6,
+        3.1
+      ],
+      "bounds": [
+        6.0,
+        3.2,
+        6.2
+      ]
+    },
+    {
+      "id": "north-02",
+      "name": "North 02 · 陶土色住宅",
+      "file": "terracotta-residence.glb",
+      "sha256": "1d988e7d48e4d86457834a0ba4ddc959f175da38a83bd501866a885f32452eb0",
+      "position": [
+        105.0,
+        119.33,
+        3.375
+      ],
+      "bounds": [
+        6.0,
+        4.66,
+        6.75
+      ]
+    },
+    {
+      "id": "north-03",
+      "name": "North 03 · 鼠尾草绿店铺",
+      "file": "sage-shopfront.glb",
+      "sha256": "692c611274d07395343ce2bc7a7949e7c4ae47606cebecce033183db49443c8c",
+      "position": [
+        115.0,
+        119.8,
+        3.1
+      ],
+      "bounds": [
+        9.0,
+        5.6,
+        6.2
+      ]
+    },
+    {
+      "id": "north-04",
+      "name": "North 04 · 灰泥公寓",
+      "file": "urban-apartment.glb",
+      "sha256": "25252fd292eaf51da0cfba75061d886ea57105b542d277f3a2a2a40330d522e9",
+      "position": [
+        125.0,
+        118.6,
+        3.1
+      ],
+      "bounds": [
+        6.0,
+        3.2,
+        6.2
+      ]
+    },
+    {
+      "id": "north-05",
+      "name": "North 05 · 鼠尾草绿店铺",
+      "file": "sage-shopfront.glb",
+      "sha256": "692c611274d07395343ce2bc7a7949e7c4ae47606cebecce033183db49443c8c",
+      "position": [
+        136.0,
+        119.8,
+        3.1
+      ],
+      "bounds": [
+        9.0,
+        5.6,
+        6.2
+      ]
+    },
+    {
+      "id": "north-06",
+      "name": "North 06 · 陶土色住宅",
+      "file": "terracotta-residence.glb",
+      "sha256": "1d988e7d48e4d86457834a0ba4ddc959f175da38a83bd501866a885f32452eb0",
+      "position": [
+        147.0,
+        119.33,
+        3.375
+      ],
+      "bounds": [
+        6.0,
+        4.66,
+        6.75
+      ]
+    },
+    {
+      "id": "north-07",
+      "name": "North 07 · 灰泥公寓",
+      "file": "urban-apartment.glb",
+      "sha256": "25252fd292eaf51da0cfba75061d886ea57105b542d277f3a2a2a40330d522e9",
+      "position": [
+        157.0,
+        118.6,
+        3.1
+      ],
+      "bounds": [
+        6.0,
+        3.2,
+        6.2
+      ]
+    },
+    {
+      "id": "north-08",
+      "name": "North 08 · 鼠尾草绿店铺",
+      "file": "sage-shopfront.glb",
+      "sha256": "692c611274d07395343ce2bc7a7949e7c4ae47606cebecce033183db49443c8c",
+      "position": [
+        166.0,
+        119.8,
+        3.1
+      ],
+      "bounds": [
+        9.0,
+        5.6,
+        6.2
+      ]
+    },
+    {
+      "id": "south-01",
+      "name": "South 01 · 鼠尾草绿店铺",
+      "file": "sage-shopfront.glb",
+      "sha256": "692c611274d07395343ce2bc7a7949e7c4ae47606cebecce033183db49443c8c",
+      "position": [
+        96.0,
+        100.2,
+        3.1
+      ],
+      "bounds": [
+        9.0,
+        5.6,
+        6.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "south-02",
+      "name": "South 02 · 灰泥公寓",
+      "file": "urban-apartment.glb",
+      "sha256": "25252fd292eaf51da0cfba75061d886ea57105b542d277f3a2a2a40330d522e9",
+      "position": [
+        105.0,
+        101.4,
+        3.1
+      ],
+      "bounds": [
+        6.0,
+        3.2,
+        6.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "south-03",
+      "name": "South 03 · 陶土色住宅",
+      "file": "terracotta-residence.glb",
+      "sha256": "1d988e7d48e4d86457834a0ba4ddc959f175da38a83bd501866a885f32452eb0",
+      "position": [
+        115.0,
+        100.67,
+        3.375
+      ],
+      "bounds": [
+        6.0,
+        4.66,
+        6.75
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "south-04",
+      "name": "South 04 · 鼠尾草绿店铺",
+      "file": "sage-shopfront.glb",
+      "sha256": "692c611274d07395343ce2bc7a7949e7c4ae47606cebecce033183db49443c8c",
+      "position": [
+        125.0,
+        100.2,
+        3.1
+      ],
+      "bounds": [
+        9.0,
+        5.6,
+        6.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "south-05",
+      "name": "South 05 · 灰泥公寓",
+      "file": "urban-apartment.glb",
+      "sha256": "25252fd292eaf51da0cfba75061d886ea57105b542d277f3a2a2a40330d522e9",
+      "position": [
+        136.0,
+        101.4,
+        3.1
+      ],
+      "bounds": [
+        6.0,
+        3.2,
+        6.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "south-06",
+      "name": "South 06 · 陶土色住宅",
+      "file": "terracotta-residence.glb",
+      "sha256": "1d988e7d48e4d86457834a0ba4ddc959f175da38a83bd501866a885f32452eb0",
+      "position": [
+        147.0,
+        100.67,
+        3.375
+      ],
+      "bounds": [
+        6.0,
+        4.66,
+        6.75
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "south-07",
+      "name": "South 07 · 鼠尾草绿店铺",
+      "file": "sage-shopfront.glb",
+      "sha256": "692c611274d07395343ce2bc7a7949e7c4ae47606cebecce033183db49443c8c",
+      "position": [
+        157.0,
+        100.2,
+        3.1
+      ],
+      "bounds": [
+        9.0,
+        5.6,
+        6.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "id": "south-08",
+      "name": "South 08 · 灰泥公寓",
+      "file": "urban-apartment.glb",
+      "sha256": "25252fd292eaf51da0cfba75061d886ea57105b542d277f3a2a2a40330d522e9",
+      "position": [
+        166.0,
+        101.4,
+        3.1
+      ],
+      "bounds": [
+        6.0,
+        3.2,
+        6.2
+      ],
+      "rotation": [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ]
+    }
+  ]
+}

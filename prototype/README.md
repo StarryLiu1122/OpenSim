@@ -10,7 +10,7 @@ Region Lab 是基于 Godot 的单区域原型，支持对象组合、静态 GLB�
 
 真实地点演示可直接双击 `打开赫尔辛基实景街区.cmd`，打开[125×125 米的航拍纹理街区](docs/helsinki-textured-city-pilot.md)；较小的测绘建筑样例见[代尔夫特片区](docs/delft-real-city-pilot.md)。
 
-要查看清晰近景建筑素材，可双击 [`打开高清建筑模型体验.cmd`](打开高清建筑模型体验.cmd)。[样例说明与实际截图](fixtures/geodata/polyhaven-urban-apartment/README.md)注明了来源、改动和当前 1K 贴图限制；这是独立的城市风格样例，不对应真实地址。
+要查看更大范围的清晰近景建筑，可双击 [`打开高清街区体验.cmd`](打开高清街区体验.cmd)：约 80 米街道、16 栋贴图建筑和完整道路，可从西端漫游。[实际俯瞰](docs/images/polyhaven-street-80m-overview.png)、[街面视角](docs/images/polyhaven-street-80m-walk.png)与[素材说明](fixtures/geodata/polyhaven-urban-apartment/README.md)可供核对。这是独立的城市风格拼装样例，不对应真实地址。原来的两栋样例仍可用 [`打开高清建筑模型体验.cmd`](打开高清建筑模型体验.cmd) 打开。
 
 Region Lab 是世界模型与智能体协作平台的区域基础。总体定位见 [项目 README](../README.md)，原始目标与技术核实见 [对齐说明](../docs/plans/platform-integration-alignment.md)。原版 FP 0.2 网关和现代 FP 0.3 服务分别运行；尚未接入外部智能体平台。网络验收与性能状态见 [V5 记录](../docs/comparisons/v5-completion.md)。
 
