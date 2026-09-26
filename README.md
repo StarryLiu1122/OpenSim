@@ -1,6 +1,6 @@
-# Region Lab：可漫游的真实街区
+# Region Lab：真实场景与世界模型实验原型
 
-这个分支提供一个基于 Godot 的共享三维世界原型。当前可直接打开赫尔辛基 **250 × 250 米**航拍建模街区：走路、快跑、飞行、查看地点，或在有编辑权限时放置物体和导入模型。场景由 64 块带照片纹理的网格组成，放在 512 × 512 米的区域内。
+这个分支面向“真实世界数据—世界模型预测—虚拟区域中人和智能体协作”的平台目标，提供一个基于 Godot 的**单区域工程原型**。当前可直接打开赫尔辛基 **250 × 250 米**航拍建模街区：走路、快跑、飞行、查看地点，或在有编辑权限时放置物体和导入模型。场景由 64 块带照片纹理的网格组成，放在 512 × 512 米的区域内。
 
 ![赫尔辛基 250 米街区的实际客户端画面](prototype/docs/images/helsinki-kamppi-250m.png)
 
@@ -33,6 +33,26 @@ dotnet build .\services\RegionHost\RegionHost.csproj -c Release
 想在更完整的街道里近看建筑贴图，可双击 [`prototype/打开高清街区体验.cmd`](prototype/打开高清街区体验.cmd)。它打开约 **80 米长**、两侧共 16 栋建筑的独立街景，含人行道、斑马线和路灯；从街道西端出生，按 Tab 后可沿路漫游。[实际俯瞰画面](prototype/docs/images/polyhaven-street-80m-overview.png)与[街面漫游画面](prototype/docs/images/polyhaven-street-80m-walk.png)可预览。建筑由 [Poly Haven 的 CC0 素材](prototype/fixtures/geodata/polyhaven-urban-apartment/README.md)拼装，**不对应真实地址**；需要真实地理范围时请使用上面的赫尔辛基入口。
 
 较小的两栋公寓近景样例仍可双击 [`prototype/打开高清建筑模型体验.cmd`](prototype/打开高清建筑模型体验.cmd)，其中还有一扇涂鸦卷帘窗。[实际客户端画面](prototype/docs/images/polyhaven-urban-apartment.png)可供核对。
+
+## 世界模型预测与专家审阅
+
+这个分支新增一个可运行的工程闭环：外部水位批次先经过坐标、时间和来源摘要校验；owner 可预览并将**局部预测点**通过权威命令提交到真实街区；Agent 观察预测点并放置待核查警示桩；人可在工作台“推演审阅”页定位预测点、记录判断，导出后与命令回执和模型来源合并。重复提交同一批次不会重复造物，不同内容的同名批次会被拒绝。见[世界模型实验操作指南](prototype/docs/world-model-experiment.md)和[专家审阅与合并](prototype/docs/world-model-review.md)。
+
+完成上面的 Godot 安装和两个服务构建后，再安装 **Node.js 24+** 与 **Python 3**；推荐使用 **PowerShell 7**（启动入口会优先选择它）。可双击 [`prototype/打开世界模型实验.cmd`](prototype/打开世界模型实验.cmd)，或在仓库根目录运行：
+
+```powershell
+.\prototype\打开世界模型实验.cmd
+```
+
+它会在 `prototype/runtime/world-model-helsinki-250m` 建立独立街区、提交随仓库提供的合成水位批次、启动桌面客户端。打开工作台的“推演审阅”页，选择“预测点 · central-street”，即可定位并记录意见。在本机演示会话的 7 天有效期内，再次运行会核对已有实验，不会重复放置同一批次的标记；过期后可给启动脚本指定新的 `-Directory` 建立新实例。停止这套演示的后台服务可运行：
+
+```powershell
+.\prototype\tools\Stop-Network.ps1 -Directory .\prototype\runtime\world-model-helsinki-250m\network
+```
+
+![实景街区中的预测点与审阅界面](prototype/docs/images/world-model-review.png)
+
+仓库自带的水位批次是**合成测试数据**，用于验收数据到场景再到 Agent 和人的流程。青色标记悬浮在摄影测量网格之上，其展示高度不是预测水位；目前不能据此判断实际洪水范围或道路通行情况。外部模型实时联调、专业水文校准、服务端实验重放仍待实现。
 
 使用后可停止街道或两栋公寓样例的本地服务：
 
@@ -82,6 +102,6 @@ dotnet build .\services\RegionHost\RegionHost.csproj -c Release
 
 ## 当前范围与更多资料
 
-赫尔辛基场景来自 **2017 年航拍重建**，有原始照片纹理，但近距离表面和建筑室内还不够精细；当前展示的是一个静态街区，不是整座城市。来源、许可和转换过程见[场景说明](prototype/docs/helsinki-textured-city-pilot.md)。V6.1 已有外部水位预测的离线校验与坐标映射入口；真实平台回注、实验回放以及 V7 的分块加载和 LOD 尚未完成，见[版本进度](prototype/docs/v6-v7-progress.md)。
+赫尔辛基场景来自 **2017 年航拍重建**，有原始照片纹理，但近距离表面和建筑室内还不够精细；当前展示的是一个静态街区，不是整座城市。来源、许可和转换过程见[场景说明](prototype/docs/helsinki-textured-city-pilot.md)。模型预测的受控标记回注与审阅已在单场景验证；实时平台回调、科学推演、确定性实验回放以及 V7 的分块加载和 LOD 尚未完成，见[版本进度](prototype/docs/v6-v7-progress.md)。
 
 如果只想体验原来的单机编辑器，可运行 `prototype/Start.cmd`；它和上面的一键共享场景是两个独立入口。更完整的网络操作见[界面说明](prototype/docs/network-interface.md)，项目规划和技术合同收录在[文档目录](docs/README.md)。本仓库保留 OpenSimulator 参考源码，许可见 [LICENSE.txt](LICENSE.txt)；赫尔辛基场景素材按其清单所列的 CC BY 4.0 署名使用。

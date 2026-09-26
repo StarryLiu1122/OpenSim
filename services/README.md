@@ -2,6 +2,8 @@
 
 RegionStore 是 Region Lab 的 SQLite 持久化进程；离线桌面选择 `-Database` 后使用，V5 权威区域固定使用它。RegionHost 提供 Web 文件、受控 HTTPS 资产和 WebSocket 转发，世界权威位于 Godot `network/server.gd`。完整网络运行步骤见 [V5 指南](../prototype/docs/network-quickstart.md)。二者不提供 OpenSim 数据库兼容性。
 
+V6 资产端点按每次请求查询 RegionStore 的持久会话与账户状态，再核对实时资产授权目录和文件 SHA-256。运行中签发的新账户可直接使用已获准资产；撤销会话、禁用账户或收回资产授权会影响下一次请求。隔离验收可运行 `node services/Test-AssetSessions.cjs --host=<RegionHost.exe> --store=<RegionStore.exe> --output=<全新测试目录>`。
+
 需要 Windows x64、PowerShell 7、Godot 4.5.1。RegionStore 使用 .NET 8 Runtime，RegionHost 使用 ASP.NET Core 8 Runtime；源码构建均需要 SDK **8.0.424**。依赖锁定不变，数据库新增 schema 3 的 `network_receipts`，将网络成功回执和世界放入同一事务。默认 JSON 离线模式仍不需要 .NET。
 
 实现与决策见 [ADR](../docs/adr/0001-v4-storage.md)、[存储合同](../docs/contracts/storage-v4.md) 和 [V4 验证报告](../docs/comparisons/v4-completion.md)。依赖通过 [packages.lock.json](RegionStore/packages.lock.json) 固定，世界校验直接调用现有 Godot/GDScript 规则。

@@ -21,7 +21,7 @@ flowchart LR
 
 ## 2. 会话与最小权限
 
-首包为 `{ "fp_version":"0.3", "type":"hello", "token":"…" }`。令牌来自实例配置，解析为 `principal_id`、领域 `actor_id` 和 `role`。后续客户端传入 actor/owner 不构成授权；完整世界覆盖及非白名单操作拒绝。`welcome` 返回区域、网络世代、角色、Avatar ID 与 20 Hz 分发/60 Hz 物理参数，不返回令牌。
+首包为 `{ "fp_version":"0.3", "type":"hello", "token":"…" }`。令牌来自实例配置，解析为 `principal_id`、领域 `actor_id` 和 `role`。后续客户端传入 actor/owner 不构成授权；完整世界覆盖及非白名单操作拒绝。`welcome` 返回区域、持久的 `world_instance_id`、网络世代、角色、Avatar ID 与 20 Hz 分发/60 Hz 物理参数，不返回令牌。
 
 两个演示编辑主体显式共享区域所有者授权；观察者只读，访客独立归属。配置 `private_objects` 按对象 ID 指定允许的主体；组存在不可见成员时整体不投影。资产端点按引用对象权限生成允许列表，不能仅凭已知摘要读取私有资产，也不能通过修改公开对象的资产引用绕过此规则。未被引用的已登记资产允许非观察者使用；完整资产所有权/库存合同属于 V6。
 
@@ -29,7 +29,7 @@ flowchart LR
 
 ## 3. 快照、增量与 AOI
 
-每个服务启动生成新的 UUID `world_epoch`。每连接 `seq` 单调递增，持久编辑使用世界 `revision`；角色步进另有 `tick`。它们不可互换。初始 `snapshot` 包含 `state`；后续 `delta` 包含可选 `meta` 及对象、组、资产、Avatar 的 `upserts`/`deletes`。对象数据以 UUID 为键。`meta` 包括世界版本、修订、区域、地形和环境。
+每个服务启动生成新的 UUID `world_epoch`；同一个本地实例重启后保持 `world_instance_id`，另建实例则获得不同 ID。每连接 `seq` 单调递增，持久编辑使用世界 `revision`；角色步进另有 `tick`。它们不可互换。初始 `snapshot` 包含 `state`；后续 `delta` 包含可选 `meta` 及对象、组、资产、Avatar 的 `upserts`/`deletes`。对象数据以 UUID 为键。`meta` 包括世界版本、修订、区域、地形和环境。
 
 重复序列忽略；缺失、世代不匹配或校验失败请求 `resync`。只有完整通过校验的下一投影才替换现有状态。连续三次坏快照断开。新快照可跳过序列缺口；删除列表显式移除节点和缓存。客户端通过 `ack.seq` 确认已接受序列；服务器达到 32 个未确认更新后暂停分发，收到确认后从最后已发送状态计算最新差异，防止暂停页面积压且保留删除语义。
 
@@ -39,7 +39,7 @@ flowchart LR
 
 ## 4. 命令与回执
 
-命令必须且只能包含：`fp_version,type,world_id,region_id,world_epoch,request_id,trace_id,origin,source_seq,expected_revision,expires_at_ms,operation,payload`。ID 为 UUID；`origin` 为 `desktop/web/test`；序号每连接递增；过期时间不得超过服务器当前时间后 60 秒，客户端默认 30 秒。区域 ID 当前同时用作 world ID。
+命令必须且只能包含：`fp_version,type,world_id,region_id,world_epoch,request_id,trace_id,origin,source_seq,expected_revision,expires_at_ms,operation,payload`。ID 为 UUID；`origin` 为 `desktop/web/test/world_model`，其中 `world_model` 仅 owner 角色可发送；序号每连接递增；过期时间不得超过服务器当前时间后 60 秒，客户端默认 30 秒。区域 ID 当前同时用作 world ID。`world_model` 仍经过同一命令白名单、权限检查、CAS 队列、SQLite 提交与持久回执，不是独立的写入通道。
 
 白名单：CreateObject、UpdateObject、DeleteObject、SculptTerrain、UpdateEnvironment、SetObjectState、GroupObjects、UpdateGroup、DuplicateGroup、UngroupObjects、DeleteGroup、RemoveAsset、UploadAsset。领域规则沿用已有 WorldService。UploadAsset 接收 base64 字节、名称、许可和来源，写入服务端自建临时路径再调用 ImportGlb；客户端不能指定服务端文件路径。
 

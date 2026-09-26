@@ -73,6 +73,10 @@ var upload_requests: Dictionary = {}
 var session_assets: Dictionary = {}
 var capture_requested_at := 0
 var capture_confirmed := false
+var review_ids: Array = []
+var review_selected_id := ""
+var review_records: Array = []
+var review_store_error := ""
 
 func _ready() -> void:
 	# Keep text/control sizes readable when resizing the network workspace.
@@ -82,6 +86,7 @@ func _ready() -> void:
 		if arg.begins_with("--network-config="): local_config = JSON.parse_string(FileAccess.get_file_as_string(arg.trim_prefix("--network-config=")))
 		if arg.begins_with("--profile="): profile = arg.trim_prefix("--profile=")
 		if arg.begins_with("--network-testdir="): test_directory = arg.trim_prefix("--network-testdir=")
+	_load_reviews()
 	add_child(connection); add_child(view); add_child(environment); add_child(own); add_child(camera)
 	own.enabled = false; own.visible = false
 	camera.current = true; camera.near = 0.08; camera.far = 1200
@@ -236,6 +241,114 @@ func _refresh_list(state: Dictionary) -> void:
 		for value in coordinates: value.set_value_no_signal(0)
 		ui.tabs.get_child(1).scroll_vertical = 0
 		last_message = "所选对象已离开当前视野范围或被删除"
+	_refresh_reviews(state)
+
+func _review_path() -> String:
+	return test_directory.path_join("expert-reviews.json") if not test_directory.is_empty() else "user://expert-reviews.json"
+
+func _load_reviews() -> void:
+	var path := ProjectSettings.globalize_path(_review_path())
+	if not FileAccess.file_exists(path):
+		var recovery := path + ".bak" if FileAccess.file_exists(path + ".bak") else path + ".tmp"
+		if not FileAccess.file_exists(recovery): return
+		var recovered: Variant = _read_reviews(recovery)
+		if not recovered is Array or DirAccess.rename_absolute(recovery, path) != OK:
+			review_store_error = "本地审阅备份无法恢复，请先备份原文件"; return
+		review_records = recovered
+		return
+	var loaded: Variant = _read_reviews(path)
+	if loaded is Array: review_records = loaded
+	else: review_store_error = "本地审阅记录格式无效，请先备份原文件"
+
+func _read_reviews(path: String) -> Variant:
+	var input := FileAccess.open(path, FileAccess.READ)
+	if input == null: return null
+	if input.get_length() > 1024 * 1024:
+		input.close(); return null
+	var loaded: Variant = JSON.parse_string(input.get_as_text())
+	input.close()
+	if loaded is Dictionary and loaded.get("format") == "region-lab.expert-review" and loaded.get("version") == 1 and loaded.get("records") is Array and loaded.records.size() <= 1000:
+		return loaded.records
+	return null
+
+func _persist_reviews() -> bool:
+	var path := ProjectSettings.globalize_path(_review_path())
+	var temp := path + ".tmp"
+	var backup := path + ".bak"
+	var file := FileAccess.open(temp, FileAccess.WRITE)
+	if file == null: return false
+	file.store_string(Wire.canonical({"format": "region-lab.expert-review", "version": 1, "records": review_records}) + "\n")
+	file.flush()
+	var write_error := file.get_error()
+	file.close()
+	if write_error != OK: return false
+	# On Windows rename_absolute removes an existing target before moving the
+	# source. Keep the previous complete file until the new one is in place.
+	if FileAccess.file_exists(path) and DirAccess.rename_absolute(path, backup) != OK: return false
+	if DirAccess.rename_absolute(temp, path) == OK: return true
+	if not FileAccess.file_exists(path) and FileAccess.file_exists(backup):
+		DirAccess.rename_absolute(backup, path)
+	return false
+
+func _refresh_reviews(state: Dictionary) -> void:
+	ui.review_list.clear(); review_ids.clear()
+	var objects: Dictionary = state.get("objects", {})
+	var markers: Array = objects.values().filter(func(item): return str(item.get("name", "")).begins_with("预测点 · "))
+	markers.sort_custom(func(a, b): return str(a.name).naturalnocasecmp_to(str(b.name)) < 0)
+	for item in markers:
+		review_ids.append(item.id)
+		ui.review_list.add_item(item.name)
+		if item.id == review_selected_id: ui.review_list.select(review_ids.size() - 1)
+	if not objects.has(review_selected_id): review_selected_id = ""
+	ui.review_info.text = "选择预测点查看位置并记录判断。" if review_selected_id.is_empty() else _review_description(objects[review_selected_id])
+
+func _review_description(item: Dictionary) -> String:
+	return "%s\n展示位置：东 %.1f / 北 %.1f / 高 %.1f 米\n真实预测坐标见实验包；标记不代表街区积水范围。" % [item.name, float(item.position[0]), float(item.position[1]), float(item.position[2])]
+
+func _review_select(index: int) -> void:
+	if index < 0 or index >= review_ids.size(): return
+	review_selected_id = str(review_ids[index])
+	var state: Dictionary = connection.local.snapshot()
+	if state.get("objects", {}).has(review_selected_id): ui.review_info.text = _review_description(state.objects[review_selected_id])
+
+func _review_focus() -> void:
+	if review_selected_id.is_empty(): return
+	_select_id(review_selected_id)
+	if selected != review_selected_id: return
+	_focus_selected()
+	ui.tabs.current_tab = ui.review_tab_index
+
+func _review_save() -> void:
+	var state: Dictionary = connection.local.snapshot()
+	var item: Dictionary = state.get("objects", {}).get(review_selected_id, {})
+	if not review_store_error.is_empty(): last_message = review_store_error; return
+	if not connection.online() or item.is_empty() or not str(item.name).begins_with("预测点 · "):
+		last_message = "请先连接场景并选择预测点"; return
+	if not Schema.is_uuid(str(connection.welcome.get("world_instance_id", ""))):
+		last_message = "场景服务缺少实例标识，请重新启动服务后审阅"; return
+	var note: String = ui.review_note.text.strip_edges()
+	if note.length() > 500: last_message = "审阅说明最多 500 字"; return
+	if review_records.size() >= 1000: last_message = "本地审阅记录已达 1000 条，请先导出归档"; return
+	var record := {"review_id": Schema.uuid(), "at_utc": Time.get_datetime_string_from_system(true, false) + "Z", "world_instance_id": connection.welcome.world_instance_id, "world_epoch": connection.local.epoch, "region_id": connection.welcome.region_id, "world_revision": int(state.meta.revision), "reviewer_account_id": connection.welcome.principal_id, "marker_object_id": review_selected_id, "marker_name": item.name, "marker_position": item.position.duplicate(), "assessment": ui.review_status.get_item_metadata(ui.review_status.selected), "note": note, "reviewer_position": View.to_world(own.position)}
+	review_records.append(record)
+	if not _persist_reviews():
+		review_records.pop_back(); last_message = "无法保存本地审阅记录，请检查原文件或备份"; return
+	ui.review_note.clear()
+	last_message = "已保存审阅记录 · 可在推演审阅页导出"
+
+func _review_export() -> void:
+	var content := Wire.canonical({"format": "region-lab.expert-review", "version": 1, "records": review_records}) + "\n"
+	if OS.has_feature("web"):
+		JavaScriptBridge.download_buffer(content.to_utf8_buffer(), "expert-reviews.json", "application/json")
+	else:
+		var dialog := FileDialog.new(); dialog.access = FileDialog.ACCESS_FILESYSTEM; dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE; dialog.current_file = "expert-reviews.json"; add_child(dialog)
+		dialog.file_selected.connect(func(path):
+			var file := FileAccess.open(path, FileAccess.WRITE)
+			if file != null:
+				file.store_string(content)
+				file.close()
+			dialog.queue_free())
+		dialog.canceled.connect(dialog.queue_free); dialog.popup_centered(Vector2i(850, 580))
 
 func _select(index: int) -> void:
 	if index < 0 or index >= selection_ids.size(): return
@@ -707,7 +820,7 @@ func _interpolate() -> void:
 		remote[id].position = position; remote[id].rotation.y = right.record.yaw
 
 func _observation() -> Dictionary:
-	return {"interactive": interactive, "online": connection.online(), "status": connection.status, "welcome": connection.welcome, "state": connection.local.snapshot(), "seq": connection.local.sequence, "resyncs": connection.local.resyncs, "duplicates": connection.local.duplicates, "results": connection.results, "pending": connection.pending.keys(), "commands": test_commands, "nodes": view.bodies.size(), "remote_avatars": remote.size(), "position": View.to_world(own.position), "correction_m": last_correction, "max_correction_m": max_correction, "assets_ready": connection.assets.ready(), "asset_error": connection.assets.error, "asset_attempts": connection.assets.attempts, "asset_cache_count": connection.assets.cache.size(), "bytes_received": connection.bytes_received, "first_snapshot_ms": first_snapshot_ms, "first_interactive_ms": first_interactive_ms, "rendered_revision": rendered_revision, "test_serial": test_serial, "message": last_message, "fps": Engine.get_frames_per_second(), "startup_profile": startup_profile, "walking": walking, "ui_tab": ui.tabs.current_tab, "draft_dirty": draft_dirty, "ui": ui.observation()}
+	return {"interactive": interactive, "online": connection.online(), "status": connection.status, "welcome": connection.welcome, "state": connection.local.snapshot(), "seq": connection.local.sequence, "resyncs": connection.local.resyncs, "duplicates": connection.local.duplicates, "results": connection.results, "pending": connection.pending.keys(), "commands": test_commands, "nodes": view.bodies.size(), "remote_avatars": remote.size(), "position": View.to_world(own.position), "correction_m": last_correction, "max_correction_m": max_correction, "assets_ready": connection.assets.ready(), "asset_error": connection.assets.error, "asset_attempts": connection.assets.attempts, "asset_cache_count": connection.assets.cache.size(), "bytes_received": connection.bytes_received, "first_snapshot_ms": first_snapshot_ms, "first_interactive_ms": first_interactive_ms, "rendered_revision": rendered_revision, "test_serial": test_serial, "message": last_message, "fps": Engine.get_frames_per_second(), "startup_profile": startup_profile, "walking": walking, "ui_tab": ui.tabs.current_tab, "draft_dirty": draft_dirty, "review_marker_count": review_ids.size(), "review_record_count": review_records.size(), "review_selected_id": review_selected_id, "ui": ui.observation()}
 
 func _bridge() -> void:
 	if OS.has_feature("web"):
@@ -747,6 +860,15 @@ func _action(action: Dictionary) -> void:
 			if not test_directory.is_empty(): _screenshot(test_directory.path_join("client.png"))
 		"dismiss_help":
 			if not test_directory.is_empty(): ui.help_open = false; ui.layout()
+		"test_review_open":
+			if not test_directory.is_empty():
+				ui.help_open = false; ui.tools_open = true; ui.tabs.current_tab = ui.review_tab_index; ui.layout()
+		"test_review_label":
+			if not test_directory.is_empty() and not review_ids.is_empty():
+				_review_select(0)
+				ui.review_status.select(0)
+				ui.review_note.text = str(action.get("note", "现场待核查"))
+				_review_save()
 		"drop_delta":
 			if not test_directory.is_empty(): connection.test_drop_delta = true
 		"duplicate_delta":

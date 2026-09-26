@@ -1,17 +1,17 @@
-# V5 网络区域运行指南
+# 网络区域运行指南
 
-适用版本：0.5.1，Windows x64。已有 V3.1/V4 的 Godot 4.5.1 标准版可以继续使用。`prototype/Start.cmd` 打开原有离线编辑器；V5 共享区域使用下列独立入口。测试主体不是正式用户账户系统。
+适用当前分支的 Windows x64 共享区域。已有 V3.1/V4 的 Godot 4.5.1 标准版可以继续使用。`prototype/Start.cmd` 打开原有离线编辑器；共享区域使用下列独立入口。当前 V6 已支持持久账户、会话、库存和受控 Agent 任务；初始化配置中的四个主体用于本机快速开始。
 
 ## 1. 一次性准备
 
 需要 PowerShell 7、.NET SDK **8.0.424**（构建），以及 **ASP.NET Core 8 Runtime**（运行，包含 .NET Runtime）。安装 SDK 的开发电脑已具备这些运行时。Python 和 Node.js 仅用于开发测试；正常运行不需要模型服务或 API Key。
 
-在 PowerShell 7 中进入仓库根目录，更新 main 分支：
+在 PowerShell 7 中进入仓库根目录，更新本演示分支：
 
 ```powershell
 git fetch origin
-git switch main
-git pull --ff-only origin main
+git switch codex/real-scene-pilot
+git pull --ff-only origin codex/real-scene-pilot
 $godot = 'C:\path\to\Godot_v4.5.1-stable_win64_console.exe'
 $storeBuild = Join-Path $PWD 'services\runtime\v5-store'
 $hostBuild = Join-Path $PWD 'services\runtime\v5-host'
@@ -38,7 +38,7 @@ $instance = Join-Path $PWD 'prototype\runtime\network-v5'
 
 实例占用三个相邻端口：默认 **19550** 为内部 WebSocket，**19551** 为 HTTP，**19552** 为 HTTPS；均仅监听本机回环地址。初始化可用 `-Port 19650` 改变起始端口。不要让其他离线编辑器写入运行中的网络数据库。
 
-`editor-a`、`editor-b` 是不同主体，共享区域所有者编辑授权；`observer` 只读；`guest` 使用独立所有者身份，不能修改演示区域所属对象。令牌有效期七天，单连接最长八小时。`private-config.json` 和 `localhost.pfx` 不得提交到仓库或分发给普通客户端。真实登录、身份库存和会话管理属于 V6。
+`editor-a`、`editor-b` 是不同主体，共享区域所有者编辑授权；`observer` 只读；`guest` 使用独立所有者身份，不能修改演示区域所属对象。令牌有效期七天，单连接最长八小时。`private-config.json` 和 `localhost.pfx` 不得提交到仓库或分发给普通客户端。owner 可在运行时管理账户和会话；网页资产请求会核对持久会话与即时资产授权。
 
 ## 3. 操作与提交
 
@@ -73,9 +73,9 @@ Web 使用 WebGL2，固定采用顶点光照、关闭动态阴影和 MSAA 的轻
 .\prototype\tools\Stop-Network.ps1 -Directory $instance
 ```
 
-停止脚本核对记录的进程 ID、可执行文件和启动时间，只结束这个实例的两个进程。客户端可单独关闭，服务继续运行。停止前等待正在提交的操作完成；若连接在提交中断开，重启后按原请求 ID 查询结果。进程终止测试不等价于断电保证。
+停止脚本核对记录的进程 ID、可执行文件和启动时间，只结束这个实例的两个服务进程。客户端可单独关闭，服务继续运行。停止前等待正在提交的操作完成；若连接在提交中断开，重启后按原请求 ID 查询结果。进程终止测试不等价于断电保证。
 
-使用 [RegionStore 备份/恢复流程](../../services/README.md#3-备份恢复与回滚) 导出一致的世界和资产。备份包不包含登录配置及历史网络回执；恢复到新实例产生新的网络世代，旧命令不能作为新世界的写入请求。原数据库目录原样恢复包含其持久回执。V5 将数据库迁移到 schema 3，旧程序不能打开唯一的已升级数据库；回滚使用升级前的备份。
+使用 [RegionStore 备份/恢复流程](../../services/README.md#3-备份恢复与回滚) 导出一致的世界和资产。备份包不包含登录配置及历史网络回执；恢复到新实例产生新的网络世代，旧命令不能作为新世界的写入请求。原数据库目录原样恢复包含其持久回执。当前网络数据库 schema 为 7；旧程序不能打开唯一的已升级数据库，回滚使用升级前的备份。
 
 ## 6. 常见问题
 

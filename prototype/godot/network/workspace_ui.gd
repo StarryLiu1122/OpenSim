@@ -44,6 +44,14 @@ var upload_source: LineEdit
 var upload_note: Label
 var asset_picker: OptionButton
 var place_button: Button
+var review_list: ItemList
+var review_info: Label
+var review_status: OptionButton
+var review_note: TextEdit
+var review_save_button: Button
+var review_focus_button: Button
+var review_export_button: Button
+var review_tab_index := -1
 var asset_ids: Array = []
 var delete_dialog: ConfirmationDialog
 var context_menu: PopupMenu
@@ -176,6 +184,7 @@ func build() -> void:
 	note(guide, "先走进场景，或打开建造工具。随时按 Esc 返回编辑。")
 	guide_start_button = button(guide, "开始探索  →", start_exploring, true)
 	button(guide, "打开建造工具", func(): tools_open = true; help_open = false; tabs.current_tab = 0; layout())
+	button(guide, "查看推演与专家审阅", func(): tools_open = true; help_open = false; tabs.current_tab = review_tab_index; layout())
 	label(guide, "探索快捷键", 13, ACCENT)
 	note(guide, "WASD 移动  ·  Shift 快跑  ·  F 飞行\n空格跳跃 / 上升  ·  Ctrl 下降  ·  E 互动")
 	note(guide, "编辑时右键地点可前往或建造；滚轮缩放，双击定位。")
@@ -260,6 +269,23 @@ func build() -> void:
 	upload_source = field(assets, "来源与署名", "作者、来源链接或授权说明")
 	upload_button = button(assets, "提交模型资产", app._submit_upload, true)
 	note(assets, "列表显示当前视野引用的模型和本次会话已提交的模型。新模型提交后请放入场景，便于再次连接时选用。")
+	var review := page("推演审阅")
+	review_tab_index = tabs.get_child_count() - 1
+	label(review, "世界模型预测点", 20)
+	note(review, "预测点由实验工具提交到权威场景。这里记录人的核查意见；不会修改原始预测或模拟洪水范围。")
+	review_list = ItemList.new(); review_list.custom_minimum_size.y = 130; review.add_child(review_list)
+	review_list.item_selected.connect(app._review_select)
+	review_info = note(review, "连接世界后，选择预测点查看位置。")
+	review_focus_button = button(review, "定位到预测点", app._review_focus)
+	label(review, "现场判断", 13, MUTED)
+	review_status = OptionButton.new(); review_status.custom_minimum_size.y = 40; review.add_child(review_status)
+	for pair in [["待核查", "unverified"], ["与现场一致", "consistent"], ["与现场不符", "inconsistent"]]:
+		review_status.add_item(pair[0]); review_status.set_item_metadata(review_status.item_count - 1, pair[1])
+	label(review, "说明 / 证据（最多 500 字）", 13, MUTED)
+	review_note = TextEdit.new(); review_note.custom_minimum_size.y = 90; review.add_child(review_note)
+	review_save_button = button(review, "保存这条审阅", app._review_save, true)
+	review_export_button = button(review, "导出专家审阅 JSON", app._review_export)
+	note(review, "记录保存在本机当前用户目录；导出后可与实验包按预测点 ID 和场景版本核对。")
 	footer = PanelContainer.new(); root.add_child(footer)
 	footer.add_theme_stylebox_override("panel", box(Color("101c29d8"), Color("52616b66"), 12))
 	var bottom := column(footer, 3)
@@ -389,6 +415,9 @@ func update() -> void:
 	delete_button.disabled = not owner_editable or pending or not item.get("group_id", "").is_empty()
 	delete_button.tooltip_text = "组合成员需先解除组合，或通过高级命令删除整个组合" if not item.get("group_id", "").is_empty() else "删除前需要确认"
 	toggle_button.disabled = not owner_editable or not item.get("state", {}).has("active") or pending
+	review_focus_button.disabled = app.review_selected_id.is_empty() or not online
+	review_save_button.disabled = app.review_selected_id.is_empty() or not online
+	review_export_button.disabled = app.review_records.is_empty()
 	app.name_field.editable = owner_editable and not pending
 	for value in app.coordinates: value.editable = owner_editable and not pending
 	selection_title.text = str(item.get("name", "尚未选择对象"))

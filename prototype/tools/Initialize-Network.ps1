@@ -32,7 +32,7 @@ foreach ($name in @('editor-a','editor-b','observer','guest')) {
     $principals += @{id=[guid]::NewGuid().ToString();name=$name;actor=$(if($name -eq 'guest'){[guid]::NewGuid().ToString()}else{$owner});role=$(if($name -eq 'observer'){'observer'}else{'editor'});token=$token;expires_at_ms=[DateTimeOffset]::UtcNow.AddDays(7).ToUnixTimeMilliseconds()}
 }
 $rng.Dispose()
-$config = @{storage=$storage;store=[IO.Path]::GetFullPath($Store);godot=[IO.Path]::GetFullPath($Godot);host_executable=[IO.Path]::GetFullPath($HostExecutable);project=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../godot'));port=$Port;http_port=$Port+1;https_port=$Port+2;web_root=[IO.Path]::GetFullPath($WebDirectory);certificate=(Join-Path $Directory 'localhost.pfx');principals=$principals;private_objects=@{}}
+$config = @{storage=$storage;store=[IO.Path]::GetFullPath($Store);godot=[IO.Path]::GetFullPath($Godot);host_executable=[IO.Path]::GetFullPath($HostExecutable);project=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../godot'));port=$Port;http_port=$Port+1;https_port=$Port+2;web_root=[IO.Path]::GetFullPath($WebDirectory);certificate=(Join-Path $Directory 'localhost.pfx');world_instance_id=[guid]::NewGuid().ToString();principals=$principals;private_objects=@{}}
 if ($WithBuilding) { $config.seed_asset=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../fixtures/buildings/pioneer-log-cabin/pioneer-log-cabin.glb')) }
 if ($SeedWorld) { $config.seed_world=[IO.Path]::GetFullPath($SeedWorld) }
 $utf8 = New-Object System.Text.UTF8Encoding($false)

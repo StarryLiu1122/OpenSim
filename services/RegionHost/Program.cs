@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using Microsoft.Data.Sqlite;
 
 if (args.Length == 2 && args[0] == "--certificate")
 {
@@ -26,7 +27,27 @@ var config = JsonNode.Parse(File.ReadAllText(args[0]))!.AsObject();
 string S(string key) => config[key]!.GetValue<string>();
 int N(string key) => config[key]!.GetValue<int>();
 string root = Path.GetFullPath(S("web_root")), storage = Path.GetFullPath(S("storage"));
-var principals = config["principals"]!.AsArray().Select(p => p!.AsObject()).ToArray();
+string database = Path.Combine(storage, "worlds.sqlite3");
+// Read the same durable sessions as the authority on every asset request.
+// A cached/configured token list would keep serving a revoked session and
+// could never recognize accounts created while this gateway is running.
+async Task<string?> ActiveAccount(string token, CancellationToken cancellation)
+{
+    string hash = Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(token))).ToLowerInvariant();
+    var options = new SqliteConnectionStringBuilder { DataSource = database, Mode = SqliteOpenMode.ReadOnly, Pooling = false, DefaultTimeout = 3 };
+    await using var connection = new SqliteConnection(options.ToString());
+    await connection.OpenAsync(cancellation);
+    await using var query = connection.CreateCommand();
+    query.CommandText = """
+        SELECT s.account_id FROM sessions AS s
+        JOIN accounts AS a ON a.id = s.account_id
+        WHERE s.token_hash = $hash AND s.revoked = 0
+          AND s.expires_at_ms > $now AND a.disabled = 0
+        """;
+    query.Parameters.AddWithValue("$hash", hash);
+    query.Parameters.AddWithValue("$now", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+    return await query.ExecuteScalarAsync(cancellation) as string;
+}
 var builder = WebApplication.CreateSlimBuilder();
 builder.Logging.ClearProviders(); builder.Logging.AddSimpleConsole(o => o.SingleLine = true);
 builder.WebHost.ConfigureKestrel(options => {
@@ -69,18 +90,19 @@ app.Map("/ws", async context => {
 app.MapGet("/assets/{name}", async (HttpContext context, string name) => {
     if (!Regex.IsMatch(name, "^[a-f0-9]{64}\\.glb$")) { context.Response.StatusCode = 404; return; }
     string authorization = context.Request.Headers.Authorization.ToString();
-    JsonObject? principal = null;
-    if (authorization.StartsWith("Bearer ", StringComparison.Ordinal))
+    if (!authorization.StartsWith("Bearer ", StringComparison.Ordinal) || authorization.Length <= 7 || authorization.Length > 4103)
     {
-        byte[] supplied = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(authorization[7..]));
-        principal = principals.FirstOrDefault(p => CryptographicOperations.FixedTimeEquals(supplied, SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(p["token"]!.GetValue<string>()))) && p["expires_at_ms"]!.GetValue<long>() > DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        context.Response.StatusCode = 401; return;
     }
-    if (principal is null) { context.Response.StatusCode = 401; return; }
+    string? accountId;
+    try { accountId = await ActiveAccount(authorization[7..], context.RequestAborted); }
+    catch (SqliteException) { context.Response.StatusCode = 503; return; }
+    if (accountId is null) { context.Response.StatusCode = 401; return; }
     string catalogFile = Path.Combine(storage, "asset-catalog.json");
     if (!File.Exists(catalogFile)) { context.Response.StatusCode = 503; return; }
     var catalog = JsonNode.Parse(await File.ReadAllTextAsync(catalogFile, context.RequestAborted))!.AsObject();
     string hash = name[..64];
-    if (catalog[hash] is not JsonObject entry || !entry["principals"]!.AsArray().Any(n => n!.GetValue<string>() == principal["id"]!.GetValue<string>())) { context.Response.StatusCode = 404; return; }
+    if (catalog[hash] is not JsonObject entry || !entry["principals"]!.AsArray().Any(n => n!.GetValue<string>() == accountId)) { context.Response.StatusCode = 404; return; }
     string file = Path.Combine(storage, "objects", name);
     if (!File.Exists(file) || new FileInfo(file).Length > 2097152) { context.Response.StatusCode = 503; return; }
     byte[] bytes = await File.ReadAllBytesAsync(file, context.RequestAborted);

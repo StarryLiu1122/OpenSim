@@ -29,6 +29,7 @@ var active: Dictionary = {}
 var worker: Thread
 var worker_job: RefCounted
 var epoch := Schema.uuid()
+var world_instance_id := ""
 var commit_revision := -1
 var frozen := false
 var tick := 0
@@ -42,6 +43,7 @@ func _ready() -> void:
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not parsed is Dictionary: _fatal("INVALID_CONFIGURATION"); return
 	config = parsed
+	if not _load_world_instance_id(): return
 	store = Repository.new(config.storage, config.store)
 	var initialized: Dictionary = store._invoke({"operation": "init"})
 	if initialized.has("error"): _fatal(initialized.error); return
@@ -85,6 +87,26 @@ func _ready() -> void:
 
 func _fatal(reason: String) -> void:
 	push_error(reason); get_tree().quit(1)
+
+func _load_world_instance_id() -> bool:
+	# New instances carry the identity in their private configuration. Older
+	# instances create it once in storage, so an authority restart keeps the
+	# same identity while a separately initialized instance gets another one.
+	if config.has("world_instance_id"):
+		world_instance_id = str(config.world_instance_id)
+		if not Schema.is_uuid(world_instance_id): _fatal("INVALID_WORLD_INSTANCE_ID"); return false
+		return true
+	var path: String = config.storage.path_join("world-instance-id.txt")
+	if FileAccess.file_exists(path):
+		world_instance_id = FileAccess.get_file_as_string(path).strip_edges()
+		if not Schema.is_uuid(world_instance_id): _fatal("INVALID_WORLD_INSTANCE_ID"); return false
+		return true
+	world_instance_id = Schema.uuid()
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null: _fatal("WORLD_INSTANCE_ID_WRITE_FAILED"); return false
+	file.store_string(world_instance_id + "\n")
+	file.flush(); file.close()
+	return true
 
 func _write(path: String, value: Variant) -> void:
 	var file := FileAccess.open(path + ".tmp", FileAccess.WRITE)
@@ -154,6 +176,7 @@ func _account(client: Dictionary, packet: Dictionary) -> void:
 			var created: Dictionary = store._invoke({"operation": "account_create", "name": params.name, "role": params.role, "now_ms": _utc()})
 			if created.has("error"): _account_reply(client, request_id, false, str(created.error)); return
 			accounts[created.account.id] = created.account
+			_publish_assets()
 			_account_reply(client, request_id, true, "", {"account": created.account})
 		"disable", "enable":
 			if not Schema.exact_keys(params, ["account_id"]) or not Schema.is_uuid(str(params.account_id)):
@@ -164,6 +187,7 @@ func _account(client: Dictionary, packet: Dictionary) -> void:
 			if packet.action == "disable":
 				for hash in sessions:
 					if sessions[hash].account_id == params.account_id: sessions[hash].revoked = true
+			_publish_assets()
 			_account_reply(client, request_id, true, "", {"account_id": params.account_id, "disabled": packet.action == "disable"})
 		"issue":
 			if not Schema.exact_keys(params, ["account_id", "ttl_ms"]) or not Schema.is_uuid(str(params.account_id)) or not _integer(params.ttl_ms, 60000, 2592000000):
@@ -623,7 +647,7 @@ func _receive(client: Dictionary, packet: Dictionary) -> void:
 		spawn[0] += slot * 1.0
 		avatar.spawn = View.to_engine(spawn); avatar.position = avatar.spawn
 		client.avatar = avatar
-		_send(client, Wire.packet("welcome", {"world_id": Schema.REGION_ID, "region_id": Schema.REGION_ID, "world_epoch": epoch, "principal_id": client.principal.id, "actor_id": client.principal.actor, "role": client.principal.role, "avatar_id": client.principal.id, "send_hz": 20, "physics_hz": 60, "capabilities": ["sprint_input", "flight_input"]}))
+		_send(client, Wire.packet("welcome", {"world_id": Schema.REGION_ID, "region_id": Schema.REGION_ID, "world_instance_id": world_instance_id, "world_epoch": epoch, "principal_id": client.principal.id, "actor_id": client.principal.actor, "role": client.principal.role, "avatar_id": client.principal.id, "send_hz": 20, "physics_hz": 60, "capabilities": ["sprint_input", "flight_input"]}))
 		_sync(client, true); return
 	match packet.type:
 		"ack":
@@ -664,7 +688,7 @@ func _reject(client: Dictionary, id: String, code: String) -> void:
 
 func _command(client: Dictionary, command: Dictionary) -> void:
 	var fields := ["fp_version", "type", "world_id", "region_id", "request_id", "trace_id", "world_epoch", "origin", "source_seq", "expected_revision", "expires_at_ms", "operation", "payload"]
-	if not Schema.exact_keys(command, fields) or not Schema.is_uuid(command.request_id) or not Schema.is_uuid(command.trace_id) or not command.payload is Dictionary or command.origin not in ["desktop", "web", "test"] or not _integer(command.source_seq, 1, 1000000000) or not _integer(command.expected_revision, 0, 1000000000) or not _integer(command.expires_at_ms, 0, 9007199254740991):
+	if not Schema.exact_keys(command, fields) or not Schema.is_uuid(command.request_id) or not Schema.is_uuid(command.trace_id) or not command.payload is Dictionary or command.origin not in ["desktop", "web", "test", "world_model"] or not _integer(command.source_seq, 1, 1000000000) or not _integer(command.expected_revision, 0, 1000000000) or not _integer(command.expires_at_ms, 0, 9007199254740991):
 		_reject(client, "", "INVALID_COMMAND"); return
 	var fingerprint := Wire.digest(command)
 	var previous: Dictionary = receipts.get(command.request_id, failures.get(command.request_id, {}))
@@ -683,7 +707,7 @@ func _command(client: Dictionary, command: Dictionary) -> void:
 	client.source_seq = command.source_seq
 	if command.expires_at_ms < _utc() or command.expires_at_ms > _utc() + 60000: _reject(client, command.request_id, "EXPIRED_COMMAND"); return
 	if command.operation not in Wire.MUTATIONS: _reject(client, command.request_id, "UNSUPPORTED_OPERATION"); return
-	if client.principal.role in ["observer", "agent"] or not _authorized(client.principal, command): _reject(client, command.request_id, "PERMISSION_DENIED"); return
+	if client.principal.role in ["observer", "agent"] or (command.origin == "world_model" and client.principal.role != "owner") or not _authorized(client.principal, command): _reject(client, command.request_id, "PERMISSION_DENIED"); return
 	if frozen or receipts.size() >= 10000 or failures.size() >= 10000: _reject(client, command.request_id, "MAINTENANCE_REQUIRED"); return
 	if queued.size() >= 64: _reject(client, command.request_id, "SERVER_BUSY"); return
 	queued.append({"command": command.duplicate(true), "principal": client.principal.duplicate(true), "fingerprint": fingerprint})
