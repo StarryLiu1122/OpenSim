@@ -238,20 +238,102 @@ func _run() -> void:
 		await process_frame
 	check(not app.session_assets.is_empty() and app._upload_bytes.is_empty(), "provenance form registers model only after durable upload receipt")
 	check(app.ui.asset_ids.has(app.session_assets.keys()[0]) if not app.session_assets.is_empty() else false, "committed unused model is available for placement despite spatial filtering")
+	var saved_item_id := ""
+	for frame in range(600):
+		for candidate_id in app.inventory_items:
+			if str(app.inventory_items[candidate_id].get("name", "")) == "原始验证长凳": saved_item_id = str(candidate_id); break
+		if not saved_item_id.is_empty(): break
+		await process_frame
+	check(not saved_item_id.is_empty(), "uploaded model appears in the actor's persistent inventory")
+	await click(app.ui.library_button)
+	check(app.ui.tabs.current_tab == 4 and app.ui.dock.visible, "My Assets navigation opens the library workspace")
+	app.ui.library_search.text = "原始验证长凳"; app.ui.library_search.text_changed.emit(app.ui.library_search.text)
+	await settle()
+	check(app.ui.library_item_ids == [saved_item_id] and app.ui.library_list.item_count == 1, "My Assets search filters the server-backed list")
+	if not saved_item_id.is_empty() and app.ui.library_item_ids == [saved_item_id]:
+		app.ui.tabs.get_child(4).ensure_control_visible(app.ui.library_list); await settle()
+		var library_point: Vector2 = app.ui.library_list.global_position + app.ui.library_list.get_item_rect(0).get_center()
+		for pressed in [true, false]:
+			var library_click := InputEventMouseButton.new(); library_click.position = library_point
+			library_click.button_index = MOUSE_BUTTON_LEFT; library_click.pressed = pressed
+			root.push_input(library_click, true); await process_frame
+		await settle()
+		var library_selected: PackedInt32Array = app.ui.library_list.get_selected_items()
+		check(library_selected.size() == 1 and library_selected[0] == 0 and app.ui.library_info.text.contains("CC0-1.0") and app.ui.library_info.text.contains("Region Lab original validation asset"), "selecting a saved model shows license and source")
+		var library_count: int = app.connection.local.snapshot().objects.size()
+		await click(app.ui.library_place_button)
+		check(app.placing and app.preview.visible and app.placement_item_id == saved_item_id and app.connection.local.snapshot().objects.size() == library_count, "My Assets button previews a saved model without mutating the world")
+		await key(KEY_R)
+		check(abs(float(app.placement_rotation[2])) > 0.01, "R rotates a My Assets placement preview")
+		await capture("my-assets")
+		app._confirm_preview()
+		var library_placed_id := ""
+		for frame in range(900):
+			if app.connection.local.snapshot().objects.size() == library_count + 1:
+				for candidate_id in app.connection.local.snapshot().objects:
+					var candidate: Dictionary = app.connection.local.snapshot().objects[candidate_id]
+					if candidate.get("name", "") == "原始验证长凳" and candidate.get("owner_id", "") == app.connection.welcome.actor_id:
+						library_placed_id = str(candidate_id); break
+			if not library_placed_id.is_empty() and app.connection.pending.is_empty(): break
+			await process_frame
+		check(not library_placed_id.is_empty() and app.connection.local.snapshot().objects.size() == library_count + 1, "saved model places through the authoritative inventory command")
+		if not library_placed_id.is_empty():
+			check(abs(float(app.connection.local.snapshot().objects[library_placed_id].rotation[2])) > 0.01, "inventory placement persists its preview rotation")
+			await wait_ready()
+			app._command("DeleteObject", {"id": library_placed_id})
+			for frame in range(600):
+				if not app.connection.local.snapshot().objects.has(library_placed_id) and app.connection.pending.is_empty() and app.interactive: break
+				await process_frame
+	else:
+		check(false, "selecting a saved model shows license and source")
+		check(false, "My Assets button previews a saved model without mutating the world")
+		check(false, "R rotates a My Assets placement preview")
+		check(false, "saved model places through the authoritative inventory command")
+		check(false, "inventory placement persists its preview rotation")
+	app.ui.library_search.text = ""; app.ui.library_search.text_changed.emit("")
 	await capture("import")
 	var count: int = app.connection.local.snapshot().objects.size()
+	app._begin_place(str(app.ui.asset_ids[app.ui.asset_picker.selected]))
+	check(app.placing and app.preview.visible and app.connection.local.snapshot().objects.size() == count, "model preview is visible without changing authoritative world")
+	await key(KEY_R)
+	check(abs(float(app.placement_rotation[2])) > 0.01, "R rotates the placement outline before commit")
+	await key(KEY_ESCAPE)
+	check(not app.placing and not app.preview.visible and app.connection.local.snapshot().objects.size() == count, "Escape cancels placement without a world mutation")
 	await click(app.ui.place_button)
 	for frame in range(600):
 		if app.connection.local.snapshot().objects.size() > count and app.ui.tabs.current_tab == 1: break
 		await process_frame
 	check(app.connection.local.snapshot().objects.size() == count + 1 and not app.selected.is_empty(), "asset placement creates and selects a committed model without JSON")
 	check(await wait_ready(), "placed model finishes validated collision loading before editing")
+	var placed_before: Dictionary = app.connection.local.snapshot().objects[app.selected].duplicate(true)
+	app._rotate_selected(15.0)
+	for frame in range(600):
+		if app.connection.pending.is_empty() and app.connection.local.snapshot().objects[app.selected].rotation != placed_before.rotation: break
+		await process_frame
+	check(app.connection.local.snapshot().objects[app.selected].rotation != placed_before.rotation, "rotation control commits a validated world transform")
+	placed_before = app.connection.local.snapshot().objects[app.selected].duplicate(true)
+	app._scale_selected(1.1)
+	for frame in range(600):
+		if app.connection.pending.is_empty() and app.connection.local.snapshot().objects[app.selected].size != placed_before.size: break
+		await process_frame
+	check(app.connection.local.snapshot().objects[app.selected].size != placed_before.size, "scale control commits a validated world transform")
+	placed_before = app.connection.local.snapshot().objects[app.selected].duplicate(true)
+	app._begin_move_selected()
+	var moved_position: Array = placed_before.position.duplicate()
+	moved_position[0] += 0.5
+	app._set_preview_position(moved_position)
+	check(app.moving and app.preview.visible and app.connection.local.snapshot().objects[app.selected].position == placed_before.position, "drag preview leaves original object untouched")
+	app._confirm_preview()
+	for frame in range(600):
+		if app.connection.pending.is_empty() and app.connection.local.snapshot().objects[app.selected].position == moved_position: break
+		await process_frame
+	check(app.connection.local.snapshot().objects[app.selected].position == moved_position, "move preview commits only after confirmation")
 	await settle()
 	await click(app.ui.delete_button)
 	check(app.ui.delete_dialog.visible, "loaded placed model can request deletion")
 	await click(app.ui.delete_dialog.get_ok_button())
 	for frame in range(600):
-		if app.connection.local.snapshot().objects.size() == count: break
+		if app.connection.local.snapshot().objects.size() == count and app.connection.pending.is_empty() and app.interactive: break
 		await process_frame
 	check(app.connection.local.snapshot().objects.size() == count, "confirmed delete removes the placed model through authority")
 	var imported_count: int = app.session_assets.size()
@@ -259,6 +341,8 @@ func _run() -> void:
 	app._upload(Marshalls.raw_to_base64(realistic), "Marble Bust 01")
 	app.ui.upload_license.text = "CC0-1.0"
 	app.ui.upload_source.text = "Rico Cilliers / Poly Haven; three.ws 1K GLB conversion"
+	await settle()
+	check(not app.ui.upload_button.disabled, "realistic upload form is ready after previous command settles")
 	await click(app.ui.upload_button)
 	for frame in range(900):
 		if app.session_assets.size() > imported_count: break
@@ -300,7 +384,7 @@ func _run() -> void:
 			if app.interactive and app.view.bodies.size() == app.connection.local.snapshot().objects.size() and app.rendered_revision == int(app.connection.local.snapshot().meta.revision): break
 			await process_frame
 		check(app.interactive and app.view.bodies.size() == app.connection.local.snapshot().objects.size(), "new context-built object finishes collision projection")
-	app.ui.tabs.current_tab = 0; await settle()
+	app.ui.tabs.current_tab = 1; await settle()
 	var before_quick_create: Array = app.connection.local.snapshot().objects.keys()
 	await click(app.ui.create_button)
 	var quick_id := ""
@@ -320,7 +404,7 @@ func _run() -> void:
 	for frame in range(240):
 		if app.pending_selection.is_empty() and app.connection.pending.is_empty(): break
 		await process_frame
-	app.ui.tabs.current_tab = 0; await settle()
+	app.ui.tabs.current_tab = 1; await settle()
 	for frame in range(600):
 		if not app.ui.expand_button.disabled and app.connection.pending.is_empty(): break
 		await process_frame
@@ -329,6 +413,32 @@ func _run() -> void:
 		if app.connection.local.snapshot().meta.region.size[0] == 512 and app.view._region_size == Vector2(512, 512) and app.interactive: break
 		await process_frame
 	check(app.connection.local.snapshot().meta.region.size == [512.0, 512.0] and app.view._region_size == Vector2(512, 512), "network button expands authority and rendered region to 512 metres")
+	var environment_before: Dictionary = app.connection.local.snapshot().meta.environment.duplicate(true)
+	var sun_hour: float = fmod(float(environment_before.sun_hour) + 1.0, 24.0)
+	app.ui.environment_fields.sun_hour.value = sun_hour
+	await settle()
+	check(app.ui.environment_dirty and not app.ui.environment_apply_button.disabled, "environment controls enable saving after a direct value change")
+	await click(app.ui.environment_apply_button)
+	for frame in range(900):
+		if abs(float(app.connection.local.snapshot().meta.environment.sun_hour) - sun_hour) < 0.001 and app.connection.pending.is_empty(): break
+		await process_frame
+	await settle()
+	check(abs(float(app.connection.local.snapshot().meta.environment.sun_hour) - sun_hour) < 0.001, "environment save commits the new sun hour through the authority")
+	check(not app.ui.environment_dirty and abs(app.ui.environment_fields.sun_hour.value - sun_hour) < 0.001, "committed environment clears the unsaved indicator")
+	var terrain_before: Dictionary = app.connection.local.snapshot().meta.terrain.duplicate(true)
+	var terrain_column: int = int(80.0 / float(terrain_before.spacing))
+	var terrain_index: int = terrain_column * int(terrain_before.columns) + terrain_column
+	var terrain_target: float = snappedf(clampf(float(terrain_before.heights[terrain_index]) + 1.0, -39.0, 79.0), 0.1)
+	app.ui.terrain_mode.select(2)
+	app.ui.terrain_fields.east.value = 80.0; app.ui.terrain_fields.north.value = 80.0
+	app.ui.terrain_fields.radius.value = 12.0; app.ui.terrain_fields.strength.value = 100.0
+	app.ui.terrain_fields.height.value = terrain_target
+	await click(app.ui.terrain_apply_button)
+	for frame in range(900):
+		if abs(float(app.connection.local.snapshot().meta.terrain.heights[terrain_index]) - terrain_target) < 0.001 and app.connection.pending.is_empty(): break
+		await process_frame
+	check(abs(float(app.connection.local.snapshot().meta.terrain.heights[terrain_index]) - terrain_target) < 0.001 and app.connection.local.snapshot().meta.terrain.heights[0] == terrain_before.heights[0], "terrain brush control changes only its intended height samples")
+	await capture("world-controls")
 	var outer: Dictionary = app.Schema.box("Outer region marker", [400.0, 400.0, 2.0], [1.0, 1.0, 1.0], "#ffffff")
 	outer.owner_id = app.connection.welcome.actor_id
 	app._command("CreateObject", {"object": outer})

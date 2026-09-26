@@ -1,6 +1,7 @@
 extends Node
 signal updated(world_changed: bool)
 signal result_received(result: Dictionary)
+signal inventory_result_received(result: Dictionary)
 signal welcomed
 const Wire = preload("res://network/wire.gd")
 const Schema = preload("res://domain/world_schema.gd")
@@ -9,6 +10,7 @@ var assets = preload("res://network/asset_loader.gd").new()
 var peer: WebSocketPeer
 var welcome: Dictionary = {}
 var pending: Dictionary = {}
+var inventory_pending: Dictionary = {}
 var results: Dictionary = {}
 var status := "Disconnected"
 var _token := ""
@@ -36,6 +38,9 @@ func connect_to(url: String, token: String, base_url: String, ca: X509Certificat
 func disconnect_from() -> void:
 	if peer != null: peer.close(); peer = null
 	for id in pending: results[id] = {"request_id": id, "ok": false, "code": "OUTCOME_UNKNOWN_QUERY_AFTER_RECONNECT"}
+	for id in inventory_pending:
+		inventory_result_received.emit({"request_id": id, "ok": false, "code": "CONNECTION_CLOSED", "data": {}})
+	inventory_pending.clear()
 	pending.clear(); local.reset(); assets.reset(); welcome.clear(); _sequence = 0; _hello = false; _token = ""; _resync_pending = false; _bad_snapshots = 0; status = "Disconnected"
 
 func online() -> bool:
@@ -52,6 +57,13 @@ func command(operation: String, payload: Dictionary) -> String:
 	if not send(packet): return ""
 	pending[id] = packet
 	status = "Waiting for durable commit"
+	return id
+
+func inventory(action: String, params: Dictionary = {}) -> String:
+	if not online() or action not in ["list", "folder_create", "add", "remove", "move", "give"]: return ""
+	var id := Schema.uuid()
+	if not send(Wire.packet("inventory", {"request_id": id, "action": action, "params": params.duplicate(true)})): return ""
+	inventory_pending[id] = action
 	return id
 
 func _process(_delta: float) -> void:
@@ -96,3 +108,8 @@ func accept(packet: Dictionary) -> void:
 			if results.size() > 256: results.erase(results.keys()[0])
 			status = "Committed · revision " + str(packet.revision) if packet.ok else "Rejected: " + str(packet.code)
 			result_received.emit(packet)
+		"inventory_result":
+			var id := str(packet.get("request_id", ""))
+			if not inventory_pending.has(id): return
+			inventory_pending.erase(id)
+			inventory_result_received.emit(packet)

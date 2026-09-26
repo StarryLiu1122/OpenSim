@@ -12,7 +12,7 @@ const BOX_ASSET := "22222222-2222-4222-8222-222222222222"
 const REGION_ID := "33333333-3333-4333-8333-333333333333"
 const MAX_OBJECTS := 500
 const MAX_FILE_BYTES := 8 * 1024 * 1024
-const MAX_IMPORTED_ASSETS := 64
+const MAX_IMPORTED_ASSETS := 96
 
 static func uuid() -> String:
 	var bytes := Crypto.new().generate_random_bytes(16)
@@ -75,7 +75,7 @@ static func validate(world: Variant) -> String:
 	if not environment_error.is_empty():
 		return environment_error
 	if not world.assets is Array or world.assets.size() < KINDS.size() or world.assets.size() > KINDS.size() + MAX_IMPORTED_ASSETS or world.assets.slice(0, KINDS.size()) != catalog():
-		return "The asset catalog must begin with the six fixed built-ins and contain at most 64 imported assets."
+		return "The asset catalog must begin with the six fixed built-ins and contain at most 96 imported assets."
 	var mesh_ids: Array = []
 	for asset in world.assets.slice(KINDS.size()):
 		var loaded := MeshAssets.read(asset)
@@ -123,11 +123,6 @@ static func validate(world: Variant) -> String:
 			return "Group root or member count is invalid."
 		if T.vec(root.position).length() > 0.00001 or abs(T.quat(root.rotation).dot(Quaternion.IDENTITY)) < 0.999999:
 			return "Root transform belongs to the group; use UpdateGroup."
-	if world.assets.size() > KINDS.size():
-		var text := JSON.stringify(world, "\t", true, true)
-		var envelope := {"format": "region-lab.snapshot", "version": 1, "sha256": "0".repeat(64), "world_json": text}
-		if (JSON.stringify(envelope, "\t", true, true) + "\n").to_utf8_buffer().size() > MAX_FILE_BYTES:
-			return "Embedded world exceeds the snapshot budget."
 	return ""
 
 static func validate_object(item: Variant, region: Dictionary, mesh_ids: Array = []) -> String:

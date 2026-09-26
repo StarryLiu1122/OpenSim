@@ -26,6 +26,7 @@ $relocated = Join-Path $results 'relocated'
 New-Item -ItemType Directory -Path $relocated -Force | Out-Null
 $relocatedFile = Join-Path $relocated 'world.json'
 Copy-Item -LiteralPath $assetFile -Destination $relocatedFile
+Copy-Item -LiteralPath ($assetFile + '.assets') -Destination ($relocatedFile + '.assets') -Recurse
 $assetRead = Invoke-RegionLabCheck $engine ($base + @('--script', 'res://tests/process_assets.gd', '--log-file', (Join-Path $results 'asset-read.log'), '--', ('--world-file=' + $relocatedFile))) (Join-Path $results 'asset-read')
 foreach ($log in @($assetWrite, $assetRead)) {
     $line = @($log -split "`r?`n" | Where-Object { $_ -match '^\{.*separate-process-embedded-assets' })
@@ -68,7 +69,7 @@ $summary = [ordered]@{
     engine = (& $engine --version | Out-String).Trim()
     native_passed = $nativeReport.passed
     separate_process_persistence = $true
-    separate_process_embedded_assets = $true
+    separate_process_content_assets = $true
     offline_batch_adapter = $true
     terrain_batch_adapter = $true
     environment_behavior_batch_adapter = $true

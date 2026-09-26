@@ -46,7 +46,7 @@ flowchart LR
 | `revision` | 0–1,000,000,000 的整数 |
 | `region` | `id/name/size/spawn/owner_id`；尺寸可为 256×256 或 512×512 米 |
 | `terrain` | `columns/rows/spacing/heights`；覆盖范围必须与区域一致，高程 -40–80 米 |
-| `assets` | 前六项为固定内置目录，之后最多 64 个内嵌 mesh 记录；完整快照仍限 8 MiB |
+| `assets` | 前六项为固定内置目录，之后最多 96 个 mesh 记录；运行时含模型字节，JSON 快照版本 2 和 SQLite 行按 SHA-256 外置字节；元数据快照限 8 MiB |
 | `environment` | `sun_hour/water_enabled/water_height/fog_density/terrain_grid` |
 | `groups` | 最多 128 组，每组 2–100 个成员；根、归属、局部与世界变换均须合法 |
 | `objects` | 最多 500 个对象或组成员；ID 唯一，变换和归属须合法 |
@@ -176,17 +176,17 @@ WorldView 保留稳定 ID 到 StaticBody3D 的映射。对象记录改变时更�
 
 门的两侧伸缩面板在打开时收回到门框范围内，中央碰撞随状态变化；没有连续动画。所有部件均保持在对象声明的尺寸范围内，复合引擎节点不等价于可编辑的 OpenSim linkset。
 
-EnvironmentView 根据持久化参数设置天空、太阳、雾及 256×256 米水面。太阳时刻固定，水面只做渲染；两者都不是真实天气或水动力模拟。地形网格、地面查询与碰撞的共同三角形规则不变。
+EnvironmentView 根据持久化参数设置天空、太阳、雾及覆盖区域的水面。太阳时刻固定，水面只做渲染；两者都不是真实天气或水动力模拟。地形网格、地面查询与碰撞的共同三角形规则不变。
 
 ## 7. 存储协议
 
-磁盘封装含 `format="region-lab.snapshot"`、`version=1`、`sha256`、`world_json`。`world_json` 是完整世界的 JSON 文本字符串；SHA256 针对该字符串的 UTF-8 文本计算，验证后再解析世界。
+磁盘封装含 `format="region-lab.snapshot"`、`version`、`sha256`、`world_json`。当前写入版本 2：`world_json` 是世界元数据的 JSON 文本，网格条目只保留 SHA-256，模型字节在世界文件同名的 `.assets` 目录。SHA256 针对所存文本的 UTF-8 计算；读取后再按内容 SHA 验证并补全网格字节。旧版本 1 的内嵌模型快照仍可读取。
 
 保存顺序为：验证数据 → 写临时文件 → flush 并关闭 → 回读验证 → 更新有效备份 → 替换主文件。损坏主文件不会覆盖有效备份。主文件读取失败时尝试备份；备份恢复返回警告并标记为需要保存。两份文件都无效时不替换内存世界。
 
 格式 1 的载荷通过 LegacyWorldSchema 完整验证后，在副本上补入默认环境、material=plain、state={} 并替换为内置目录。ID、地形、区域和修订保留。LoadRegion 返回 migrated=true，设置 dirty=true；读取不改写原文件。随后补入 groups=[]、group_id=""；格式 2 则直接补入组合字段。下一次显式保存发布格式 3，并将有效原文件轮换为备份。
 
-快照上限 8 MiB。文件摘要用于损坏检测，不是身份签名。写入前文件指纹可发现已经发生的外部修改，但检查和发布之间没有跨进程锁。断电持久性、多人事务和数据库迁移尚未验证。
+快照元数据上限 8 MiB。搬移或备份 JSON 世界时，必须连同 `.assets` 目录一并处理。文件摘要用于损坏检测，不是身份签名。写入前文件指纹可发现已经发生的外部修改，但检查和发布之间没有跨进程锁；断电持久性尚未验证。共享区域另用 SQLite 仓储和外置内容目录，事务及备份恢复另见[存储服务说明](../../services/README.md)。
 
 ## 8. 离线批处理
 

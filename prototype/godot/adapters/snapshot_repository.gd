@@ -1,6 +1,7 @@
 extends "res://adapters/repository_contract.gd"
 ## Validated, checksummed snapshots. Single writer; bounded reads; previous valid backup.
 const Schema = preload("res://domain/world_schema.gd")
+const Content = preload("res://adapters/content_asset_store.gd")
 
 var _fingerprint := ""
 
@@ -14,7 +15,7 @@ static func canonical(world: Dictionary) -> String:
 	# Stable semantic comparison for diagnostics. Integrity hashes the exact stored payload.
 	return JSON.stringify(world, "", true)
 
-func _read(file_path: String) -> Dictionary:
+func _read(file_path: String, content_directory: String = "") -> Dictionary:
 	var file := FileAccess.open(file_path, FileAccess.READ)
 	if file == null:
 		return {"error": "Cannot open snapshot: " + error_string(FileAccess.get_open_error())}
@@ -26,14 +27,20 @@ func _read(file_path: String) -> Dictionary:
 	var envelope: Variant = parser.data
 	if not envelope is Dictionary or not Schema.exact_keys(envelope, ["format", "version", "sha256", "world_json"]):
 		return {"error": "Invalid snapshot envelope."}
-	if envelope.format != "region-lab.snapshot" or envelope.version != 1:
+	if envelope.format != "region-lab.snapshot" or (envelope.version != 1 and envelope.version != 2):
 		return {"error": "Unsupported snapshot version."}
 	if not envelope.world_json is String or not envelope.sha256 is String or envelope.world_json.sha256_text() != envelope.sha256:
 		return {"error": "Snapshot checksum mismatch."}
 	var payload := JSON.new()
 	if payload.parse(envelope.world_json) != OK:
 		return {"error": "World payload JSON is invalid."}
-	var upgraded := Schema.upgrade(payload.data)
+	var candidate: Variant = payload.data
+	if envelope.version == 2:
+		if not candidate is Dictionary: return {"error": "World payload must be an object."}
+		var hydrated := Content.hydrate(candidate, path + ".assets" if content_directory.is_empty() else content_directory)
+		if hydrated.has("error"): return hydrated
+		candidate = hydrated.world
+	var upgraded := Schema.upgrade(candidate)
 	if upgraded.has("error"):
 		return upgraded
 	upgraded.sha256 = envelope.sha256
@@ -59,18 +66,23 @@ func save_world(world: Dictionary) -> Dictionary:
 	var disk_hash := FileAccess.get_sha256(path) if FileAccess.file_exists(path) else ""
 	if disk_hash != _fingerprint:
 		return {"error": "Snapshot changed on disk. Reload before saving; use a separate file for another instance."}
+	var staged := Content.stage(world, path + ".assets")
+	if staged.has("error"): return staged
 	var directory_error := DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	if directory_error != OK:
 		return {"error": "Cannot create save directory: " + error_string(directory_error)}
 	# Hash the stored UTF-8 text, not re-serialized floats (which can round differently).
-	var world_json := JSON.stringify(world, "\t", true, true)
+	var world_json := JSON.stringify(staged.world, "\t", true, true)
 	var digest := world_json.sha256_text()
-	var envelope := {"format": "region-lab.snapshot", "version": 1, "sha256": digest, "world_json": world_json}
+	var envelope := {"format": "region-lab.snapshot", "version": 2, "sha256": digest, "world_json": world_json}
+	var encoded := JSON.stringify(envelope, "\t", true, true) + "\n"
+	if encoded.to_utf8_buffer().size() > Schema.MAX_FILE_BYTES:
+		return {"error": "Snapshot metadata exceeds the 8 MiB limit."}
 	var temp_path := path + ".tmp"
 	var file := FileAccess.open(temp_path, FileAccess.WRITE)
 	if file == null:
 		return {"error": "Cannot write snapshot: " + error_string(FileAccess.get_open_error())}
-	file.store_string(JSON.stringify(envelope, "\t", true, true) + "\n")
+	file.store_string(encoded)
 	file.flush()
 	var write_error := file.get_error()
 	file.close()

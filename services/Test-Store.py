@@ -7,11 +7,25 @@ import json
 import os
 import shutil
 import sqlite3
+import struct
 import subprocess
 import time
 import uuid
 import zipfile
 from pathlib import Path
+
+
+def glb_variant(source, index):
+    """Keep valid geometry while giving each inventory entry distinct content."""
+    if source[:4] != b"glTF" or struct.unpack_from("<I", source, 4)[0] != 2:
+        raise ValueError("Inventory fixture must be GLB 2.0")
+    json_length = struct.unpack_from("<I", source, 12)[0]
+    document = json.loads(source[20:20 + json_length])
+    document["asset"]["generator"] = f"Region Lab inventory bundle probe {index}"
+    chunk = json.dumps(document, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    chunk += b" " * (-len(chunk) % 4)
+    tail = source[20 + json_length:]
+    return b"glTF" + struct.pack("<II", 2, 20 + len(chunk) + len(tail)) + struct.pack("<II", len(chunk), 0x4E4F534A) + chunk + tail
 
 
 class Suite:
@@ -71,6 +85,7 @@ class Suite:
         self.check(first["ok"] and first["commit_revision"] == 0, "initial atomic database commit")
         loaded = self.call("load")
         self.check(loaded["ok"] and loaded["world"] == world, "database preserves complete world semantics and array order")
+        self.check(all("glb" not in asset for asset in loaded["world"]["assets"]), "database load transfers references rather than embedded mesh bytes")
         self.check(self.invoke(save).get("replayed") is True, "same durable request returns prior commit after process exit")
         changed = copy.deepcopy(world); changed["objects"][0]["name"] += " revision"; changed["revision"] += 1
         new_file = self.candidate(changed, "candidate.json")
@@ -407,6 +422,73 @@ class Suite:
         v1_root = self.output / "restored v1"
         restore_v1 = self.request("import", input=str(v1_package), expected_commit=-1, request_id=str(uuid.uuid4())); restore_v1["root"] = str(v1_root)
         self.check(self.invoke(restore_v1)["ok"], "version 1 bundle imports without service data")
+        # Inventory libraries can outnumber the world's 96 registered mesh assets.
+        # Populate many unique valid content rows directly so this exercises the
+        # backup format rather than hundreds of short-lived Store processes.
+        source_glb = (Path(self.args.project).resolve().parent / "fixtures" / "meshes" / "bench.glb").read_bytes()
+        library_hashes = []
+        with sqlite3.connect(db) as c:
+            for index in range(260):
+                content = glb_variant(source_glb, index)
+                digest = hashlib.sha256(content).hexdigest()
+                library_hashes.append(digest)
+                (self.root / "objects" / (digest + ".glb")).write_bytes(content)
+                c.execute("INSERT INTO contents(sha256,bytes) VALUES(?,?)", (digest, len(content)))
+                c.execute("INSERT INTO inventory_items(id,account_id,folder_id,asset_sha256,name,license,attribution,created_at_ms) VALUES(?,?,NULL,?,?,?, ?,?)",
+                          (str(uuid.uuid4()), holder, digest, f"Library bench {index}", "CC0-1.0", "Region Lab fixture", now))
+        self.check(len(set(library_hashes)) == 260, "inventory fixture contains 260 unique valid GLBs")
+        library_bundle = self.output / "large-inventory.bundle.zip"
+        library_backup = self.call("backup", output=str(library_bundle))
+        self.check(library_backup["ok"] and library_bundle.exists(), "bundle exports a library exceeding the former 259-entry limit")
+        with zipfile.ZipFile(library_bundle) as archive:
+            names = archive.namelist()
+            self.check(len(names) > 259 and all("objects/" + digest + ".glb" in names for digest in library_hashes), "bundle includes every inventory-only content file")
+        library_root = self.output / "restored large inventory"
+        restore_library = self.request("import", input=str(library_bundle), expected_commit=-1, request_id=str(uuid.uuid4())); restore_library["root"] = str(library_root)
+        self.check(self.invoke(restore_library)["ok"], "large inventory bundle passes self-verification and restores")
+        library_list = self.request("inventory_list", account_id=holder); library_list["root"] = str(library_root)
+        restored_library = self.invoke(library_list)
+        restored_hashes = {item["asset_sha256"] for item in restored_library.get("items", [])}
+        self.check(restored_library["ok"] and len(restored_library["items"]) == 261 and set(library_hashes) <= restored_hashes,
+                   "restored library retains all 260 inventory-only assets and the original item")
+        self.check(all(hashlib.sha256((library_root / "objects" / (digest + ".glb")).read_bytes()).hexdigest() == digest for digest in library_hashes),
+                   "restored library content hashes match its inventory records")
+        # A live store refuses the next distinct blob before it can create a
+        # library that its bounded backup format cannot represent.
+        with sqlite3.connect(library_root / "worlds.sqlite3") as c:
+            for index in range(260, 1023):
+                content = glb_variant(source_glb, index)
+                digest = hashlib.sha256(content).hexdigest()
+                (library_root / "objects" / (digest + ".glb")).write_bytes(content)
+                c.execute("INSERT INTO contents(sha256,bytes) VALUES(?,?)", (digest, len(content)))
+                c.execute("INSERT INTO inventory_items(id,account_id,folder_id,asset_sha256,name,license,attribution,created_at_ms) VALUES(?,?,NULL,?,?,?, ?,?)",
+                          (str(uuid.uuid4()), holder, digest, f"Capacity bench {index}", "CC0-1.0", "Region Lab fixture", now))
+            next_content = glb_variant(source_glb, 1023)
+            next_hash = hashlib.sha256(next_content).hexdigest()
+            (library_root / "objects" / (next_hash + ".glb")).write_bytes(next_content)
+            c.execute("INSERT INTO contents(sha256,bytes) VALUES(?,?)", (next_hash, len(next_content)))
+        add_at_limit = self.request("inventory_add", account_id=holder, name="over content limit", sha256=next_hash, now_ms=now)
+        add_at_limit["root"] = str(library_root)
+        self.check(self.invoke(add_at_limit).get("error") == "CONTENT_LIBRARY_LIMIT", "new inventory content is rejected at the live library cap")
+        kept_items = self.invoke(library_list)
+        self.check(kept_items["ok"] and len(kept_items["items"]) == 1024, "capacity rejection leaves inventory unchanged")
+        # A duplicate item needs no new content and remains usable at the blob cap.
+        duplicate_at_limit = self.request("inventory_add", account_id=holder, name="shared content", sha256=library_hashes[0], now_ms=now)
+        duplicate_at_limit["root"] = str(library_root)
+        self.check(self.invoke(duplicate_at_limit)["ok"], "inventory may reuse existing content at the distinct-blob cap")
+        # Simulate a pre-limit database whose retained-byte metadata already
+        # exceeds the safe bundle budget; export must explain the failure.
+        with sqlite3.connect(library_root / "worlds.sqlite3") as c:
+            c.executemany("UPDATE contents SET bytes=? WHERE sha256=?", ((2 * 1024 * 1024, digest) for digest in library_hashes[:129]))
+        legacy_over_limit = self.request("backup", output=str(self.output / "legacy-over-limit.bundle.zip")); legacy_over_limit["root"] = str(library_root)
+        self.check(self.invoke(legacy_over_limit).get("error") == "CONTENT_LIBRARY_LIMIT", "existing over-budget library reports an explicit export error")
+        over_limit = self.output / "too-many-entries.bundle.zip"
+        with zipfile.ZipFile(library_bundle) as source, zipfile.ZipFile(over_limit, "w", compression=zipfile.ZIP_DEFLATED) as target_zip:
+            for info in source.infolist(): target_zip.writestr(info, source.read(info))
+            for index in range(4097 - len(names)):
+                target_zip.writestr(f"objects/{index:064x}.glb", b"x")
+        reject_many = self.request("import", input=str(over_limit), expected_commit=-1, request_id=str(uuid.uuid4())); reject_many["root"] = str(self.output / "reject many entries")
+        self.check(self.invoke(reject_many).get("error") == "BUNDLE_ENTRY_LIMIT", "bundle still rejects archives over the bounded entry cap")
         # V6 agents: the widened role CHECK accepts agent; rebuild migration is atomic.
         self.check(identity("account_create", name="agent-7", role="agent", now_ms=now)["ok"], "agent role accepted after rebuild")
         self.check(identity("account_create", name="agent-bad", role="superuser", now_ms=now).get("error") == "INVALID_ACCOUNT_ROLE", "unknown role still rejected")

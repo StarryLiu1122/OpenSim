@@ -85,7 +85,7 @@ func _test_schema() -> void:
 	check(not Schema.validate(wrong).is_empty(), "external executable asset paths rejected")
 	wrong = world.duplicate(true)
 	for index in range(Schema.MAX_IMPORTED_ASSETS + 1): wrong.assets.append({"id": str(index)})
-	check(Schema.validate(wrong).contains("at most 64 imported assets"), "imported asset catalog stops at 64 entries")
+	check(Schema.validate(wrong).contains("at most 96 imported assets"), "imported asset catalog stops at 96 entries")
 	wrong = world.duplicate(true)
 	wrong["unexpected"] = true
 	check(not Schema.validate(wrong).is_empty(), "unknown world fields rejected")

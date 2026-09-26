@@ -1,4 +1,4 @@
-# V5 服务工具：RegionStore / RegionHost 0.5.1
+# 服务工具：RegionStore / RegionHost 0.5.1
 
 RegionStore 是 Region Lab 的 SQLite 持久化进程；离线桌面选择 `-Database` 后使用，V5 权威区域固定使用它。RegionHost 提供 Web 文件、受控 HTTPS 资产和 WebSocket 转发，世界权威位于 Godot `network/server.gd`。完整网络运行步骤见 [V5 指南](../prototype/docs/network-quickstart.md)。二者不提供 OpenSim 数据库兼容性。
 
@@ -27,7 +27,7 @@ $data = Join-Path $PWD ('services\runtime\world ' + [guid]::NewGuid().ToString('
 
 ## 2. 从 V3.1 迁移
 
-保留原 JSON 存档副本，不直接修改它。格式 1、2、3 及快照封装 1 均由原生校验器读取；迁移只在目标仓储发生。
+保留原 JSON 存档副本，不直接修改它。世界格式 1、2、3 与快照封装 1、2 均由原生校验器读取；迁移只在目标仓储发生。快照封装 2 的模型内容位于存档同名的 `.assets` 目录，导入时须一并提供；RegionStore 在自己的 `objects/` 目录按 SHA-256 保存内容。单实例的世界和素材库合计最多保留 1,024 个不同在用模型、256 MiB 模型字节及 2,048 个素材库条目，以保持备份包在已校验的容量界限内。
 
 ```powershell
 $request = [guid]::NewGuid().ToString()

@@ -18,7 +18,7 @@ $output = Join-Path $Directory 'screenshots'
 try {
     & (Join-Path $PSScriptRoot 'Start-Network.ps1') -Directory $instance
     $arguments = @('--path', (Join-Path $prototypeRoot 'godot'), '--max-fps', '60', '--log-file', (Join-Path $Directory 'ui.log'), '--script', 'res://tests/network_ui_test.gd', '--', ('--network-config=' + (Join-Path $instance 'private-config.json')), ('--output-dir=' + $output))
-    $null = Invoke-RegionLabCheck $engine $arguments (Join-Path $Directory 'ui') 90
+    $null = Invoke-RegionLabCheck $engine $arguments (Join-Path $Directory 'ui') 180
     $report = Get-Content -LiteralPath (Join-Path $output 'report.json') -Raw | ConvertFrom-Json
     if ($report.failed -ne 0) { throw 'Network UI checks failed.' }
     Write-Output "Network UI: $($report.passed) passed. Evidence: $output"

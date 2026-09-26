@@ -15,6 +15,15 @@ internal sealed class StoreError(string code) : Exception(code);
 internal sealed class Store : IDisposable
 {
     internal const int MaxWorldBytes = 8 * 1024 * 1024;
+    private const long MaxBundleBytes = 300L * 1024 * 1024;
+    private const int MaxBundleEntries = 4096;
+    private const int MaxBundleManifestBytes = 1024 * 1024;
+    private const int MaxBundleServiceBytes = 8 * 1024 * 1024;
+    // Leave room in the bundle for the world, service records, manifest and ZIP
+    // headers. These limits are enforced when a world or inventory item commits.
+    private const long MaxLiveContentBytes = 256L * 1024 * 1024;
+    private const int MaxLiveContentEntries = 1024;
+    private const int MaxInventoryItems = 2048;
     private const int SchemaVersion = 7;
     private static readonly HashSet<string> IdentityOperations = new(StringComparer.Ordinal)
     { "account_create", "account_list", "account_disable", "session_issue", "session_revoke", "session_validate", "audit_list" };
@@ -49,7 +58,7 @@ internal sealed class Store : IDisposable
             "status" => new { ok = true, schema_version = SchemaVersion, regions = Rows("SELECT id,commit_revision,epoch FROM regions"), sqlite_version = Scalar("SELECT sqlite_version()") },
             "load" => Load(id),
             "receipts" => new { ok = true, receipts = Rows("SELECT record_json FROM network_receipts WHERE region_id=$r ORDER BY rowid", ("$r", id)).Select(r => JsonNode.Parse((string)r[0]!)).ToArray() },
-            "save" => Save(Validate(ReadBounded(S(request, "input"))), id, Long(request, "expected_commit"), Id(S(request, "request_id")), false),
+            "save" => Save(Validate(ReadBounded(S(request, "input")), S(request, "input")), id, Long(request, "expected_commit"), Id(S(request, "request_id")), false),
             "export" or "backup" => Export(id, S(request, "output")),
             "import" => ImportRegion(request, id),
             "gc" => CollectOrphans(),
@@ -182,10 +191,14 @@ internal sealed class Store : IDisposable
         }
         Scalar("PRAGMA journal_mode=WAL"); Exec("PRAGMA synchronous=FULL");
     }
-    private JsonObject Validate(byte[] input)
+    private JsonObject Validate(byte[] input, string sourcePath = "")
     {
         if (input.Length > MaxWorldBytes) throw new StoreError("WORLD_SIZE_LIMIT");
         NoDuplicateKeys(input);
+        var incoming = JsonNode.Parse(input)!.AsObject();
+        string validationContent = incoming["format"]?.GetValue<string>() == "region-lab.snapshot" &&
+            incoming["version"]?.GetValue<double>() == 2 && sourcePath.Length > 0
+            ? Path.GetFullPath(sourcePath) + ".assets" : content;
         string engine = Path.GetFullPath(S(configuration, "godot")), project = Path.GetFullPath(S(configuration, "project"));
         if (!File.Exists(engine) || !File.Exists(Path.Combine(project, "domain", "world_schema.gd"))) throw new StoreError("VALIDATOR_UNAVAILABLE");
         string scratch = Path.Combine(root, "validation", Guid.NewGuid().ToString("N")); Directory.CreateDirectory(scratch);
@@ -194,7 +207,7 @@ internal sealed class Store : IDisposable
         try
         {
             var start = new ProcessStartInfo(engine) { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true };
-            foreach (var arg in new[] { "--headless", "--path", project, "--log-file", Path.Combine(scratch, "engine.log"), "--script", "res://tools/validate_world.gd", "--", "--input=" + file, "--output=" + output }) start.ArgumentList.Add(arg);
+            foreach (var arg in new[] { "--headless", "--path", project, "--log-file", Path.Combine(scratch, "engine.log"), "--script", "res://tools/validate_world.gd", "--", "--input=" + file, "--output=" + output, "--assets-dir=" + validationContent }) start.ArgumentList.Add(arg);
             using var process = Process.Start(start) ?? throw new StoreError("VALIDATOR_UNAVAILABLE");
             var stdout = process.StandardOutput.ReadToEndAsync(); var stderr = process.StandardError.ReadToEndAsync();
             if (!process.WaitForExit(30000)) { process.Kill(true); throw new StoreError("VALIDATOR_TIMEOUT"); }
@@ -211,7 +224,22 @@ internal sealed class Store : IDisposable
                 if (original["format"]?.GetValue<string>() == "region-lab.snapshot")
                 {
                     var payload = Encoding.UTF8.GetBytes(S(original, "world_json")); NoDuplicateKeys(payload);
-                    return JsonNode.Parse(payload)!.AsObject();
+                    var compact = JsonNode.Parse(payload)!.AsObject();
+                    if (Long(original, "version") == 2 && sourcePath.Length > 0)
+                    {
+                        string sourceContent = Path.GetFullPath(sourcePath) + ".assets";
+                        foreach (var asset in compact["assets"]!.AsArray().Select(n => n!.AsObject()).Where(a => S(a, "kind") == "mesh"))
+                        {
+                            string hash = S(asset, "sha256");
+                            if (!Regex.IsMatch(hash, "^[a-f0-9]{64}$") || asset.ContainsKey("glb")) throw new StoreError("INVALID_SNAPSHOT_ASSET");
+                            string blobPath = Path.Combine(sourceContent, hash + ".glb");
+                            if (!File.Exists(blobPath) || new FileInfo(blobPath).Length > 2097152) throw new StoreError("CONTENT_MISSING_OR_OVERSIZED");
+                            byte[] bytes = File.ReadAllBytes(blobPath);
+                            if (Hash(bytes) != hash) throw new StoreError("CONTENT_CHECKSUM_MISMATCH");
+                            Publish(hash, bytes);
+                        }
+                    }
+                    return compact;
                 }
                 return original;
             }
@@ -227,6 +255,7 @@ internal sealed class Store : IDisposable
     private object ImportRegion(JsonObject request, string id)
     {
         var bundle = ReadBundle(S(request, "input"));
+        foreach (var (hash, bytes) in bundle.ExtraContent) Publish(hash, bytes);
         var world = Validate(bundle.World);
         return Save(world, id, Long(request, "expected_commit"), Id(S(request, "request_id")), true, bundle.Service, bundle.ExtraContent);
     }
@@ -262,9 +291,10 @@ internal sealed class Store : IDisposable
             {
                 var asset = assetNode!.AsObject();
                 if (asset["kind"]!.GetValue<string>() != "mesh") continue;
-                var bytes = Convert.FromBase64String(S(asset, "glb")); string hash = S(asset, "sha256");
+                string hash = S(asset, "sha256");
+                var bytes = asset.ContainsKey("glb") ? Convert.FromBase64String(S(asset, "glb")) : ReadContent(hash);
                 if (bytes.Length > 2097152 || Hash(bytes) != hash) throw new StoreError("ASSET_HASH_MISMATCH");
-                Publish(hash, bytes);
+                if (asset.ContainsKey("glb")) Publish(hash, bytes);
             }
             Inject("after_assets");
             var rootRecord = world.DeepClone().AsObject(); rootRecord.Remove("assets"); rootRecord.Remove("groups"); rootRecord.Remove("objects");
@@ -277,7 +307,7 @@ internal sealed class Store : IDisposable
                 var asset = node!.DeepClone().AsObject(); string? hash = null;
                 if (S(asset, "kind") == "mesh")
                 {
-                    hash = S(asset, "sha256"); var bytes = Convert.FromBase64String(S(asset, "glb")); asset.Remove("glb");
+                    hash = S(asset, "sha256"); var bytes = ReadContent(hash); asset.Remove("glb");
                     Exec("INSERT INTO contents(sha256,bytes) VALUES($h,$n) ON CONFLICT(sha256) DO NOTHING", ("$h", hash), ("$n", bytes.Length));
                 }
                 Exec("INSERT INTO assets(region_id,id,ordinal,sha256,record_json) VALUES($r,$i,$n,$h,$j)", ("$r", id), ("$i", S(asset, "id")), ("$n", ordinal++), ("$h", hash), ("$j", asset.ToJsonString()));
@@ -336,6 +366,7 @@ internal sealed class Store : IDisposable
             }
             if (receipt != null)
                 Exec("INSERT INTO network_receipts(region_id,request_id,principal_id,record_json) VALUES($r,$q,$p,$j)", ("$r", id), ("$q", requestId), ("$p", S(receipt, "principal_id")), ("$j", receipt.ToJsonString()));
+            EnsureContentLibraryBudget();
             Inject("before_commit");
             if (fault == "hold_before_commit") { File.WriteAllText(Path.Combine(root, "fault-ready.txt"), requestId); Thread.Sleep(30000); }
             transaction.Commit();
@@ -357,6 +388,17 @@ internal sealed class Store : IDisposable
             File.Move(temporary, target, false);
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
+    }
+    private void EnsureContentLibraryBudget()
+    {
+        // Count each blob once even when several world assets or inventory items
+        // reference it. Run under the write transaction so concurrent mutations
+        // cannot step over the backup capacity together.
+        var totals = Rows("SELECT COUNT(*),COALESCE(SUM(bytes),0) FROM contents WHERE sha256 IN (SELECT sha256 FROM assets WHERE sha256 IS NOT NULL UNION SELECT asset_sha256 FROM inventory_items)")[0];
+        long count = Convert.ToInt64(totals[0]), bytes = Convert.ToInt64(totals[1]);
+        long items = Convert.ToInt64(Scalar("SELECT COUNT(*) FROM inventory_items"));
+        if (count > MaxLiveContentEntries || bytes > MaxLiveContentBytes || items > MaxInventoryItems)
+            throw new StoreError("CONTENT_LIBRARY_LIMIT");
     }
     private JsonObject ReadWorld(string id, bool hydrate)
     {
@@ -380,7 +422,12 @@ internal sealed class Store : IDisposable
     {
         JsonObject world; object?[] row;
         transaction = connection!.BeginTransaction(deferred: false);
-        try { world = ReadWorld(id, true); row = Rows("SELECT commit_revision,epoch FROM regions WHERE id=$r", ("$r", id))[0]; transaction.Commit(); }
+        try
+        {
+            world = ReadWorld(id, false);
+            foreach (var asset in world["assets"]!.AsArray().Select(n => n!.AsObject()).Where(a => S(a, "kind") == "mesh")) ReadContent(S(asset, "sha256"));
+            row = Rows("SELECT commit_revision,epoch FROM regions WHERE id=$r", ("$r", id))[0]; transaction.Commit();
+        }
         finally { transaction.Dispose(); transaction = null; }
         world = Validate(Encoding.UTF8.GetBytes(world.ToJsonString()));
         return new { ok = true, world, commit_revision = row[0], epoch = row[1], recovered = false, migrated = false, path = database };
@@ -390,25 +437,34 @@ internal sealed class Store : IDisposable
         output = Path.GetFullPath(output);
         if (File.Exists(output) || output == database || output.StartsWith(content + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) throw new StoreError("EXPORT_TARGET_EXISTS_OR_PROTECTED");
         var files = new SortedDictionary<string, byte[]>(StringComparer.Ordinal);
+        long totalBytes = 0;
+        void AddFile(string name, byte[] bytes)
+        {
+            if (files.ContainsKey(name)) return;
+            // Reserve one entry for the manifest and check before retaining bytes.
+            if (files.Count + 2 > MaxBundleEntries) throw new StoreError("BUNDLE_ENTRY_LIMIT");
+            if (bytes.Length is < 1 or > MaxWorldBytes || totalBytes + bytes.Length > MaxBundleBytes) throw new StoreError("BUNDLE_INFLATED_LIMIT");
+            files.Add(name, bytes); totalBytes += bytes.Length;
+        }
         object?[] row;
         transaction = connection!.BeginTransaction(deferred: false);
         try
         {
+            EnsureContentLibraryBudget();
             var world = ReadWorld(id, false);
-            // Validate the complete candidate before describing this as a usable backup.
-            var hydrated = world.DeepClone().AsObject();
-            foreach (var asset in hydrated["assets"]!.AsArray().Select(n => n!.AsObject()).Where(a => S(a, "kind") == "mesh"))
+            // The validator hydrates references from the same verified content store.
+            foreach (var asset in world["assets"]!.AsArray().Select(n => n!.AsObject()).Where(a => S(a, "kind") == "mesh"))
             {
-                string hash = S(asset, "sha256"); var bytes = ReadContent(hash); files["objects/" + hash + ".glb"] = bytes; asset["glb"] = Convert.ToBase64String(bytes);
+                string hash = S(asset, "sha256"); AddFile("objects/" + hash + ".glb", ReadContent(hash));
             }
-            Validate(Encoding.UTF8.GetBytes(hydrated.ToJsonString()));
-            files["world.json"] = Encoding.UTF8.GetBytes(world.ToJsonString());
+            Validate(Encoding.UTF8.GetBytes(world.ToJsonString()));
+            AddFile("world.json", Encoding.UTF8.GetBytes(world.ToJsonString()));
             // Bundle version 2 carries the service tables (accounts, permits and
             // inventory — never sessions or audit) plus inventory-only content.
             foreach (var itemRow in Rows("SELECT DISTINCT asset_sha256 FROM inventory_items"))
             {
                 string itemHash = (string)itemRow[0]!;
-                if (!files.ContainsKey("objects/" + itemHash + ".glb")) files["objects/" + itemHash + ".glb"] = ReadContent(itemHash);
+                if (!files.ContainsKey("objects/" + itemHash + ".glb")) AddFile("objects/" + itemHash + ".glb", ReadContent(itemHash));
             }
             var service = new
             {
@@ -424,12 +480,16 @@ internal sealed class Store : IDisposable
                 items = Rows("SELECT id,account_id,folder_id,asset_sha256,name,license,attribution,created_at_ms FROM inventory_items ORDER BY rowid")
                     .Select(r => new { id = r[0], account_id = r[1], folder_id = r[2], asset_sha256 = r[3], name = r[4], license = r[5], attribution = r[6], created_at_ms = r[7] }).ToArray()
             };
-            files["service.json"] = JsonSerializer.SerializeToUtf8Bytes(service);
+            var serviceBytes = JsonSerializer.SerializeToUtf8Bytes(service);
+            if (serviceBytes.Length > MaxBundleServiceBytes) throw new StoreError("BUNDLE_INFLATED_LIMIT");
+            AddFile("service.json", serviceBytes);
             row = Rows("SELECT commit_revision,epoch FROM regions WHERE id=$r", ("$r", id))[0];
             transaction.Commit();
         }
         finally { transaction.Dispose(); transaction = null; }
         var manifest = new { format = "region-lab.bundle", version = 2, tool_version = "0.6.0", region_id = id, source_commit_revision = row[0], source_epoch = row[1], entries = files.Select(p => new { path = p.Key, bytes = p.Value.Length, sha256 = Hash(p.Value) }).ToArray() };
+        var manifestBytes = JsonSerializer.SerializeToUtf8Bytes(manifest);
+        if (manifestBytes.Length > MaxBundleManifestBytes || totalBytes + manifestBytes.Length > MaxBundleBytes) throw new StoreError("BUNDLE_INFLATED_LIMIT");
         Directory.CreateDirectory(Path.GetDirectoryName(output)!); string temporary = output + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
@@ -437,7 +497,7 @@ internal sealed class Store : IDisposable
             {
                 using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
                 {
-                    files["manifest.json"] = JsonSerializer.SerializeToUtf8Bytes(manifest);
+                    files["manifest.json"] = manifestBytes;
                     foreach (var pair in files) { using var entry = archive.CreateEntry(pair.Key, CompressionLevel.Optimal).Open(); entry.Write(pair.Value); }
                 }
                 stream.Flush(true);
@@ -450,22 +510,22 @@ internal sealed class Store : IDisposable
     internal sealed record BundleContent(byte[] World, JsonObject? Service, Dictionary<string, byte[]> ExtraContent);
     private BundleContent ReadBundle(string path)
     {
-        if (new FileInfo(path).Length > 16 * 1024 * 1024) throw new StoreError("BUNDLE_SIZE_LIMIT");
+        if (new FileInfo(path).Length > MaxBundleBytes) throw new StoreError("BUNDLE_SIZE_LIMIT");
         using var archive = ZipFile.OpenRead(path);
-        if (archive.Entries.Count < 2 || archive.Entries.Count > 67) throw new StoreError("BUNDLE_ENTRY_LIMIT");
+        if (archive.Entries.Count < 2 || archive.Entries.Count > MaxBundleEntries) throw new StoreError("BUNDLE_ENTRY_LIMIT");
         var files = new Dictionary<string, byte[]>(StringComparer.Ordinal);
         long total = 0;
         foreach (var entry in archive.Entries)
         {
             if (!Regex.IsMatch(entry.FullName, @"^(manifest\.json|world\.json|service\.json|objects/[a-f0-9]{64}\.glb)$") || files.ContainsKey(entry.FullName)) throw new StoreError("BUNDLE_PATH_OR_DUPLICATE");
-            if (entry.Length < 1 || entry.Length > MaxWorldBytes || (total += entry.Length) > 16 * 1024 * 1024) throw new StoreError("BUNDLE_INFLATED_LIMIT");
+            if (entry.Length < 1 || entry.Length > MaxWorldBytes || (total += entry.Length) > MaxBundleBytes) throw new StoreError("BUNDLE_INFLATED_LIMIT");
             using var stream = entry.Open(); using var buffer = new MemoryStream();
             var chunk = new byte[8192]; int read;
             while ((read = stream.Read(chunk)) > 0) { if (buffer.Length + read > entry.Length) throw new StoreError("BUNDLE_LENGTH_MISMATCH"); buffer.Write(chunk, 0, read); }
             if (buffer.Length != entry.Length) throw new StoreError("BUNDLE_LENGTH_MISMATCH");
             files.Add(entry.FullName, buffer.ToArray());
         }
-        if (!files.TryGetValue("manifest.json", out var manifestBytes) || manifestBytes.Length > 65536 || !files.ContainsKey("world.json")) throw new StoreError("BUNDLE_MANIFEST_MISSING");
+        if (!files.TryGetValue("manifest.json", out var manifestBytes) || manifestBytes.Length > MaxBundleManifestBytes || !files.ContainsKey("world.json")) throw new StoreError("BUNDLE_MANIFEST_MISSING");
         NoDuplicateKeys(manifestBytes); NoDuplicateKeys(files["world.json"]);
         var manifest = JsonNode.Parse(manifestBytes)!.AsObject();
         long bundleVersion = S(manifest, "format") != "region-lab.bundle" ? -1 : Long(manifest, "version");
@@ -483,19 +543,19 @@ internal sealed class Store : IDisposable
         if (S(world["region"]!.AsObject(), "id") != S(manifest, "region_id")) throw new StoreError("BUNDLE_REGION_MISMATCH");
         var used = new HashSet<string>(StringComparer.Ordinal) { "world.json" };
         var worldHashes = new HashSet<string>(StringComparer.Ordinal);
+        var extraContent = new Dictionary<string, byte[]>(StringComparer.Ordinal);
         foreach (var asset in world["assets"]!.AsArray().Select(n => n!.AsObject()).Where(a => S(a, "kind") == "mesh"))
         {
             string hash = S(asset, "sha256"); string name = "objects/" + hash + ".glb";
             used.Add(name); worldHashes.Add(hash);
             if (!files.TryGetValue(name, out var bytes) || Hash(bytes) != hash || bytes.Length > 2097152 || asset.ContainsKey("glb")) throw new StoreError("BUNDLE_ASSET_MISSING_OR_INVALID");
-            asset["glb"] = Convert.ToBase64String(bytes);
+            extraContent[hash] = bytes;
         }
         JsonObject? service = null;
-        var extraContent = new Dictionary<string, byte[]>(StringComparer.Ordinal);
         if (bundleVersion == 2)
         {
             var serviceBytes = files["service.json"];
-            if (serviceBytes.Length > 1048576) throw new StoreError("BUNDLE_INFLATED_LIMIT");
+            if (serviceBytes.Length > MaxBundleServiceBytes) throw new StoreError("BUNDLE_INFLATED_LIMIT");
             NoDuplicateKeys(serviceBytes);
             service = JsonNode.Parse(serviceBytes)!.AsObject();
             if (S(service, "format") != "region-lab.service" || Long(service, "version") != 1) throw new StoreError("UNSUPPORTED_BUNDLE");
@@ -778,6 +838,7 @@ internal sealed class Store : IDisposable
             if (folderId != null && Scalar("SELECT COUNT(*) FROM inventory_folders WHERE id=$f AND account_id=$a", ("$f", folderId), ("$a", accountId)) is long bad && bad == 0) throw new StoreError("FOLDER_NOT_FOUND");
             Exec("INSERT INTO inventory_items(id,account_id,folder_id,asset_sha256,name,license,attribution,created_at_ms) VALUES($i,$a,$f,$h,$n,$l,$t2,$t)",
                 ("$i", id), ("$a", accountId), ("$f", folderId), ("$h", hash), ("$n", name), ("$l", license), ("$t2", attribution), ("$t", now));
+            EnsureContentLibraryBudget();
             Audit(now, accountId, "inventory_add", "ok", $"sha256={hash}");
             transaction.Commit();
         }

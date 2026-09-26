@@ -1,14 +1,17 @@
 extends RefCounted
 const Repository = preload("res://adapters/sqlite_repository.gd")
 const Wire = preload("res://network/wire.gd")
+const Content = preload("res://adapters/content_asset_store.gd")
 
 # One immutable job, one worker, no scene nodes or shared WorldService on this thread.
 func commit(config: Dictionary, world: Dictionary, expected: int, receipt: Dictionary) -> Dictionary:
 	var repo = Repository.new(config.storage, config.store)
+	var staged := Content.stage(world, config.storage.path_join("objects"))
+	if staged.has("error"): return staged
 	var path: String = config.storage.path_join("network-" + receipt.request_id + ".json")
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null: return {"error": "CANDIDATE_WRITE_FAILED"}
-	file.store_string(Wire.canonical(world)); file.flush(); file.close()
+	file.store_string(Wire.canonical(staged.world)); file.flush(); file.close()
 	var request := {"operation": "save", "input": path, "expected_commit": expected, "request_id": receipt.request_id, "network_receipt": receipt}
 	if config.has("test_storage_fault"): request.fault = config.test_storage_fault
 	var result: Dictionary = repo._invoke(request)

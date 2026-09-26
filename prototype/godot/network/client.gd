@@ -4,6 +4,7 @@ const Wire = preload("res://network/wire.gd")
 const View = preload("res://adapters/world_view.gd")
 const Transforms = preload("res://domain/world_transforms.gd")
 const Avatar = preload("res://network/network_avatar.gd")
+const BuildPreview = preload("res://network/build_preview.gd")
 var connection = preload("res://network/connection.gd").new()
 var view = View.new()
 var environment = preload("res://adapters/environment_view.gd").new()
@@ -29,6 +30,7 @@ var max_correction := 0.0
 var rendered_revision := -1
 var selected := ""
 var selection_ids: Array = []
+var selected_ids: Array = []
 var test_directory := ""
 var test_serial := -1
 var test_movement := Vector2.ZERO
@@ -71,6 +73,21 @@ var created_requests: Dictionary = {}
 var pending_selection := ""
 var upload_requests: Dictionary = {}
 var session_assets: Dictionary = {}
+var inventory_items: Dictionary = {}
+var inventory_requests: Dictionary = {}
+var inventory_loaded := false
+var inventory_requested := false
+var placing := false
+var placement_asset_id := ""
+var placement_item_id := ""
+var placement_bounds: Array = [1.0, 1.0, 1.0]
+var placement_name := "共享方块"
+var placement_rotation: Array = [0.0, 0.0, 0.0, 1.0]
+var placement_position: Array = []
+var placement_valid := false
+var moving := false
+var moving_id := ""
+var preview = BuildPreview.new()
 var capture_requested_at := 0
 var capture_confirmed := false
 var review_ids: Array = []
@@ -87,7 +104,7 @@ func _ready() -> void:
 		if arg.begins_with("--profile="): profile = arg.trim_prefix("--profile=")
 		if arg.begins_with("--network-testdir="): test_directory = arg.trim_prefix("--network-testdir=")
 	_load_reviews()
-	add_child(connection); add_child(view); add_child(environment); add_child(own); add_child(camera)
+	add_child(connection); add_child(view); add_child(environment); add_child(own); add_child(camera); add_child(preview)
 	own.enabled = false; own.visible = false
 	camera.current = true; camera.near = 0.08; camera.far = 1200
 	_overview()
@@ -96,6 +113,7 @@ func _ready() -> void:
 	connection.assets.changed.connect(func(): dirty = true)
 	connection.updated.connect(_updated)
 	connection.welcomed.connect(func(): built = false; first_snapshot_ms = 0; input_sequence = 0)
+	connection.inventory_result_received.connect(_inventory_result)
 	connection.result_received.connect(func(result):
 		receipt_field.text = result.request_id
 		last_message = "修改已保存 · 修订 " + str(int(result.revision)) if result.ok else "操作未保存：" + str(result.code)
@@ -103,6 +121,7 @@ func _ready() -> void:
 			var asset: Dictionary = upload_requests[result.request_id]
 			if result.ok and result.payload.get("id", "") == asset.id:
 				session_assets[asset.id] = asset; _upload_bytes = ""
+				connection.inventory("add", {"asset_id": asset.id, "name": asset.name})
 				ui.refresh_assets(connection.local.snapshot())
 				ui.asset_picker.select(ui.asset_ids.find(asset.id))
 				ui.upload_note.text = "模型已保存，可以从上方列表选择并放入场景。"
@@ -144,9 +163,10 @@ func _login() -> void:
 	if token_field.text.is_empty(): last_message = "请输入实例生成的会话令牌"; return
 	var base := endpoint.text.trim_suffix("/")
 	if not base.begins_with("http://") and not base.begins_with("https://"): last_message = "服务地址必须使用 http 或 https"; return
-	_stop_walk(); built = false; collision_projection_ready = false; render_generation += 1; interactive = false; selected = ""; last_message = ""; draft_dirty = false; draft_source = {}
+	_cancel_place(); _stop_walk(); built = false; collision_projection_ready = false; render_generation += 1; interactive = false; selected = ""; selected_ids.clear(); last_message = ""; draft_dirty = false; draft_source = {}
 	_upload_bytes = ""
-	session_assets.clear(); upload_requests.clear(); created_requests.clear(); pending_selection = ""
+	session_assets.clear(); upload_requests.clear(); created_requests.clear(); pending_selection = ""; inventory_items.clear(); inventory_requests.clear(); inventory_loaded = false; inventory_requested = false
+	ui.clear_inventory()
 	for node in remote.values(): node.queue_free()
 	remote.clear(); tracks.clear()
 	connection.connect_to(base.replace("https://", "wss://").replace("http://", "ws://") + "/ws", token_field.text, base, ca)
@@ -225,6 +245,7 @@ func _refresh_list(state: Dictionary) -> void:
 	ui.refresh_assets(state)
 	if not pending_selection.is_empty() and objects.has(pending_selection) and not draft_dirty:
 		selected = pending_selection; pending_selection = ""
+		selected_ids = [selected]
 		view.select(selected); ui.show_inspector()
 	var query: String = ui.search.text.strip_edges().to_lower()
 	var ordered: Array = objects.values()
@@ -236,12 +257,14 @@ func _refresh_list(state: Dictionary) -> void:
 	if objects.has(selected):
 		if not draft_dirty: _fill_fields(objects[selected], state.groups.values())
 	elif not selected.is_empty():
-		selected = ""; draft_dirty = false; draft_source = {}; view.select("")
+		selected = ""; selected_ids.clear(); draft_dirty = false; draft_source = {}; view.select("")
 		name_field.clear()
 		for value in coordinates: value.set_value_no_signal(0)
 		ui.tabs.get_child(1).scroll_vertical = 0
 		last_message = "所选对象已离开当前视野范围或被删除"
 	_refresh_reviews(state)
+	selected_ids = selected_ids.filter(func(id): return objects.has(id))
+	_sync_selected_outlines()
 
 func _review_path() -> String:
 	return test_directory.path_join("expert-reviews.json") if not test_directory.is_empty() else "user://expert-reviews.json"
@@ -354,17 +377,32 @@ func _select(index: int) -> void:
 	if index < 0 or index >= selection_ids.size(): return
 	_select_id(selection_ids[index])
 
-func _select_id(id: String) -> void:
+func _select_id(id: String, additive: bool = false) -> void:
 	var state: Dictionary = connection.local.snapshot()
 	if not state.get("objects", {}).has(id): return
-	if selected == id and draft_dirty: ui.show_inspector(); return
+	if selected == id and draft_dirty and not additive: ui.show_inspector(); return
 	if selected != id and draft_dirty:
 		last_message = "请先保存或撤回当前对象的修改，再选择其他对象"
 		_refresh_list(state)
 		return
+	if additive and draft_dirty:
+		last_message = "请先保存或撤回当前对象的修改，再多选其他物体"; return
+	if additive:
+		if id in selected_ids: selected_ids.erase(id)
+		else: selected_ids.append(id)
+		if selected_ids.is_empty():
+			selected = ""; view.select(""); _sync_selected_outlines(); return
+		id = str(selected_ids[-1])
+	else:
+		selected_ids = [id]
 	selected = id
 	_fill_fields(state.objects[selected], state.groups.values())
-	view.select(selected); ui.show_inspector()
+	view.select(selected); _sync_selected_outlines(); ui.show_inspector()
+
+func _sync_selected_outlines() -> void:
+	for id in view.bodies:
+		var outline = view.bodies[id].get_node_or_null("Outline")
+		if outline != null: outline.visible = id in selected_ids
 
 func _fill_fields(item: Dictionary, groups: Array) -> void:
 	var resolved := Transforms.resolve(item, groups)
@@ -530,12 +568,234 @@ func _place_asset() -> void:
 	var request := _command("CreateObject", {"object": item})
 	if not request.is_empty(): created_requests[request] = item.id
 
+func _begin_place(asset_id: String) -> void:
+	if not interactive or connection.welcome.get("role", "") == "observer" or not connection.pending.is_empty():
+		last_message = "当前不能开始建造，请等待连接或上一次修改完成"; return
+	if walking: _stop_walk()
+	_cancel_place()
+	var bounds: Array = [1.0, 1.0, 1.0]
+	var name := "共享方块"
+	if not asset_id.is_empty():
+		var assets := _available_assets(connection.local.snapshot())
+		if not assets.has(asset_id): last_message = "模型已不可用，请重新选择"; return
+		bounds = assets[asset_id].bounds.duplicate()
+		name = str(assets[asset_id].name).left(80)
+	placement_asset_id = asset_id
+	placement_item_id = ""
+	placement_bounds = bounds
+	placement_name = name
+	placement_rotation = [0.0, 0.0, 0.0, 1.0]
+	placing = true
+	_show_initial_preview()
+	last_message = "移动鼠标选择位置 · 点击放置 · R 旋转 15° · Esc 取消"
+
+func _begin_move_selected() -> void:
+	var item := _editable_selected()
+	if item.is_empty(): return
+	if walking: _stop_walk()
+	_cancel_place()
+	moving = true
+	moving_id = selected
+	placement_bounds = item.size.duplicate()
+	placement_name = item.name
+	placement_rotation = item.rotation.duplicate()
+	placement_position = item.position.duplicate()
+	placement_valid = true
+	preview.show_pose(placement_position, placement_bounds, placement_rotation, true)
+	last_message = "移动鼠标选择新位置 · 点击保存 · Esc 取消"
+
+func _show_initial_preview() -> void:
+	var point: Array = View.to_world(own.position + Vector3(0, 0, -4).rotated(Vector3.UP, yaw))
+	var region: Array = connection.local.snapshot().meta.region.size
+	point[0] = clampf(float(point[0]), 0.5, float(region[0]) - 0.5)
+	point[1] = clampf(float(point[1]), 0.5, float(region[1]) - 0.5)
+	point[2] = view.ground_height(point[0], point[1]) + float(placement_bounds[2]) * 0.5 + 0.05
+	_set_preview_position(point)
+
+func _set_preview_position(point: Array) -> void:
+	placement_position = point.duplicate()
+	var item := Schema.box(placement_name, point, placement_bounds, "#ffffff")
+	item.rotation = placement_rotation.duplicate()
+	if moving:
+		var source: Dictionary = connection.local.snapshot().get("objects", {}).get(moving_id, {})
+		if source.is_empty(): _cancel_place(); return
+		item = Transforms.resolve(source, connection.local.snapshot().groups.values())
+		item.position = point.duplicate()
+		item.rotation = placement_rotation.duplicate()
+	elif not placement_asset_id.is_empty(): item.asset_id = placement_asset_id
+	var asset_ids: Array = []
+	if Schema.kind(item.asset_id).is_empty(): asset_ids.append(item.asset_id)
+	placement_valid = Schema.validate_object(item, connection.local.snapshot().meta.region, asset_ids).is_empty()
+	preview.show_pose(point, placement_bounds, placement_rotation, placement_valid)
+
+func _update_placement_preview(screen_point: Vector2) -> void:
+	if not placing and not moving: return
+	var origin := camera.project_ray_origin(screen_point)
+	var ray := PhysicsRayQueryParameters3D.create(origin, origin + camera.project_ray_normal(screen_point) * 1200.0, 3)
+	if moving and view.bodies.has(moving_id): ray.exclude = [view.bodies[moving_id].get_rid()]
+	var hit := get_world_3d().direct_space_state.intersect_ray(ray)
+	if hit.is_empty() or hit.normal.y <= 0.45:
+		placement_valid = false; preview.hide_pose(); return
+	var point: Array = View.to_world(hit.position)
+	var region: Array = connection.local.snapshot().meta.region.size
+	if point[0] < 0 or point[1] < 0 or point[0] > region[0] or point[1] > region[1]:
+		placement_valid = false; preview.hide_pose(); return
+	if moving:
+		var source: Dictionary = connection.local.snapshot().objects.get(moving_id, {})
+		if source.is_empty(): _cancel_place(); return
+		var resolved := Transforms.resolve(source, connection.local.snapshot().groups.values())
+		var source_ground := view.ground_height(float(resolved.position[0]), float(resolved.position[1]))
+		point[2] += float(resolved.position[2]) - source_ground
+	else: point[2] += float(placement_bounds[2]) * 0.5 + 0.05
+	_set_preview_position(point)
+
+func _confirm_preview() -> void:
+	if not placement_valid or placement_position.is_empty(): last_message = "这里无法放置，请选择区域内的可行走表面"; return
+	if not connection.pending.is_empty(): last_message = "上一项修改尚未保存，请稍候"; return
+	if moving:
+		if placement_position == connection.local.snapshot().objects.get(moving_id, {}).get("position", []):
+			_cancel_place(); last_message = "位置没有变化"; return
+		var move_request := _command("UpdateObject", {"id": moving_id, "patch": {"position": placement_position.duplicate()}})
+		if not move_request.is_empty(): _cancel_place(); last_message = "正在保存移动结果"
+		return
+	if not placement_item_id.is_empty():
+		var inventory_request := _command("PlaceInventoryItem", {"item_id": placement_item_id, "position": placement_position.duplicate(), "rotation": placement_rotation.duplicate(), "name": placement_name})
+		if not inventory_request.is_empty(): _cancel_place(); last_message = "正在从我的素材放入场景"
+		return
+	var item := Schema.box(placement_name, placement_position.duplicate(), placement_bounds.duplicate(), "#ffffff")
+	item.rotation = placement_rotation.duplicate()
+	if not placement_asset_id.is_empty(): item.asset_id = placement_asset_id
+	item.owner_id = connection.welcome.get("actor_id", "")
+	var request := _command("CreateObject", {"object": item})
+	if not request.is_empty():
+		created_requests[request] = item.id
+		_cancel_place(); last_message = "正在保存新物体"
+
+func _cancel_place() -> void:
+	placing = false; moving = false; moving_id = ""; placement_asset_id = ""; placement_item_id = ""
+	placement_position.clear(); placement_valid = false
+	if is_instance_valid(preview): preview.hide_pose()
+
+func _rotate_preview(degrees: float) -> void:
+	if not placing: return
+	var current := Transforms.quat(placement_rotation)
+	placement_rotation = Transforms.rotation(Quaternion(Vector3(0, 0, 1), deg_to_rad(degrees)) * current)
+	if not placement_position.is_empty(): _set_preview_position(placement_position)
+
+func _editable_selected() -> Dictionary:
+	var state: Dictionary = connection.local.snapshot()
+	var source: Dictionary = state.get("objects", {}).get(selected, {})
+	if not interactive or source.is_empty() or connection.welcome.get("role", "") == "observer":
+		last_message = "请先选择可编辑的对象"; return {}
+	if source.get("owner_id", "") != connection.welcome.get("actor_id", ""):
+		last_message = "只能修改自己的物体"; return {}
+	if not source.get("group_id", "").is_empty():
+		last_message = "组合成员请先解除组合，再单独编辑"; return {}
+	if draft_dirty or not connection.pending.is_empty():
+		last_message = "请先保存或撤回当前修改，并等待上次提交完成"; return {}
+	return source
+
+func _rotate_selected(degrees: float) -> void:
+	var source := _editable_selected()
+	if source.is_empty(): return
+	var current := Transforms.quat(source.rotation)
+	var rotation := Transforms.rotation(Quaternion(Vector3(0, 0, 1), deg_to_rad(degrees)) * current)
+	_command("UpdateObject", {"id": selected, "patch": {"rotation": rotation}})
+
+func _scale_selected(factor: float) -> void:
+	var source := _editable_selected()
+	if source.is_empty(): return
+	if not is_finite(factor) or factor <= 0: return
+	var dimensions: Array = []
+	for axis in source.size:
+		var value := snappedf(float(axis) * factor, 0.01)
+		if value < 0.2 or value > 32.0:
+			last_message = "尺寸需保持在每个方向 0.2–32 米"; return
+		dimensions.append(value)
+	_command("UpdateObject", {"id": selected, "patch": {"size": dimensions}})
+
+func _group_selected() -> void:
+	if selected_ids.size() < 2: last_message = "按住 Ctrl 在场景中选择至少两个自己的物体"; return
+	if draft_dirty or not connection.pending.is_empty(): last_message = "请先完成当前修改"; return
+	var objects: Dictionary = connection.local.snapshot().get("objects", {})
+	for id in selected_ids:
+		var item: Dictionary = objects.get(id, {})
+		if item.is_empty() or item.owner_id != connection.welcome.get("actor_id", "") or not item.group_id.is_empty():
+			last_message = "组合只能包含自己的、尚未组合的物体"; return
+	_command("GroupObjects", {"id": Schema.uuid(), "name": "新组合", "root_id": selected_ids[0], "object_ids": selected_ids.duplicate()})
+
+func _ungroup_selected() -> void:
+	var item: Dictionary = connection.local.snapshot().get("objects", {}).get(selected, {})
+	if item.is_empty() or item.get("group_id", "").is_empty(): last_message = "请先选择一个组合成员"; return
+	if item.owner_id != connection.welcome.get("actor_id", "") or not connection.pending.is_empty(): last_message = "当前无法解除组合"; return
+	_command("UngroupObjects", {"id": item.group_id})
+
 func _available_assets(state: Dictionary) -> Dictionary:
 	# Uploaded but uninstantiated assets are not in the server's spatial projection.
 	# Retain only this session's successfully committed upload metadata, never world state.
 	var assets: Dictionary = session_assets.duplicate(true)
 	assets.merge(state.get("assets", {}), true)
 	return assets
+
+func _inventory_refresh() -> void:
+	if not connection.online(): last_message = "连接后才能读取我的素材"; return
+	var request: String = connection.inventory("list")
+	if not request.is_empty(): inventory_requests[request] = "list"; inventory_requested = true
+
+func _inventory_add_selected() -> void:
+	var state: Dictionary = connection.local.snapshot()
+	var item: Dictionary = state.get("objects", {}).get(selected, {})
+	var asset_id := ""
+	if ui.asset_picker.selected >= 0 and ui.asset_picker.selected < ui.asset_ids.size(): asset_id = str(ui.asset_ids[ui.asset_picker.selected])
+	if asset_id.is_empty(): asset_id = str(item.get("asset_id", ""))
+	var assets := _available_assets(state)
+	if not assets.has(asset_id) or assets[asset_id].kind != "mesh":
+		last_message = "先选择一个已导入的模型，再加入我的素材"; return
+	var request: String = connection.inventory("add", {"asset_id": asset_id, "name": str(assets[asset_id].name)})
+	if request.is_empty(): last_message = "无法连接素材库，请重新连接"; return
+	inventory_requests[request] = "add"
+	last_message = "正在保存到我的素材"
+
+func _inventory_result(result: Dictionary) -> void:
+	var request_id := str(result.get("request_id", ""))
+	var action := str(inventory_requests.get(request_id, ""))
+	inventory_requests.erase(request_id)
+	if not result.get("ok", false):
+		if result.get("code", "") == "CONNECTION_CLOSED":
+			inventory_requested = false
+			return
+		if action != "list" or connection.online(): last_message = "素材操作失败：" + str(result.get("code", "UNKNOWN"))
+		return
+	var data: Dictionary = result.get("data", {})
+	if data.has("items") and data.has("folders"):
+		inventory_items.clear()
+		for entry in data.items: inventory_items[entry.id] = entry
+		inventory_loaded = true
+		ui.refresh_inventory(data)
+	elif data.has("item") or action == "add":
+		last_message = "模型已保存到我的素材"
+		_inventory_refresh()
+
+func _place_inventory_item(item_id: String) -> void:
+	if not inventory_items.has(item_id): last_message = "素材列表已过期，请刷新"; return
+	var entry: Dictionary = inventory_items[item_id]
+	if entry.has("asset_error") or not entry.get("bounds") is Array:
+		last_message = "素材内容不可用（" + str(entry.get("asset_error", "缺少尺寸")) + "），请刷新或重新导入"
+		return
+	if not interactive or connection.welcome.get("role", "") == "observer" or not connection.pending.is_empty():
+		last_message = "当前不能放置素材"; return
+	if walking: _stop_walk()
+	_cancel_place()
+	placement_item_id = item_id
+	placement_name = str(entry.get("name", "我的模型")).left(80)
+	placement_bounds = entry.bounds.duplicate()
+	for asset in _available_assets(connection.local.snapshot()).values():
+		if asset.get("sha256", "") == entry.get("asset_sha256", ""):
+			placement_bounds = asset.bounds.duplicate(); break
+	placement_rotation = [0.0, 0.0, 0.0, 1.0]
+	placing = true
+	_show_initial_preview()
+	last_message = "移动鼠标选择位置 · 点击放入场景 · R 旋转 15° · Esc 取消"
 
 func _submit_upload() -> void:
 	var bytes := Marshalls.base64_to_raw(_upload_bytes)
@@ -545,7 +805,7 @@ func _submit_upload() -> void:
 	var request := _command("UploadAsset", payload)
 	if not request.is_empty():
 		var id: String = Schema.MeshAssets.content_id(Schema.MeshAssets.sha256(bytes))
-		upload_requests[request] = {"id": id, "kind": "mesh", "name": payload.name, "bounds": geometry.bounds.duplicate()}
+		upload_requests[request] = {"id": id, "kind": "mesh", "name": payload.name, "bounds": geometry.bounds.duplicate(), "sha256": Schema.MeshAssets.sha256(bytes)}
 
 func _pick_file() -> void:
 	if OS.has_feature("web"): JavaScriptBridge.eval("document.getElementById('region-file').click()"); return
@@ -579,6 +839,7 @@ func _walk() -> void:
 	if not interactive:
 		last_message = "请等待连接与场景资源准备完成，再进入漫游"
 		return
+	if placing or moving: _cancel_place()
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus != null: focus.release_focus()
 	walking = true; orbiting = false; panning = false; Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -651,10 +912,20 @@ func _input(event: InputEvent) -> void:
 	for child in get_children():
 		if child is Window and child.visible: return
 	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ESCAPE and (placing or moving):
+			_cancel_place(); last_message = "已取消预览，场景没有修改"; get_viewport().set_input_as_handled(); return
 		if event.keycode == KEY_ESCAPE and walking:
 			_stop_walk(); get_viewport().set_input_as_handled(); return
 		var focus := get_viewport().gui_get_focus_owner()
 		var typing := focus is LineEdit or focus is TextEdit
+		if not typing and event.keycode == KEY_R and placing:
+			_rotate_preview(-15.0 if event.shift_pressed else 15.0)
+			get_viewport().set_input_as_handled(); return
+		if not typing and not walking and not placing and not moving and event.keycode == KEY_R:
+			_rotate_selected(-15.0 if event.shift_pressed else 15.0)
+			get_viewport().set_input_as_handled(); return
+		if not typing and not walking and not placing and not moving and event.keycode == KEY_G:
+			_begin_move_selected(); get_viewport().set_input_as_handled(); return
 		if event.ctrl_pressed and not typing and event.keycode in [KEY_0, KEY_8, KEY_9]:
 			if event.keycode == KEY_9:
 				if walking: camera.fov = 75
@@ -682,6 +953,21 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]: _zoom(1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1)
 		return
 	if not interactive: return
+	if placing or moving:
+		if event is InputEventMouseMotion:
+			_update_placement_preview(event.position)
+			return
+		if event is InputEventMouseButton and event.pressed:
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				_update_placement_preview(event.position)
+				_confirm_preview(); get_viewport().set_input_as_handled(); return
+			if event.button_index == MOUSE_BUTTON_RIGHT:
+				_cancel_place(); last_message = "已取消预览，场景没有修改"
+				get_viewport().set_input_as_handled(); return
+			if event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+				_zoom(1 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1)
+				get_viewport().set_input_as_handled(); return
+		return
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_MIDDLE: panning = event.pressed
 		if event.button_index == MOUSE_BUTTON_RIGHT:
@@ -696,7 +982,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				var id: String = view.pick(camera, event.position)
 				if not id.is_empty():
-					_select_id(id)
+					_select_id(id, event.ctrl_pressed)
 					if event.double_click and selected == id: _focus_selected()
 				elif event.double_click:
 					context_hit = _context_at(event.position)
@@ -730,15 +1016,18 @@ func _process(delta: float) -> void:
 	if online and not _was_online:
 		ui.tabs.current_tab = 0
 	if _was_online and not online:
+		_cancel_place()
 		for node in view.get_children(): node.free()
 		view.bodies.clear(); view._records.clear(); view.mesh_view.cache.clear()
 		ui.tabs.current_tab = 2; ui.tools_open = true; ui.layout()
 		if not draft_request.is_empty(): last_message = "连接中断，保存结果未知；重连后请在高级页查询请求 ID"
 		created_requests.clear(); pending_selection = ""; draft_dirty = false; draft_source = {}
-		session_assets.clear(); upload_requests.clear(); ui.refresh_assets({})
+		session_assets.clear(); upload_requests.clear(); inventory_items.clear(); inventory_requests.clear(); inventory_loaded = false; inventory_requested = false; ui.refresh_assets({})
+		ui.clear_inventory()
 		for node in remote.values(): node.free()
-		remote.clear(); tracks.clear(); object_list.clear(); selection_ids.clear(); selected = ""; built = false; dirty = false; _upload_bytes = ""
+		remote.clear(); tracks.clear(); object_list.clear(); selection_ids.clear(); selected_ids.clear(); selected = ""; built = false; dirty = false; _upload_bytes = ""
 	_was_online = online
+	if online and not inventory_requested: _inventory_refresh()
 	interactive = online and built and collision_projection_ready and connection.assets.ready()
 	own.enabled = interactive
 	if dirty and online: _render_world()

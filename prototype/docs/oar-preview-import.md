@@ -27,7 +27,7 @@ python .\prototype\tools\Build-OarPreview.py $oar $world --focus 34 160 --limit 
 .\prototype\tools\Start-NetworkClient.ps1 -Directory $instance -Profile editor-a
 ```
 
-先查看 `$report` 的 `ok: true` 与 `world_revision`，再启动服务。若写入结果不确定，按 [RegionStore 说明](../../services/README.md)用**同一请求 ID**查询或原样重试；不要用新的 ID 猜测重发。客户端初始镜头朝向区域出生点。当前世界支持单个 256 × 256 或 512 × 512 米区域、最多 500 个对象和 64 个导入网格资产，完整快照限 8 MiB；需要完整校园尺度，要先完成多区域管理、流式加载和层级细节（LOD）。
+先查看 `$report` 的 `ok: true` 与 `world_revision`，再启动服务。若写入结果不确定，按 [RegionStore 说明](../../services/README.md)用**同一请求 ID**查询或原样重试；不要用新的 ID 猜测重发。客户端初始镜头朝向区域出生点。当前世界支持单个 256 × 256 或 512 × 512 米区域、最多 500 个对象和 96 个导入网格资产；JSON 快照元数据限 8 MiB，模型内容另存。需要完整校园尺度，要先完成多区域管理、流式加载和层级细节（LOD）。
 
 ## 取得有明确来源的真实建模数据
 

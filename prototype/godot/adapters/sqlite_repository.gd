@@ -1,5 +1,6 @@
 extends "res://adapters/repository_contract.gd"
 const Schema = preload("res://domain/world_schema.gd")
+const Content = preload("res://adapters/content_asset_store.gd")
 var directory: String
 var region_id: String
 var executable: String
@@ -51,6 +52,9 @@ func _invoke(request: Dictionary) -> Dictionary:
 func load_world() -> Dictionary:
 	var result := _invoke({"operation": "load"})
 	if result.has("error"): return result
+	var hydrated := Content.hydrate(result.world, directory.path_join("objects"))
+	if hydrated.has("error"): return hydrated
+	result.world = hydrated.world
 	var validation := Schema.validate(result.world)
 	if not validation.is_empty(): return {"error": validation}
 	commit_revision = int(result.commit_revision)
@@ -65,11 +69,13 @@ func save_world(world: Dictionary) -> Dictionary:
 	if not _pending.is_empty() and _pending.fingerprint != fingerprint:
 		return {"error": "Previous save outcome is unresolved. Retry the unchanged world or reload before saving a different candidate."}
 	if _pending.is_empty(): _pending = {"fingerprint": fingerprint, "request_id": Schema.uuid()}
+	var staged := Content.stage(world, directory.path_join("objects"))
+	if staged.has("error"): return staged
 	if DirAccess.make_dir_recursive_absolute(directory) != OK: return {"error": "Cannot create database directory."}
 	var input := directory.path_join("candidate-" + _pending.request_id + ".json")
 	var file := FileAccess.open(input, FileAccess.WRITE)
 	if file == null: return {"error": "Cannot write candidate world."}
-	file.store_string(serialized); file.flush(); file.close()
+	file.store_string(JSON.stringify(staged.world, "", true, true)); file.flush(); file.close()
 	var result := _invoke({"operation": "save", "input": input, "expected_commit": commit_revision, "request_id": _pending.request_id})
 	DirAccess.remove_absolute(input)
 	if result.has("error"): return result

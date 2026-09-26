@@ -61,10 +61,17 @@ async function run(){
  check(added.ok&&added.data.item.asset_sha256.length===64,'uploaded asset shelved into folder');
  const itemId=added.data.item.id;
  const sha=added.data.item.asset_sha256;
+ const originalBounds=added.data.item.bounds;
+ check((await a.command('RemoveAsset',{id:assetId})).ok,'shelved asset can leave the world catalog');
+ const shelved=(await a.inventory('list')).data.items[0];
+ check(Array.isArray(shelved.bounds)&&shelved.bounds.every((value,index)=>Math.abs(value-originalBounds[index])<1e-5),'inventory-only content exposes verified bounds after leaving world catalog');
+ check(!shelved.asset_error,'healthy inventory-only content remains placeable');
  check((await a.inventory('add',{asset_id:crypto.randomUUID()})).code==='ASSET_UNKNOWN','shelving unknown asset refused');
  check((await b.inventory('remove',{item_id:itemId})).code==='ITEM_NOT_FOUND','other account cannot see the item');
  // Place twice: two instances share one world asset and one content file.
- const placed1=await a.command('PlaceInventoryItem',{item_id:itemId,position:[140,140,0]});
+ check((await a.command('PlaceInventoryItem',{item_id:itemId,position:[140,140,6.5],rotation:[0,0,0,0]})).code==='INVALID_PLACEMENT','non-unit inventory rotation is rejected before import');
+ const quarterTurn=[0,0,Math.SQRT1_2,Math.SQRT1_2];
+ const placed1=await a.command('PlaceInventoryItem',{item_id:itemId,position:[140,140,6.5],rotation:quarterTurn});
  check(placed1.ok,'first placement committed');
  const placed2=await a.command('PlaceInventoryItem',{item_id:itemId,position:[150,140,0]});
  check(placed2.ok,'second placement committed');
@@ -72,6 +79,13 @@ async function run(){
  check(meshAssets.length===1,'both instances share one world asset record');
  const instances=Object.values(a.state.objects).filter(x=>x.asset_id===meshAssets[0].id);
  check(instances.length===2,'two scene instances reference the shared asset');
+ check(Math.abs(instances.find(x=>x.position[0]===140).position[2]-6.5)<1e-5,'fresh inventory import preserves requested center height');
+ check(instances.find(x=>x.position[0]===140).rotation.every((value,index)=>Math.abs(value-quarterTurn[index])<1e-5),'inventory placement persists requested rotation');
+ check((await a.inventory('list')).data.items[0].bounds[2]===meshAssets[0].bounds[2],'inventory lists true bounds after content enters world');
+ const edgePosition=[originalBounds[0]/2+0.05,originalBounds[1]/2+0.05,originalBounds[2]/2+0.05];
+ const edgePlacement=await a.command('PlaceInventoryItem',{item_id:itemId,position:edgePosition});
+ check(edgePlacement.ok&&edgePlacement.payload.id,'verified inventory bounds permit placement close to region edge');
+ check((await a.command('DeleteObject',{id:edgePlacement.payload.id})).ok,'near-edge regression instance cleaned up');
  const files=fs.readdirSync(path.join(config.storage,'objects')).filter(f=>f.startsWith(sha));
  check(files.length===1,'one content file serves every instance');
  // Deleting an instance never touches the inventory entry.

@@ -8,6 +8,8 @@ const View = preload("res://adapters/world_view.gd")
 const Avatar = preload("res://network/network_avatar.gd")
 const StorageJob = preload("res://network/storage_job.gd")
 const Transforms = preload("res://domain/world_transforms.gd")
+const GlbReader = preload("res://adapters/glb_reader.gd")
+const MeshAssets = preload("res://adapters/mesh_assets.gd")
 var config: Dictionary
 var service = Service.new()
 var store
@@ -16,6 +18,7 @@ var sessions: Dictionary = {}
 var restrictions: Dictionary = {}
 var grants: Dictionary = {}
 var inventories: Dictionary = {}
+var inventory_bounds_cache: Dictionary = {}
 var agent_tasks: Dictionary = {}
 var agent_task_order: Array = []
 var crypto := Crypto.new()
@@ -348,7 +351,10 @@ func _inventory(client: Dictionary, packet: Dictionary) -> void:
 	var own := _own_inventory(client.principal.id)
 	match packet.action:
 		"list":
-			_inventory_reply(client, request_id, true, "", {"folders": own.folders.values(), "items": own.items.values()})
+			var listed: Array = []
+			var catalog: Array = service.model.snapshot().assets
+			for entry in own.items.values(): listed.append(_inventory_with_world_bounds(entry, catalog))
+			_inventory_reply(client, request_id, true, "", {"folders": own.folders.values(), "items": listed})
 		"folder_create":
 			if not Schema.exact_keys(params, ["name"]) and not Schema.exact_keys(params, ["name", "parent_id"]):
 				_inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
@@ -374,7 +380,7 @@ func _inventory(client: Dictionary, packet: Dictionary) -> void:
 			var added: Dictionary = store._invoke(request)
 			if added.has("error"): _inventory_reply(client, request_id, false, str(added.error)); return
 			own.items[added.item.id] = added.item
-			_inventory_reply(client, request_id, true, "", {"item": added.item})
+			_inventory_reply(client, request_id, true, "", {"item": _inventory_with_world_bounds(added.item, [found])})
 		"remove":
 			if not Schema.exact_keys(params, ["item_id"]) or not Schema.is_uuid(str(params.item_id)):
 				_inventory_reply(client, request_id, false, "INVALID_INVENTORY_REQUEST"); return
@@ -416,6 +422,37 @@ func _inventory(client: Dictionary, packet: Dictionary) -> void:
 
 func _inventory_reply(client: Dictionary, request_id: String, ok: bool, code: String, data: Dictionary = {}) -> void:
 	_send(client, Wire.packet("inventory_result", {"request_id": request_id, "ok": ok, "code": code, "data": data}))
+
+func _inventory_with_world_bounds(entry: Dictionary, catalog: Array) -> Dictionary:
+	var displayed := entry.duplicate(true)
+	for asset in catalog:
+		if asset.kind == "mesh" and asset.sha256 == entry.asset_sha256:
+			displayed.bounds = asset.bounds.duplicate()
+			displayed.asset_id = asset.id
+			return displayed
+	var content_bounds := _inventory_content_bounds(str(entry.asset_sha256))
+	if content_bounds.has("bounds"): displayed.bounds = content_bounds.bounds
+	else: displayed.asset_error = content_bounds.error
+	return displayed
+
+func _inventory_content_bounds(sha: String, verify_again: bool = false) -> Dictionary:
+	if sha.length() != 64 or not sha.is_valid_hex_number() or sha != sha.to_lower(): return {"error": "CONTENT_INVALID"}
+	if not verify_again and inventory_bounds_cache.has(sha): return {"bounds": inventory_bounds_cache[sha].duplicate()}
+	var source: String = config.storage.path_join("objects").path_join(sha + ".glb")
+	var file := FileAccess.open(source, FileAccess.READ)
+	if file == null: return {"error": "CONTENT_MISSING"}
+	var length := file.get_length()
+	if length < 28 or length > GlbReader.MAX_BYTES:
+		file.close(); return {"error": "CONTENT_INVALID"}
+	var bytes := file.get_buffer(length)
+	file.close()
+	if bytes.size() != length or MeshAssets.sha256(bytes) != sha: return {"error": "CONTENT_INVALID"}
+	var geometry: Dictionary = GlbReader.new().parse(bytes)
+	if geometry.has("error"): return {"error": "CONTENT_INVALID"}
+	if not inventory_bounds_cache.has(sha) and inventory_bounds_cache.size() >= 4096:
+		inventory_bounds_cache.erase(inventory_bounds_cache.keys()[0])
+	inventory_bounds_cache[sha] = geometry.bounds.duplicate()
+	return {"bounds": geometry.bounds.duplicate()}
 
 # --- V6 agents: a controlled surface with read-only observation and a task
 # --- whitelist. Tasks run as cooperative server-side state machines; world
@@ -763,9 +800,12 @@ func _execute(job: Dictionary) -> void:
 	elif operation == "PlaceInventoryItem":
 		var owned: Dictionary = inventories.get(job.principal.id, {})
 		var entry: Dictionary = owned.get("items", {}).get(str(payload.get("item_id", "")), {})
-		if not Schema.exact_keys(payload, ["item_id", "position"]) and not Schema.exact_keys(payload, ["item_id", "position", "name"]):
+		var placement_keys := ["item_id", "position"]
+		if payload.has("name"): placement_keys.append("name")
+		if payload.has("rotation"): placement_keys.append("rotation")
+		if not Schema.exact_keys(payload, placement_keys):
 			outcome = {"ok": false, "errors": [{"code": "INVALID_PLACEMENT"}]}
-		elif not Schema.is_uuid(str(payload.item_id)) or not Schema.vector(payload.position, 3, -64, 512) or (payload.has("name") and (not payload.name is String or payload.name.length() > 128)):
+		elif not Schema.is_uuid(str(payload.item_id)) or not Schema.vector(payload.position, 3, -64, 512) or (payload.has("name") and (not payload.name is String or payload.name.length() > 128)) or (payload.has("rotation") and (not Schema.vector(payload.rotation, 4, -1, 1) or abs(Transforms.quat(payload.rotation).length_squared() - 1.0) > 0.001)):
 			outcome = {"ok": false, "errors": [{"code": "INVALID_PLACEMENT"}]}
 		elif entry.is_empty():
 			outcome = {"ok": false, "errors": [{"code": "ITEM_NOT_FOUND"}]}
@@ -777,14 +817,15 @@ func _execute(job: Dictionary) -> void:
 				if asset.kind == "mesh" and asset.sha256 == entry.asset_sha256: asset_id = asset.id
 			if asset_id.is_empty():
 				var source: String = config.storage.path_join("objects").path_join(entry.asset_sha256 + ".glb")
-				if not FileAccess.file_exists(source):
-					outcome = {"ok": false, "errors": [{"code": "CONTENT_MISSING"}]}
+				var content_bounds := _inventory_content_bounds(str(entry.asset_sha256), true)
+				if content_bounds.has("error"):
+					outcome = {"ok": false, "errors": [{"code": content_bounds.error}]}
 				else:
 					temporary = config.storage.path_join("place-" + command.request_id + ".glb")
 					if DirAccess.copy_absolute(source, temporary) != OK:
 						outcome = {"ok": false, "errors": [{"code": "CONTENT_MISSING"}]}
 					else:
-						var imported: Dictionary = candidate.dispatch({"api_version": 1, "request_id": command.request_id, "operation": "ImportGlb", "expected_revision": command.expected_revision, "payload": {"path": temporary, "name": entry.name, "license": entry.get("license", ""), "attribution": entry.get("attribution", "")}})
+						var imported: Dictionary = candidate.dispatch({"api_version": 1, "request_id": Schema.uuid(), "operation": "ImportGlb", "expected_revision": command.expected_revision, "payload": {"path": temporary, "name": entry.name, "license": entry.get("license", ""), "attribution": entry.get("attribution", "")}})
 						if imported.ok:
 							asset_id = imported.payload.id
 							command.expected_revision = candidate.model.revision()
@@ -792,8 +833,10 @@ func _execute(job: Dictionary) -> void:
 			if outcome.is_empty():
 				var box = Schema.box(str(payload.get("name", entry.name)), payload.position.duplicate(), [1.0, 1.0, 1.0], "#ffffff")
 				box.asset_id = asset_id
+				if payload.has("rotation"): box.rotation = payload.rotation.duplicate()
 				for asset in candidate.model.snapshot().assets:
-					if asset.id == asset_id: box.size = asset.bounds.duplicate(); box.position[2] = float(asset.bounds[2]) * 0.5 + 0.1
+					if asset.id == asset_id:
+						box.size = asset.bounds.duplicate()
 				var placed: Dictionary = candidate.dispatch({"api_version": 1, "request_id": command.request_id, "operation": "CreateObject", "expected_revision": command.expected_revision, "payload": {"object": box}})
 				outcome = placed
 	if outcome.is_empty():

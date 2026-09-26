@@ -2,6 +2,7 @@ extends SceneTree
 const Wire = preload("res://network/wire.gd")
 const Demo = preload("res://domain/demo_region.gd")
 const Local = preload("res://network/local_world_view.gd")
+const Connection = preload("res://network/connection.gd")
 const Schema = preload("res://domain/world_schema.gd")
 var checks: Array = []
 func check(value: bool, label: String) -> void:
@@ -43,6 +44,21 @@ func _initialize() -> void:
 	check(Wire.decode(PackedByteArray([255, 254])) == null, "invalid UTF-8 rejected")
 	check(Wire.decode('"'.repeat(Wire.MAX_PACKET + 1).to_utf8_buffer()) == null, "oversized packet rejected")
 	check(Wire.decode('{"quote":"a\\\"b","array":[1,{"ok":true}]}'.to_utf8_buffer()) is Dictionary, "valid escaped strings and nested arrays accepted")
+	var connection := Connection.new()
+	root.add_child(connection)
+	var inventory_results: Array = []
+	connection.inventory_result_received.connect(func(result): inventory_results.append(result))
+	check(connection.inventory("list").is_empty(), "offline inventory requests are not queued as successful sends")
+	var inventory_id := Schema.uuid()
+	connection.inventory_pending[inventory_id] = "list"
+	var inventory_reply := Wire.packet("inventory_result", {"request_id": inventory_id, "ok": true, "code": "", "data": {"folders": [], "items": []}})
+	connection.accept(inventory_reply)
+	connection.accept(inventory_reply)
+	check(inventory_results.size() == 1 and connection.inventory_pending.is_empty(), "inventory response is delivered once to the matching request")
+	connection.inventory_pending[Schema.uuid()] = "list"
+	connection.disconnect_from()
+	check(inventory_results.size() == 2 and inventory_results[1].code == "CONNECTION_CLOSED" and connection.inventory_pending.is_empty(), "disconnect fails outstanding inventory reads instead of leaving stale loading state")
+	connection.free()
 	var passed: bool = checks.all(func(item): return item.passed)
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--output="):

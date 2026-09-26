@@ -3,6 +3,7 @@ extends SceneTree
 ## the same GDScript validator used by WorldService and the native test suite.
 const Schema = preload("res://domain/world_schema.gd")
 const Snapshot = preload("res://adapters/snapshot_repository.gd")
+const Content = preload("res://adapters/content_asset_store.gd")
 
 func _initialize() -> void:
 	var options: Dictionary = {}
@@ -19,9 +20,21 @@ func _initialize() -> void:
 		if parser.parse(file.get_as_text()) != OK or not parser.data is Dictionary:
 			result = {"error": "Invalid world JSON."}
 		elif parser.data.get("format") == "region-lab.snapshot":
-			result = Snapshot.new(options.input)._read(options.input)
+			result = Snapshot.new(options.input)._read(options.input, options.get("assets-dir", ""))
+			if not result.has("error") and parser.data.get("version") == 2:
+				# The validator checked hydrated content; keep the process result small.
+				result.world = JSON.parse_string(parser.data.world_json)
 		else:
-			result = Schema.upgrade(parser.data)
+			var candidate: Dictionary = parser.data
+			if options.has("assets-dir"):
+				var hydrated := Content.hydrate(candidate, options["assets-dir"])
+				if hydrated.has("error"):
+					result = hydrated
+				else:
+					result = Schema.upgrade(hydrated.world)
+					if not result.has("error") and not result.migrated: result.world = candidate
+			else:
+				result = Schema.upgrade(candidate)
 	var out := FileAccess.open(options.output, FileAccess.WRITE)
 	if out == null: quit(2); return
 	out.store_string(JSON.stringify(result, "", true, true)); out.flush(); out.close()
