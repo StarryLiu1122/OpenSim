@@ -95,7 +95,11 @@ func _frame_imported_scene() -> void:
 		minimum = minimum.min(center - half)
 		maximum = maximum.max(center + half)
 	orbit_target = (minimum + maximum) * 0.5
-	orbit_distance = clampf(maxf(maximum.x - minimum.x, maximum.z - minimum.z) * 1.65, 45, 150)
+	var scene_span := maxf(maximum.x - minimum.x, maximum.z - minimum.z)
+	var small_scene := scene_span <= 24
+	if small_scene:
+		orbit_target.y = minimum.y + 0.5
+	orbit_distance = clampf(scene_span * 1.6, 20 if small_scene else 45, 150)
 	var xx := 0.0
 	var zz := 0.0
 	var xz := 0.0
@@ -109,7 +113,12 @@ func _frame_imported_scene() -> void:
 		var side := Vector2(-sin(axis), cos(axis))
 		if side.x > 0.0: side = -side
 		orbit_yaw = atan2(side.x, side.y) + 0.3
-	orbit_pitch = 0.69
+	if small_scene:
+		var spawn := WorldView.to_engine(service.model.snapshot().region.spawn)
+		var from_scene := Vector2(spawn.x - orbit_target.x, spawn.z - orbit_target.z)
+		if from_scene.length() > 4:
+			orbit_yaw = atan2(from_scene.x, from_scene.y)
+	orbit_pitch = 0.12 if small_scene else 0.69
 	_update_camera()
 
 func _install_input() -> void:

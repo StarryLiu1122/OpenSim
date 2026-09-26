@@ -30,6 +30,14 @@ dotnet build .\services\RegionHost\RegionHost.csproj -c Release
 
 再次进入时重新运行一键入口即可。若提示端口被占用，先检查 `20830–20832` 是否已有这个场景的服务在运行；不要同时启动两个写入同一运行目录的服务。启动和存档问题见[完整运行指南](prototype/docs/network-quickstart.md)。
 
+要近距离查看门窗、墙面和金属涂鸦材质，可双击 [`prototype/打开高清建筑模型体验.cmd`](prototype/打开高清建筑模型体验.cmd)。它打开独立的两栋公寓样例，不会覆盖赫尔辛基存档；[实际客户端画面](prototype/docs/images/polyhaven-urban-apartment.png)及[素材来源与处理说明](prototype/fixtures/geodata/polyhaven-urban-apartment/README.md)可供核对。这个样例展示现实风格建筑素材，**不对应真实地址**。
+
+使用后可停止该场景的本地服务：
+
+```powershell
+.\prototype\tools\Stop-Network.ps1 -Directory .\prototype\runtime\polyhaven-urban-apartment-v2\network
+```
+
 ## 走路、快跑和飞行
 
 先点击窗口顶部的“进入漫游”，或在没有输入文字时按 **Tab**。鼠标会控制视线，右侧建造面板会收起。

@@ -499,8 +499,17 @@ func _overview() -> void:
 				maximum = maximum.max(center + half)
 			if imported_only:
 				overview_target = (minimum + maximum) * 0.5
-				var distance := clampf(maxf(maximum.x - minimum.x, maximum.z - minimum.z) * 1.65, 45, 600)
-				offset = Vector3(-0.8, 0.85, -0.4).normalized() * distance
+				var scene_span := maxf(maximum.x - minimum.x, maximum.z - minimum.z)
+				if scene_span <= 24:
+					overview_target.y = minimum.y + 0.5
+					var from_scene := View.to_engine(overview_spawn) - overview_target
+					from_scene.y = 0
+					if from_scene.length() > 4:
+						offset = Vector3(from_scene.x, from_scene.length() * 0.12, from_scene.z).normalized() * clampf(scene_span * 1.6, 20, 30)
+					else:
+						offset = Vector3(-0.8, 0.85, -0.4).normalized() * 45
+				else:
+					offset = Vector3(-0.8, 0.85, -0.4).normalized() * clampf(scene_span * 1.65, 45, 600)
 				camera.fov = 52
 	camera.position = overview_target + offset
 	camera.look_at(overview_target)

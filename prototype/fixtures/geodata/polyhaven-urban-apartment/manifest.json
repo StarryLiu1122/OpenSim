@@ -1,0 +1,64 @@
+{
+  "source_url": "https://polyhaven.com/a/modular_urban_apartments_facade",
+  "source_crs": "LOCAL_METRES",
+  "region_name": "高清建筑模型体验区",
+  "spawn": [
+    128,
+    120,
+    1.8
+  ],
+  "region_size": 256,
+  "license": "CC0-1.0",
+  "attribution": "Poly Haven; Modular Urban Apartments Facade by James Ray Cock; Rollershutter Window 01 by MP",
+  "changes": "Two-bay assembled frontage from source modules; opaque window glass; simple rear shell; 1K PBR JPEG maps repacked without texture resizing; graffiti roller shutter converted from source glTF",
+  "buildings": [
+    {
+      "id": "polyhaven-urban-apartment-west",
+      "name": "高清城市公寓·西",
+      "file": "urban-apartment.glb",
+      "sha256": "25252fd292eaf51da0cfba75061d886ea57105b542d277f3a2a2a40330d522e9",
+      "position": [
+        124,
+        130,
+        3.1
+      ],
+      "bounds": [
+        6,
+        3.2,
+        6.2
+      ]
+    },
+    {
+      "id": "polyhaven-urban-apartment-east",
+      "name": "高清城市公寓·东",
+      "file": "urban-apartment.glb",
+      "sha256": "25252fd292eaf51da0cfba75061d886ea57105b542d277f3a2a2a40330d522e9",
+      "position": [
+        132,
+        130,
+        3.1
+      ],
+      "bounds": [
+        6,
+        3.2,
+        6.2
+      ]
+    },
+    {
+      "id": "polyhaven-rollershutter-graffiti",
+      "name": "涂鸦金属卷帘窗",
+      "file": "rollershutter-window.glb",
+      "sha256": "04b987cac39de568aa78880dfc48868d6d6ad4ed8e4a1a3aa80625c31d9c4d18",
+      "position": [
+        125.5,
+        128.2,
+        0.93
+      ],
+      "bounds": [
+        2.100001096725464,
+        0.3000859081512317,
+        1.8507245529547163
+      ]
+    }
+  ]
+}
